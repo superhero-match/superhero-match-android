@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/svUserProfileSettingsSuggestions">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:id="@+id/rlUserProfileSettingsSuggestionsLookingFor"
+                    android:background="@drawable/my_relative_layout"
+                    android:layout_margin="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/tvUserProfileSettingsSuggestionsLookingForDesc"
+                        android:text="@string/looking_for"
+                        android:padding="5dp"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_margin="10dp"/>
+
+                    <Button
+                        android:layout_width="100dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/btnMale"
+                        android:layout_below="@+id/tvUserProfileSettingsSuggestionsLookingForDesc"
+                        android:layout_toStartOf="@+id/btnFemale"
+                        android:background="@drawable/my_gender_button"
+                        android:text="@string/male"/>
+
+                    <Button
+                        android:layout_width="100dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/btnFemale"
+                        android:layout_below="@+id/tvUserProfileSettingsSuggestionsLookingForDesc"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginEnd="15dp"
+                        android:background="@drawable/my_gender_button"
+                        android:text="@string/female"/>
+
+                    <Button
+                        android:layout_width="100dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/btnBoth"
+                        android:layout_below="@+id/tvUserProfileSettingsSuggestionsLookingForDesc"
+                        android:layout_toEndOf="@+id/btnFemale"
+                        android:background="@drawable/my_gender_button"
+                        android:text="@string/both"/>
+
+                </RelativeLayout>
+
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:id="@+id/rlUserProfileSettingsSuggestionsAgeRange"
+                    android:background="@drawable/my_relative_layout"
+                    android:layout_margin="10dp"
+                    android:layout_below="@+id/rlUserProfileSettingsSuggestionsLookingFor">
+                    <TextView
+                        android:layout_width="250dp"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/tvUserProfileSettingsSuggestionsAgeRangeDesc"
+                        android:text="@string/age"
+                        android:padding="5dp"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_margin="10dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/tvAgeRangeMin"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_below="@+id/tvUserProfileSettingsSuggestionsAgeRangeDesc"
+                        android:textStyle="bold"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/tvAgeRangeMax"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_below="@+id/tvUserProfileSettingsSuggestionsAgeRangeDesc"
+                        android:textStyle="bold"
+                        android:textSize="14sp"/>
+
+                    <com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar
+                        android:id="@+id/rsUserProfileSettingsSuggestionsAgeRange"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tvAgeRangeMin"
+                        app:corner_radius="10"
+                        app:min_value="18"
+                        app:max_value="65"
+                        app:steps="1"
+                        app:bar_color="@color/colorAccent"
+                        app:bar_highlight_color="@color/colorPrimary"
+                        app:left_thumb_color="@color/colorAccent"
+                        app:right_thumb_color="@color/colorAccent"
+                        app:left_thumb_color_pressed="@color/colorPrimary"
+                        app:right_thumb_color_pressed="@color/colorPrimary"
+                        android:layout_margin="10dp"/>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:id="@+id/rlUserProfileSettingsSuggestionsDistance"
+                    android:background="@drawable/my_relative_layout"
+                    android:layout_margin="10dp"
+                    android:layout_below="@+id/rlUserProfileSettingsSuggestionsAgeRange">
+                    <TextView
+                        android:layout_width="250dp"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/tvUserProfileSettingsSuggestionsDistanceDesc"
+                        android:text="@string/distance"
+                        android:padding="5dp"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_margin="10dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/tvDistance"
+                        android:text="@string/default_distance"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_below="@+id/tvUserProfileSettingsSuggestionsDistanceDesc"
+                        android:textStyle="bold"
+                        android:textSize="14sp"/>
+
+                    <SeekBar
+                        android:id="@+id/sbDistance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:max="100"
+                        android:progress="25"
+                        android:layout_below="@+id/tvDistance"/>
+
+                </RelativeLayout>
+
+            </RelativeLayout>
+        </ScrollView>
+
+</RelativeLayout>

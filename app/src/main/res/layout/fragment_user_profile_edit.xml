@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="65dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:id="@+id/tvSuperPowerEdit"
+        android:text="@string/super_power"
+        android:padding="5dp"
+        android:textSize="20sp"
+        android:layout_marginTop="15dp"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:id="@+id/etSuperPowerEdit"
+        android:textSize="14sp"
+        android:padding="5dp"
+        android:lineSpacingExtra="3dp"
+        android:layout_margin="5dp"
+        android:layout_below="@+id/tvSuperPowerEdit"
+        android:textAlignment="viewStart"
+        android:gravity="start"
+        android:background="@drawable/mytextview"
+        android:maxLength="250"
+        android:hint="@string/hint_super_power" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:id="@+id/tvDistanceEdit"
+        android:text="@string/distance_units"
+        android:padding="5dp"
+        android:textSize="20sp"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/etSuperPowerEdit"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:id="@+id/rlDistanceEdit"
+        android:layout_below="@+id/tvDistanceEdit"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="5dp">
+
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:id="@+id/btnKm"
+            android:layout_toStartOf="@+id/tvDistanceEditDelimeter"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/my_gender_button"
+            android:text="@string/km"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:id="@+id/tvDistanceEditDelimeter"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"/>
+
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:id="@+id/btnMi"
+            android:layout_toEndOf="@+id/tvDistanceEditDelimeter"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/my_gender_button"
+            android:text="@string/mi"
+            android:layout_centerVertical="true"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

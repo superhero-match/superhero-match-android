@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="180dp"
+    android:layout_height="190dp"
+    android:layout_margin="5dp"
+    android:background="@drawable/my_image_view">
+
+    <ImageView
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:id="@+id/ivUserProfilePictureNewItem"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/plus_512"
+        android:contentDescription="@string/user_profile_pic"/>
+
+</RelativeLayout>

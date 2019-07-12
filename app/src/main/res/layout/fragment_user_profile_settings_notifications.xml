@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:id="@+id/rlUserProfileSettingsNotificationsMessages"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvUserProfileSettingsNotificationsMessagesDesc"
+            android:text="@string/show_message_notifications"
+            android:padding="5dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_margin="10dp"/>
+
+        <Switch
+            android:id="@+id/swUserProfileSettingsNotificationsMessages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="10dp"/>
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:id="@+id/rlUserProfileSettingsNotificationsMatches"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/rlUserProfileSettingsNotificationsMessages">
+        <TextView
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvUserProfileSettingsNotificationsMatchesDesc"
+            android:text="@string/show_new_matches_notifications"
+            android:padding="5dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_margin="10dp"/>
+
+        <Switch
+            android:id="@+id/swUserProfileSettingsNotificationsMatches"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="10dp"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:id="@+id/rlUserProfileSettingsNotificationsLikes"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/rlUserProfileSettingsNotificationsMatches">
+        <TextView
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvUserProfileSettingsNotificationsLikesDesc"
+            android:text="@string/show_likes_notifications"
+            android:padding="5dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_margin="10dp"/>
+
+        <Switch
+            android:id="@+id/swUserProfileSettingsNotificationsLikes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="10dp"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

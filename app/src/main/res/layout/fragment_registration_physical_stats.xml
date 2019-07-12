@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/rlRegistrationMyAge"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvMyAgeSpinnerDesc"
+            android:text="@string/my_age"
+            android:layout_margin="15dp"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spMyAge"
+            android:layout_toEndOf="@+id/tvMyAgeSpinnerDesc"
+            android:layout_margin="11dp" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/rlRegistrationMyHeight"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/rlRegistrationMyAge">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvMyHeightSpinnerDesc"
+            android:text="@string/my_height"
+            android:layout_margin="15dp"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spMyHeight"
+            android:layout_toEndOf="@+id/tvMyHeightSpinnerDesc"
+            android:layout_margin="11dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/rlRegistrationMyHair"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/rlRegistrationMyHeight">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvMyHairSpinnerDesc"
+            android:text="@string/my_hair"
+            android:layout_margin="15dp"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spMyHair"
+            android:layout_toEndOf="@+id/tvMyHairSpinnerDesc"
+            android:layout_margin="11dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/rlRegistrationMyBodyType"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/rlRegistrationMyHair">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvMyBodyTypeSpinnerDesc"
+            android:text="@string/my_body_type"
+            android:layout_margin="15dp"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spMyBodyType"
+            android:layout_toEndOf="@+id/tvMyBodyTypeSpinnerDesc"
+            android:layout_margin="11dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/rlRegistrationMyEthnicity"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/rlRegistrationMyBodyType">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvMyEthnicitySpinnerDesc"
+            android:text="@string/my_ethnicity"
+            android:layout_margin="15dp"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spMyEthnicity"
+            android:layout_toEndOf="@+id/tvMyEthnicitySpinnerDesc"
+            android:layout_margin="11dp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

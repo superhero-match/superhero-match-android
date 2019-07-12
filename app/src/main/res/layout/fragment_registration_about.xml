@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:id="@+id/etAbout"
+        android:textSize="15sp"
+        android:padding="5dp"
+        android:lineSpacingExtra="3dp"
+        android:layout_margin="5dp"
+        android:textAlignment="viewStart"
+        android:gravity="start"
+        android:background="@drawable/mytextview"
+        android:maxLength="500"
+        android:hint="@string/hint_about" />
+
+</RelativeLayout>

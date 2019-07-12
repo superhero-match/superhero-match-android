@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/rlRegistrationMyGender"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvMyGenderSpinnerDesc"
+            android:text="@string/iam"
+            android:textSize="16sp"
+            android:layout_margin="15dp"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spMyGender"
+            android:layout_toEndOf="@+id/tvMyGenderSpinnerDesc"
+            android:layout_margin="11dp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/rlRegistrationLookingForGender"
+        android:layout_below="@+id/rlRegistrationMyGender"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvLookingForGenderSpinnerDesc"
+            android:text="@string/looking_for"
+            android:textSize="16sp"
+            android:layout_margin="15dp"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spLookingForGender"
+            android:layout_toEndOf="@+id/tvLookingForGenderSpinnerDesc"
+            android:layout_margin="11dp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/rlRegistrationGenderInterestedIn"
+        android:layout_below="@+id/rlRegistrationLookingForGender"
+        android:background="@drawable/my_relative_layout"
+        android:layout_margin="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvInterestedInSpinnerDesc"
+            android:text="@string/i_am_interested_in"
+            android:textSize="16sp"
+            android:layout_margin="15dp"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spInterestedIn"
+            android:layout_toEndOf="@+id/tvInterestedInSpinnerDesc"
+            android:layout_margin="11dp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

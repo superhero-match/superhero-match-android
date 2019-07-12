@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "665394761832",
+    "firebase_url": "https://superheromatch.firebaseio.com",
+    "project_id": "superheromatch",
+    "storage_bucket": "superheromatch.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:665394761832:android:ff5b3f3472319d73",
+        "android_client_info": {
+          "package_name": "nl.mwsoft.www.superheromatch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "665394761832-rb9ochqdv6jbh1o33i12av7n6mpanecd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "nl.mwsoft.www.superheromatch",
+            "certificate_hash": "50544a3c41cea9cb866a4ba200d0e7592dcb20e9"
+          }
+        },
+        {
+          "client_id": "665394761832-4kmf8s9d0i1t3tr6bq75gm36vdagoq4q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIP1JO_sYvbsajPbwpFK3V1IrGPqdx2r0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "665394761832-4kmf8s9d0i1t3tr6bq75gm36vdagoq4q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

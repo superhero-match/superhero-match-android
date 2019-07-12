@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvSuperHeroGenderQ"
+        android:text="@string/your_gender"
+        android:layout_centerHorizontal="true"
+        android:textSize="20sp"
+        android:layout_marginTop="160dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvSuperHeroGenderDelimeter"
+        android:text=""
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/tvSuperHeroGenderQ"
+        android:textSize="20sp"
+        android:layout_marginTop="20dp"/>
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/ivSuperHeroGenderMale"
+        android:src="@drawable/male_inactive_256"
+        android:layout_below="@+id/tvSuperHeroGenderQ"
+        android:layout_toStartOf="@+id/tvSuperHeroGenderDelimeter"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="30dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="@string/male_icon"/>
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/ivSuperHeroGenderFemale"
+        android:src="@drawable/female_inactive_256"
+        android:layout_below="@+id/tvSuperHeroGenderQ"
+        android:layout_toEndOf="@+id/tvSuperHeroGenderDelimeter"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginStart="30dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="@string/female_icon"/>
+
+</RelativeLayout>

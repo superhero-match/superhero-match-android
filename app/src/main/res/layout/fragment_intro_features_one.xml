@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
+
+    <ImageView
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:id="@+id/ivIntroPagerInfoLogo"
+        android:src="@drawable/dating_512"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:contentDescription="@string/logo_description" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvIntroPagerFeaturesOneFind"
+        android:text="@string/superhero_find_other_superheros"
+        android:textColor="@color/colorWhite"
+        android:textSize="16sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/ivIntroPagerInfoLogo"
+        android:layout_marginTop="25dp"
+        android:gravity="center"
+        android:lineSpacingExtra="3dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvIntroPagerFeaturesOneHow"
+        android:text="@string/superhero_find_other_superheros_how"
+        android:textColor="@color/colorWhite"
+        android:textSize="16sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/tvIntroPagerFeaturesOneFind"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:lineSpacingExtra="3dp"
+        android:padding="8dp"/>
+
+
+
+</RelativeLayout>
