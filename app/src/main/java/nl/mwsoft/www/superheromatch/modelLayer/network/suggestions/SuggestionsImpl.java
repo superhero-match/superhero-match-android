@@ -2,9 +2,11 @@ package nl.mwsoft.www.superheromatch.modelLayer.network.suggestions;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
+import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -24,17 +26,14 @@ public class SuggestionsImpl {
 
     }
 
-    public ArrayList<User> getSuggestions(String body) {
-
-        Call<ArrayList<User>> call = service.getSuggestions(body);
+    public SuggestionsResponse getSuggestions(HashMap<String, Object> body) {
+        Call<SuggestionsResponse> call = service.getSuggestions(body);
         try {
-            ArrayList<User> response = call.execute().body();
-
-            return response;
+            return call.execute().body();
         } catch (IOException e) {
-            // handle errors
+            e.printStackTrace();
         }
 
-        return new ArrayList<User>();
+        return new SuggestionsResponse(500, new ArrayList<>());
     }
 }

@@ -9,9 +9,11 @@ import android.net.Uri;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import io.reactivex.Observable;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegistrationUser;
+import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.modelLayer.modelLayerManager.ModelLayerManager;
 
@@ -264,7 +266,7 @@ public class MainPresenter {
 
     // region Retrieve Suggestions
 
-    public Observable<String> getSuggestions(String body){
+    public Observable<SuggestionsResponse> getSuggestions(HashMap<String, Object> body){
         return this.modelLayerManager.getSuggestions(body);
     }
 

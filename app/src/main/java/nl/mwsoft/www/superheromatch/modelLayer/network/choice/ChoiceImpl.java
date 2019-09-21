@@ -21,7 +21,7 @@ public class ChoiceImpl {
 
     }
 
-    public String saveChoice(String userId, String chosenUserId, String choice) {
+    public String saveChoice(String userId, String chosenUserId, int choice) {
 
         Call<String> call = service.saveChoice(userId, chosenUserId, choice);
         try {

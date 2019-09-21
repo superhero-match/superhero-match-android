@@ -232,11 +232,11 @@ public class VerifyIdentityActivity extends AppCompatActivity {
 
                     if (res.isRegistered()) {
                         navigateToMain();
+                    } else {
+                        navigateToRegister(VerifyIdentityActivity.this, acct.getDisplayName(), acct.getEmail());
                     }
 
                     Toast.makeText(VerifyIdentityActivity.this, res.toString(), Toast.LENGTH_LONG).show();
-
-                    navigateToRegister(VerifyIdentityActivity.this, acct.getDisplayName(), acct.getEmail());
                 }, throwable -> handleError());
 
         disposable.add(subscribe);

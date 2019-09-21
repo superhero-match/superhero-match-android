@@ -22,6 +22,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.helper.util.uuid.UUIDUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegistrationUser;
+import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.modelLayer.network.NetworkLayer;
 
@@ -330,7 +331,7 @@ public class ModelLayerManager {
 
     // region Retrieve Suggestions
 
-    public Observable<String> getSuggestions(String body){
+    public Observable<SuggestionsResponse> getSuggestions(HashMap<String, Object> body){
         return this.networkLayer.getSuggestions(body);
     }
 

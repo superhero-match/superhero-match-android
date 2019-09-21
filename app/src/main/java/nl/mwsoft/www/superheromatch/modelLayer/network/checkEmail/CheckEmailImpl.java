@@ -23,12 +23,13 @@ public class CheckEmailImpl {
     }
 
     public CheckEmailResponse checkEmailAlreadyExists(String email) {
-
         Call<CheckEmailResponse> call = service.checkEmail(email);
         try {
             return call.execute().body();
         } catch (IOException e) {
-            return new CheckEmailResponse(500, false);
+            e.printStackTrace();
         }
+
+        return new CheckEmailResponse(500, false, false, false);
     }
 }

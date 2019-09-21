@@ -441,7 +441,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case ConstantRegistry.MY_PERMISSIONS_REQUEST_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -459,6 +459,7 @@ public class RegisterActivity extends AppCompatActivity {
                 } else {
                     showPopupDeniedPermission(findViewById(android.R.id.content).getRootView());
                 }
+
                 return;
             }
         }
@@ -556,7 +557,6 @@ public class RegisterActivity extends AppCompatActivity {
 
         return true;
     }
-
 
     /**
      * Check whether location settings are satisfied and then

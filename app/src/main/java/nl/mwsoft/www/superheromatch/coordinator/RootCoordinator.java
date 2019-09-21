@@ -29,6 +29,8 @@ public class RootCoordinator {
     public void navigateToMain(Context context) {
         Intent mainIntent = new Intent(context, MainActivity.class);
         mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        mainIntent.setAction("UserExists");
+        mainIntent.putExtra("Exists", true);
         context.startActivity(mainIntent);
     }
 

@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,17 +28,23 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.fabric.sdk.android.Fabric;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.coordinator.RootCoordinator;
 import nl.mwsoft.www.superheromatch.dependencyRegistry.DependencyRegistry;
@@ -45,14 +52,18 @@ import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry
 import nl.mwsoft.www.superheromatch.modelLayer.event.SuperheroProfilePicEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
+import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
+import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
+import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.MatchesChatsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileEditFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileSettingsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.verifyIdentity.VerifyIdentityActivity;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
@@ -62,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private User user;
     private ArrayList<Message> messages;
     private boolean isRedirectedToRegister = false;
+    private boolean userExists = false;
     @BindView(R.id.bnMain)
     BottomNavigationView navigation;
     @BindView(R.id.tlMain)
@@ -70,6 +82,10 @@ public class MainActivity extends AppCompatActivity {
     private RootCoordinator rootCoordinator;
     private MainPresenter mainPresenter;
     private Uri profilePicURI;
+    private HashMap<String, Object> reqBody;
+    private CompositeDisposable disposable;
+    private Disposable subscribe;
+    private LoadingDialogFragment loadingDialogFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,47 +95,67 @@ public class MainActivity extends AppCompatActivity {
         unbinder = ButterKnife.bind(this);
         DependencyRegistry.shared.inject(this);
         setSupportActionBar(tlMain);
+
+        init();
+
+//        if (getIntent().getExtras() != null) {
+//            if (getIntent().getAction().equals("User")) {
+//                user = getIntent().getExtras().getParcelable("User");
+//                Log.d("tShoot", user != null ? user.toString() : String.valueOf(R.string.smth_went_wrong));
+//            } else if (getIntent().getAction().equals("UserExists")) {
+//                userExists = getIntent().getExtras().getBoolean("Exists");
+//            }
+//        } else {
+//            Toast.makeText(this, "getIntent().getAction() == null", Toast.LENGTH_LONG).show();
+//            isRedirectedToRegister = true;
+//            // navigateToRegister(this);
+//            navigateToVerifyIdentity(this);
+//        }
+
+        //if (!isRedirectedToRegister || userExists) {
+            navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
+            navigation.setSelectedItemId(R.id.navigation_suggestions);
+
+            reqBody.put("id", "edfb3290366f4bf0b3898997c3700c41");
+            reqBody.put("lookingForGender", 2);
+            reqBody.put("gender", 1);
+            reqBody.put("lookingForAgeMin", 21);
+            reqBody.put("lookingForAgeMax", 55);
+            reqBody.put("maxDistance", 10);
+            reqBody.put("distanceUnit", "km");
+            reqBody.put("lat", 52.0957154);
+            reqBody.put("lon", 5.1264266);
+            reqBody.put("offset", 0);
+            reqBody.put("size", 10);
+
+            getSuggestions(reqBody);
+        //}
+    }
+
+    private void init() {
         messages = new ArrayList<>();
         messages.addAll(createMockMessages());
         user = new User();
-
-        // navigateToRegister(this);
-
-        // navigateToVerifyIdentity(this);
-
-        if(getIntent().getAction() == null || !getIntent().getAction().equals("User")){
-            isRedirectedToRegister = true;
-            // navigateToRegister(this);
-            navigateToVerifyIdentity(this);
-        }
-
-        if (getIntent().getExtras() != null) {
-            user = getIntent().getExtras().getParcelable("User");
-            Log.d("tShoot", user != null ? user.toString() : String.valueOf(R.string.smth_went_wrong));
-        }
-
-        if(!isRedirectedToRegister){
-            navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
-            navigation.setSelectedItemId(R.id.navigation_suggestions);
-        }
+        reqBody = new HashMap<>();
+        disposable = new CompositeDisposable();
     }
 
-    public void configureWith(RootCoordinator rootCoordinator, MainPresenter mainPresenter){
+    public void configureWith(RootCoordinator rootCoordinator, MainPresenter mainPresenter) {
         this.rootCoordinator = rootCoordinator;
         this.mainPresenter = mainPresenter;
     }
 
-    public void navigateToIntro(Context context){
+    public void navigateToIntro(Context context) {
         rootCoordinator.navigateToIntroFromMain(context);
         finish();
     }
 
-    public void navigateToVerifyIdentity(Context context){
+    public void navigateToVerifyIdentity(Context context) {
         rootCoordinator.navigateToVerifyIdentityActivity(context);
         finish();
     }
 
-    public void navigateToRegister(Context context){
+    public void navigateToRegister(Context context) {
         rootCoordinator.navigateToRegisterFromMain(context);
         finish();
     }
@@ -131,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void unbindButterKnife() {
-        if(unbinder != null){
+        if (unbinder != null) {
             unbinder.unbind();
         }
     }
@@ -208,19 +244,19 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
-    public void loadSuggestionUserProfileFragment(User user){
+    public void loadSuggestionUserProfileFragment(User user) {
         loadBackStackFragment(UserProfileFragment.newInstance(user));
     }
 
-    public void loadSuggestionUserProfileSettingsFragment(User user){
+    public void loadSuggestionUserProfileSettingsFragment(User user) {
         loadBackStackFragment(UserProfileSettingsFragment.newInstance(user));
     }
 
-    public void loadSuggestionUserProfileEditFragment(){
+    public void loadSuggestionUserProfileEditFragment() {
         loadBackStackFragment(UserProfileEditFragment.newInstance());
     }
 
-    public User createMockUser(){
+    public User createMockUser() {
         ArrayList<String> urls = new ArrayList<>(createMockUserProfilePicturesUrls());
         User user = new User();
         user.setUserID("311234567890L");
@@ -238,9 +274,9 @@ public class MainActivity extends AppCompatActivity {
         return user;
     }
 
-    public ArrayList<User> createMockUsers(){
+    public ArrayList<User> createMockUsers() {
         ArrayList<User> users = new ArrayList<>();
-        for(int i = 0; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
             User user = createMockUser();
             user.setUserID("311234567890");
             users.add(user);
@@ -249,9 +285,9 @@ public class MainActivity extends AppCompatActivity {
         return users;
     }
 
-    public ArrayList<String> createMockUserProfilePicturesUrls(){
+    public ArrayList<String> createMockUserProfilePicturesUrls() {
         ArrayList<String> userProfilePicturesUrls = new ArrayList<>();
-        for(int i = 0; i < 9; i++){
+        for (int i = 0; i < 9; i++) {
             String userProfilePictureUrl = "mockUrl";
             userProfilePicturesUrls.add(userProfilePictureUrl);
         }
@@ -259,18 +295,18 @@ public class MainActivity extends AppCompatActivity {
         return userProfilePicturesUrls;
     }
 
-    public ArrayList<Chat> createMockMatchChats(){
+    public ArrayList<Chat> createMockMatchChats() {
         ArrayList<Chat> matchChats = new ArrayList<>();
-        for(int i = 1; i <= 10; i++){
+        for (int i = 1; i <= 10; i++) {
             Chat matchChat = new Chat();
             matchChat.setChatId(1);
             matchChat.setChatName("Test " + i);
             matchChat.setUserName("Super Hero " + i);
             matchChat.setLastActivityMessage("Test last message " + i);
             matchChat.setLastActivityDate("14-04-2018");
-            if(i%3==0){
+            if (i % 3 == 0) {
                 matchChat.setUnreadMessageCount(5);
-            }else{
+            } else {
                 matchChat.setUnreadMessageCount(0);
             }
 
@@ -280,18 +316,18 @@ public class MainActivity extends AppCompatActivity {
         return matchChats;
     }
 
-    public ArrayList<Message> createMockMessages(){
+    public ArrayList<Message> createMockMessages() {
         ArrayList<Message> msgs = new ArrayList<>();
-        for(int i = 0; i < 9; i++){
+        for (int i = 0; i < 9; i++) {
             Message message = new Message();
             message.setMessageChatId(1);
             message.setMessageCreated("22-04-2018 16:51:00");
             message.setMessageId(i);
             message.setMessageText("Just testing.");
-            message.setMessageUUID(UUID.randomUUID().toString().replace("-",""));
-            if(i%3==0){
+            message.setMessageUUID(UUID.randomUUID().toString().replace("-", ""));
+            if (i % 3 == 0) {
                 message.setMessageSenderId("312345678900L");
-            }else{
+            } else {
                 message.setMessageSenderId("311234567890L");
             }
 
@@ -301,8 +337,7 @@ public class MainActivity extends AppCompatActivity {
         return msgs;
     }
 
-
-    public ArrayList<Message> getMessages(){
+    public ArrayList<Message> getMessages() {
         return messages;
     }
 
@@ -312,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
         msg.setMessageCreated("22-04-2018 16:51:00");
         msg.setMessageId(1);
         msg.setMessageText(message);
-        msg.setMessageUUID(UUID.randomUUID().toString().replace("-",""));
+        msg.setMessageUUID(UUID.randomUUID().toString().replace("-", ""));
         msg.setMessageSenderId("311234567890L");
 
         messages.add(msg);
@@ -343,7 +378,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void hideBottomNavigation() {
-        if(navigation.getVisibility()== View.VISIBLE){
+        if (navigation.getVisibility() == View.VISIBLE) {
             navigation.setVisibility(View.GONE);
         }
     }
@@ -359,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showBottomNavigation() {
-        if(navigation.getVisibility()== View.GONE){
+        if (navigation.getVisibility() == View.GONE) {
             navigation.setVisibility(View.VISIBLE);
         }
     }
@@ -404,6 +439,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
     public Uri getProfilePicURI() {
         return profilePicURI;
     }
@@ -458,5 +494,42 @@ public class MainActivity extends AppCompatActivity {
             Uri uri = data.getData();
             processUpdateProfilePic(uri);
         }
+    }
+
+    private void closeLoadingDialog() {
+        if (loadingDialogFragment != null) {
+            loadingDialogFragment.dismiss();
+        }
+    }
+
+    private void showLoadingDialog() {
+        loadingDialogFragment = new LoadingDialogFragment();
+        loadingDialogFragment.setCancelable(false);
+        loadingDialogFragment.show(getSupportFragmentManager(), ConstantRegistry.LOADING);
+    }
+
+    private void getSuggestions(HashMap<String, Object> reqBody) {
+        showLoadingDialog();
+
+        subscribe = mainPresenter.getSuggestions(reqBody)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe((SuggestionsResponse res) -> {
+                    closeLoadingDialog();
+
+                    if (res.getStatus() == 500) {
+                        Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    Toast.makeText(MainActivity.this, res.toString(), Toast.LENGTH_LONG).show();
+                }, throwable -> handleError());
+
+        disposable.add(subscribe);
+    }
+
+    private void handleError() {
+        closeLoadingDialog();
+        Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
     }
 }

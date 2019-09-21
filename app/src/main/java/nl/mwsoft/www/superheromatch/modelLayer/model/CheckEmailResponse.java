@@ -3,14 +3,18 @@ package nl.mwsoft.www.superheromatch.modelLayer.model;
 public class CheckEmailResponse {
 
     private int status;
-    private boolean registered;
+    private boolean isRegistered;
+    private boolean isDeleted;
+    private boolean isBlocked;
 
     public CheckEmailResponse() {
     }
 
-    public CheckEmailResponse(int status, boolean registered) {
+    public CheckEmailResponse(int status, boolean isRegistered, boolean isDeleted, boolean isBlocked) {
         this.status = status;
-        this.registered = registered;
+        this.isRegistered = isRegistered;
+        this.isDeleted = isDeleted;
+        this.isBlocked = isBlocked;
     }
 
     public int getStatus() {
@@ -22,18 +26,36 @@ public class CheckEmailResponse {
     }
 
     public boolean isRegistered() {
-        return registered;
+        return isRegistered;
     }
 
     public void setRegistered(boolean registered) {
-        this.registered = registered;
+        isRegistered = registered;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
     }
 
     @Override
     public String toString() {
         return "CheckEmailResponse{" +
                 "status=" + status +
-                ", registered=" + registered +
+                ", isRegistered=" + isRegistered +
+                ", isDeleted=" + isDeleted +
+                ", isBlocked=" + isBlocked +
                 '}';
     }
 }

@@ -15,6 +15,6 @@ public interface Choice {
     Call<String> saveChoice(
             @Query("userID") String userID,
             @Query("chosenUserID") String chosenUserID,
-            @Query("choice") String choice
+            @Query("choice") int choice
     );
 }

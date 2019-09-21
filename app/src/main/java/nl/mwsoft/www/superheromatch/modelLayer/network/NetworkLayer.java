@@ -10,10 +10,12 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.network.checkEmail.CheckEmailImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteAccount.DeleteAccountImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.inviteUser.InviteSuperheroImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.register.RegisterImpl;
+import nl.mwsoft.www.superheromatch.modelLayer.network.suggestions.SuggestionsImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.update.UpdateImpl;
 
 public class NetworkLayer {
@@ -103,15 +105,15 @@ public class NetworkLayer {
 
     // region Retrieve Suggestions
 
-    public Observable<String> getSuggestions(String body){
-        return Observable.create(new ObservableOnSubscribe<String>() {
+    public Observable<SuggestionsResponse> getSuggestions(HashMap<String, Object> body){
+        return Observable.create(new ObservableOnSubscribe<SuggestionsResponse>() {
             @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+            public void subscribe(ObservableEmitter<SuggestionsResponse> emitter) throws Exception {
                 try {
-//                    SuggestionsImpl suggestions = new SuggestionsImpl();
-//                    String response = suggestions.getSuggestions(userId);
-//                    emitter.onNext(response);
-//                    emitter.onComplete();
+                    SuggestionsImpl suggestions = new SuggestionsImpl();
+                    SuggestionsResponse response = suggestions.getSuggestions(body);
+                    emitter.onNext(response);
+                    emitter.onComplete();
                 } catch (Exception e) {
                     emitter.onError(e);
                 }
