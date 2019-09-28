@@ -1,6 +1,7 @@
 package nl.mwsoft.www.superheromatch.presenterLayer.register;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -11,7 +12,9 @@ import io.reactivex.Observable;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegistrationUser;
+import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.modelLayer.modelLayerManager.ModelLayerManager;
+import nl.mwsoft.www.superheromatch.viewLayer.register.activity.RegisterActivity;
 
 public class RegisterPresenter {
 
@@ -46,11 +49,11 @@ public class RegisterPresenter {
         return this.modelLayerManager.getUserMainProfilePicUrls(context);
     }
 
-    public String getUserGender(Context context) {
+    public int getUserGender(Context context) {
         return this.modelLayerManager.getUserGender(context);
     }
 
-    public String getUserLookingForGender(Context context) {
+    public int getUserLookingForGender(Context context) {
         return this.modelLayerManager.getUserLookingForGender(context);
     }
 
@@ -86,7 +89,7 @@ public class RegisterPresenter {
         return this.modelLayerManager.getUserAccountType(context);
     }
 
-    public void updateInitiallyRegisteredUser(RegistrationUser registrationUser, Context context) {
+    public void updateInitiallyRegisteredUser(User registrationUser, Context context) {
         this.modelLayerManager.updateInitiallyRegisteredUser(registrationUser, context);
     }
 

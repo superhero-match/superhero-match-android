@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -91,11 +92,11 @@ public class ModelLayerManager {
         return this.userDatabaseLayer.getUserMainProfilePicUrls(context);
     }
 
-    public String getUserGender(Context context) {
+    public int getUserGender(Context context) {
         return this.userDatabaseLayer.getUserGender(context);
     }
 
-    public String getUserLookingForGender(Context context) {
+    public int getUserLookingForGender(Context context) {
         return this.userDatabaseLayer.getUserLookingForGender(context);
     }
 
@@ -104,12 +105,36 @@ public class ModelLayerManager {
         return this.userDatabaseLayer.getUserAge(context);
     }
 
+    public int getUserLookingForMinAge(Context context) {
+        return this.userDatabaseLayer.getUserLookingForMinAge(context);
+    }
+
+    public int getUserLookingForMaxAge(Context context) {
+        return this.userDatabaseLayer.getUserLookingForMaxAge(context);
+    }
+
+    public int getUserLookingForMaxDistance(Context context) {
+        return this.userDatabaseLayer.getUserLookingForMaxDistance(context);
+    }
+
+    public String getUserDistanceUnit(Context context) {
+        return this.userDatabaseLayer.getUserDistanceUnit(context);
+    }
+
     public String getUserCountry(Context context) {
         return this.userDatabaseLayer.getUserCountry(context);
     }
 
     public String getUserCity(Context context) {
         return this.userDatabaseLayer.getUserCity(context);
+    }
+
+    public double getUserLat(Context context) {
+        return this.userDatabaseLayer.getUserLat(context);
+    }
+
+    public double getUserLon(Context context) {
+        return this.userDatabaseLayer.getUserLon(context);
     }
 
     public String getUserAbout(Context context) {
@@ -132,12 +157,16 @@ public class ModelLayerManager {
         return this.userDatabaseLayer.getUserAccountType(context);
     }
 
-    public void updateInitiallyRegisteredUser(RegistrationUser registrationUser, Context context) {
+    public void updateInitiallyRegisteredUser(User registrationUser, Context context) {
         this.userDatabaseLayer.saveInitiallyRegisteredUser(registrationUser, context);
     }
 
     public void updateUserLongitudeAndLatitude(String userId, double lon, double lat, Context context) {
         this.userDatabaseLayer.updateUserLongitudeAndLatitude(userId, lon, lat, context);
+    }
+
+    public void updateUserCountryAndCity(String userID, String country, String city, Context context) {
+        this.userDatabaseLayer.updateUserCountryAndCity(userID, country, city, context);
     }
 
     public void updateUserAccountType(String userId, String accountType, Context context) {

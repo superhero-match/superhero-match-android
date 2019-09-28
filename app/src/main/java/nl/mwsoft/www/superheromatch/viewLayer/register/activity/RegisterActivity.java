@@ -15,7 +15,6 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import android.os.Looper;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -114,7 +113,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         configureInitialValues();
 
-        if (checkLocationPermission()){
+        if (checkLocationPermission()) {
             init();
             startLocationUpdates();
         }
@@ -125,7 +124,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        if(getIntent().getAction().equals("register")){
+        if (getIntent().getAction().equals("register")) {
             String name = Objects.requireNonNull(getIntent().getExtras()).getString("name");
             user.setName(name);
 
@@ -144,7 +143,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    public void configureWith(RootCoordinator rootCoordinator, RegisterPresenter registerPresenter){
+    public void configureWith(RootCoordinator rootCoordinator, RegisterPresenter registerPresenter) {
         this.rootCoordinator = rootCoordinator;
         this.registerPresenter = registerPresenter;
     }
@@ -181,13 +180,13 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void unbindButterKnife() {
-        if(unbinder != null){
+        if (unbinder != null) {
             unbinder.unbind();
         }
     }
 
-    public void navigateToMain(Context context, User user) {
-        rootCoordinator.navigateToMainFromRegister(context, user);
+    public void navigateToMain(Context context) {
+        rootCoordinator.navigateToMainFromRegister(context);
         finish();
     }
 
@@ -200,43 +199,43 @@ public class RegisterActivity extends AppCompatActivity {
         return pattern.matcher(email).matches();
     }
 
-    public void setUserName(String userName){
+    public void setUserName(String userName) {
         user.setName(userName);
     }
 
-    public void setSuperHeroName(String superHeroName){
+    public void setSuperHeroName(String superHeroName) {
         user.setSuperHeroName(superHeroName);
     }
 
-    public void setUserBirthday(String birthday){
+    public void setUserBirthday(String birthday) {
         user.setBirthday(birthday);
     }
 
-    public void setEmail(String email){
+    public void setEmail(String email) {
         user.setEmail(email);
     }
 
-    public void setGender(int gender){
+    public void setGender(int gender) {
         user.setGender(gender);
     }
 
-    public void setLookingForGender(int lookingForGender){
+    public void setLookingForGender(int lookingForGender) {
         user.setLookingForGender(lookingForGender);
     }
 
-    public void setAge(int age){
+    public void setAge(int age) {
         user.setAge(age);
     }
 
-    public void setCountry(String myCountry){
+    public void setCountry(String myCountry) {
         user.setCountry(myCountry);
     }
 
-    public void setCity(String myCity){
+    public void setCity(String myCity) {
         user.setCity(myCity);
     }
 
-    public void setSuperPower(String superPower){
+    public void setSuperPower(String superPower) {
         user.setSuperPower(superPower);
     }
 
@@ -256,16 +255,16 @@ public class RegisterActivity extends AppCompatActivity {
         user.setLon(lon);
     }
 
-    public double getLat () {
+    public double getLat() {
         return user.getLat();
     }
 
-    public double getLon () {
+    public double getLon() {
         return user.getLon();
     }
 
     public boolean processSuperheroNameContinue() {
-        if(user.getName() == null){
+        if (user.getName() == null) {
             Toast.makeText(
                     RegisterActivity.this,
                     this.getString(R.string.all_fields_are_required),
@@ -279,11 +278,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public boolean processSuperheroBirthdayContinue() {
-        if(user.getBirthday() == null){
+        if (user.getBirthday() == null) {
             Toast.makeText(
-                RegisterActivity.this,
-                this.getString(R.string.all_fields_are_required),
-                Toast.LENGTH_LONG
+                    RegisterActivity.this,
+                    this.getString(R.string.all_fields_are_required),
+                    Toast.LENGTH_LONG
             ).show();
 
             return false;
@@ -293,11 +292,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public boolean processSuperheroGenderContinue() {
-        if(user.getGender() == 0){
+        if (user.getGender() == 0) {
             Toast.makeText(
-                RegisterActivity.this,
-                this.getString(R.string.your_gender),
-                Toast.LENGTH_LONG
+                    RegisterActivity.this,
+                    this.getString(R.string.your_gender),
+                    Toast.LENGTH_LONG
             ).show();
 
             return false;
@@ -307,11 +306,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public boolean processSuperheroLookingForGenderContinue() {
-        if(user.getLookingForGender() == 0){
+        if (user.getLookingForGender() == 0) {
             Toast.makeText(
-                RegisterActivity.this,
-                this.getString(R.string.your_favorite_gender),
-                Toast.LENGTH_LONG
+                    RegisterActivity.this,
+                    this.getString(R.string.your_favorite_gender),
+                    Toast.LENGTH_LONG
             ).show();
 
             return false;
@@ -321,21 +320,21 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public boolean processSuperPowerContinue() {
-        if(user.getSuperPower() == null){
+        if (user.getSuperPower() == null) {
             Toast.makeText(
-                RegisterActivity.this,
-                this.getString(R.string.all_fields_are_required),
-                Toast.LENGTH_LONG
+                    RegisterActivity.this,
+                    this.getString(R.string.all_fields_are_required),
+                    Toast.LENGTH_LONG
             ).show();
 
             return false;
         }
 
-        if(user.getSuperPower().equals("")){
+        if (user.getSuperPower().equals("")) {
             Toast.makeText(
-                RegisterActivity.this,
-                this.getString(R.string.all_fields_are_required),
-                Toast.LENGTH_LONG
+                    RegisterActivity.this,
+                    this.getString(R.string.all_fields_are_required),
+                    Toast.LENGTH_LONG
             ).show();
 
             return false;
@@ -345,11 +344,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public boolean processProfilePicContinue() {
-        if(getProfilePicURI() == null){
+        if (getProfilePicURI() == null) {
             Toast.makeText(
-                RegisterActivity.this,
-                this.getString(R.string.profile_pic_required),
-                Toast.LENGTH_LONG
+                    RegisterActivity.this,
+                    this.getString(R.string.profile_pic_required),
+                    Toast.LENGTH_LONG
             ).show();
 
             return false;
@@ -366,7 +365,7 @@ public class RegisterActivity extends AppCompatActivity {
         long days = hours / 24;
         long years = days / 365;
 
-        setAge((int)years);
+        setAge((int) years);
 
         if (years >= 18) {
             return true;
@@ -394,9 +393,9 @@ public class RegisterActivity extends AppCompatActivity {
         Button btnPermissionsRequestDeniedGrant = (Button) popupView.findViewById(R.id.btnPermissionsRequestDeniedGrant);
 
         final PopupWindow popupWindow = new PopupWindow(
-            popupView,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
         );
 
         popupWindow.setBackgroundDrawable(new BitmapDrawable());
@@ -434,9 +433,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void requestPermissionWriteExternalStorage() {
         ActivityCompat.requestPermissions(
-            RegisterActivity.this,
-            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-            ConstantRegistry.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE
+                RegisterActivity.this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                ConstantRegistry.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE
         );
     }
 
@@ -482,11 +481,11 @@ public class RegisterActivity extends AppCompatActivity {
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-            super.onLocationResult(locationResult);
+                super.onLocationResult(locationResult);
 
-            currentLocation = locationResult.getLastLocation();
+                currentLocation = locationResult.getLastLocation();
 
-            setLatAndLong(currentLocation);
+                setLatAndLong(currentLocation);
             }
         };
 
@@ -502,8 +501,18 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void setLatAndLong(Location currentLocation) {
         if (currentLocation != null) {
-            Toast.makeText(RegisterActivity.this, "Lat: " + currentLocation.getLatitude(), Toast.LENGTH_SHORT).show();
-            Toast.makeText(RegisterActivity.this, "Lon: " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(
+                    RegisterActivity.this,
+                    "setLatAndLong Lat: " + currentLocation.getLatitude(),
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            Toast.makeText(
+                    RegisterActivity.this,
+                    "setLatAndLong Lon: " + currentLocation.getLongitude(),
+                    Toast.LENGTH_SHORT
+            ).show();
+
             setLat(currentLocation.getLatitude());
             setLon(currentLocation.getLongitude());
 
@@ -513,11 +522,21 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void setAddress(double lat, double lon) {
         try {
-            Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
+            Geocoder gcd = new Geocoder(RegisterActivity.this, Locale.getDefault());
             List<Address> addresses = gcd.getFromLocation(lat, lon, 1);
             if (addresses.size() > 0) {
-                Toast.makeText(getApplicationContext(), "City: " + addresses.get(0).getLocality(), Toast.LENGTH_SHORT).show();
-                Toast.makeText(getApplicationContext(), "Country: " + addresses.get(0).getCountryName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                        RegisterActivity.this,
+                        "City: " + addresses.get(0).getLocality(),
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                Toast.makeText(
+                        RegisterActivity.this,
+                        "Country: " + addresses.get(0).getCountryName(),
+                        Toast.LENGTH_SHORT
+                ).show();
+
                 user.setCity(addresses.get(0).getLocality());
                 user.setCountry(addresses.get(0).getCountryName());
             }
@@ -530,20 +549,20 @@ public class RegisterActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 new AlertDialog.Builder(this)
-                    .setTitle(R.string.title_location_permission)
-                    .setMessage(R.string.text_location_permission)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            ActivityCompat.requestPermissions(
-                                RegisterActivity.this,
-                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                ConstantRegistry.MY_PERMISSIONS_REQUEST_LOCATION
-                            );
-                        }
-                    })
-                    .create()
-                    .show();
+                        .setTitle(R.string.title_location_permission)
+                        .setMessage(R.string.text_location_permission)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                ActivityCompat.requestPermissions(
+                                        RegisterActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        ConstantRegistry.MY_PERMISSIONS_REQUEST_LOCATION
+                                );
+                            }
+                        })
+                        .create()
+                        .show();
             }
 
             ActivityCompat.requestPermissions(
@@ -564,43 +583,55 @@ public class RegisterActivity extends AppCompatActivity {
      */
     private void startLocationUpdates() {
         settingsClient
-            .checkLocationSettings(locationSettingsRequest)
-            .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-                @SuppressLint("MissingPermission")
-                @Override
-                public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.location_updates_started), Toast.LENGTH_SHORT).show();
+                .checkLocationSettings(locationSettingsRequest)
+                .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+                    @SuppressLint("MissingPermission")
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.location_updates_started), Toast.LENGTH_SHORT).show();
 
-                    fusedLocationClient.requestLocationUpdates(locationRequest,
-                            locationCallback, Looper.myLooper());
+                        fusedLocationClient.requestLocationUpdates(locationRequest,
+                                locationCallback, Looper.myLooper());
 
-                    setLatAndLong(currentLocation);
-                }
-            })
-            .addOnFailureListener(this, new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    int statusCode = ((ApiException) e).getStatusCode();
-                    switch (statusCode) {
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            try {
-                                ResolvableApiException rae = (ResolvableApiException) e;
-                                rae.startResolutionForResult(RegisterActivity.this, ConstantRegistry.REQUEST_CHECK_SETTINGS);
-                            } catch (IntentSender.SendIntentException sie) {
-                                Toast.makeText(RegisterActivity.this, getString(R.string.smth_went_wrong), Toast.LENGTH_LONG).show();
-                            }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            Toast.makeText(RegisterActivity.this, getString(R.string.fix_location_settings), Toast.LENGTH_LONG).show();
+                        setLatAndLong(currentLocation);
                     }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        int statusCode = ((ApiException) e).getStatusCode();
+                        switch (statusCode) {
+                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                try {
+                                    ResolvableApiException rae = (ResolvableApiException) e;
+                                    rae.startResolutionForResult(
+                                            RegisterActivity.this,
+                                            ConstantRegistry.REQUEST_CHECK_SETTINGS
+                                    );
+                                } catch (IntentSender.SendIntentException sie) {
+                                    Toast.makeText(
+                                            RegisterActivity.this,
+                                            getString(R.string.smth_went_wrong),
+                                            Toast.LENGTH_LONG
+                                    ).show();
+                                }
 
-                    setLatAndLong(currentLocation);
-                }
-            });
+                                break;
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                Toast.makeText(
+                                        RegisterActivity.this,
+                                        getString(R.string.fix_location_settings),
+                                        Toast.LENGTH_LONG
+                                ).show();
+                        }
+
+                        setLatAndLong(currentLocation);
+                    }
+                });
     }
 
     private void closeLoadingDialog() {
-        if(loadingDialogFragment != null){
+        if (loadingDialogFragment != null) {
             loadingDialogFragment.dismiss();
         }
     }
@@ -644,14 +675,36 @@ public class RegisterActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .subscribe((RegisterResponse res) -> {
                     closeLoadingDialog();
+                    Toast.makeText(
+                            RegisterActivity.this,
+                            res.toString(),
+                            Toast.LENGTH_LONG
+                    ).show();
+
 
                     if (res.getStatus() == 500) {
-                        Toast.makeText(RegisterActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+                        Toast.makeText(
+                                RegisterActivity.this,
+                               "res.getStatus() == 500",
+                                Toast.LENGTH_LONG
+                        ).show();
+                        Toast.makeText(
+                                RegisterActivity.this,
+                                R.string.smth_went_wrong,
+                                Toast.LENGTH_LONG
+                        ).show();
+
                         return;
                     }
 
                     if (res.isRegistered()) {
-                        navigateToMain(RegisterActivity.this, getUser());
+                        Toast.makeText(
+                                RegisterActivity.this,
+                                "res.isRegistered()",
+                                Toast.LENGTH_LONG
+                        ).show();
+                        registerPresenter.updateInitiallyRegisteredUser(user, RegisterActivity.this);
+                        navigateToMain(RegisterActivity.this);
                     }
 
                     Toast.makeText(RegisterActivity.this, res.toString(), Toast.LENGTH_LONG).show();
@@ -662,6 +715,11 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void handleError() {
         closeLoadingDialog();
-        Toast.makeText(RegisterActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+
+        Toast.makeText(
+                RegisterActivity.this,
+                R.string.smth_went_wrong,
+                Toast.LENGTH_LONG
+        ).show();
     }
 }

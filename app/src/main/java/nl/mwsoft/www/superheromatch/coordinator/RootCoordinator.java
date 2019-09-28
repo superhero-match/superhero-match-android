@@ -18,11 +18,9 @@ public class RootCoordinator {
     public RootCoordinator() {
     }
 
-    public void navigateToMainFromRegister(Context context, User user) {
+    public void navigateToMainFromRegister(Context context) {
         Intent mainIntent = new Intent(context, MainActivity.class);
         mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        mainIntent.setAction("User");
-        mainIntent.putExtra("User", user);
         context.startActivity(mainIntent);
     }
 
