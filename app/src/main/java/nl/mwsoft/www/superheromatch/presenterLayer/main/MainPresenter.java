@@ -51,17 +51,40 @@ public class MainPresenter {
         return this.modelLayerManager.getUserMainProfilePicUrls(context);
     }
 
-    public String getUserGender(Context context) {
+    public int getUserGender(Context context) {
         return this.modelLayerManager.getUserGender(context);
     }
 
-    public String getUserLookingForGender(Context context) {
+    public int getUserLookingForGender(Context context) {
         return this.modelLayerManager.getUserLookingForGender(context);
     }
 
-
     public int getUserAge(Context context) {
         return this.modelLayerManager.getUserAge(context);
+    }
+
+    public int getUserLookingForMinAge(Context context) {
+        return this.modelLayerManager.getUserLookingForMinAge(context);
+    }
+
+    public int getUserLookingForMaxAge(Context context) {
+        return this.modelLayerManager.getUserLookingForMaxAge(context);
+    }
+
+    public int getUserLookingForMaxDistance(Context context) {
+        return this.modelLayerManager.getUserLookingForMaxDistance(context);
+    }
+
+    public String getUserDistanceUnit(Context context) {
+        return this.modelLayerManager.getUserDistanceUnit(context);
+    }
+
+    public double getUserLat(Context context) {
+        return this.modelLayerManager.getUserLat(context);
+    }
+
+    public double getUserLon(Context context) {
+        return this.modelLayerManager.getUserLon(context);
     }
 
     public String getUserCountry(Context context) {
@@ -98,6 +121,10 @@ public class MainPresenter {
 
     public void updateUserLongitudeAndLatitude(String userId, double lon, double lat, Context context) {
         this.modelLayerManager.updateUserLongitudeAndLatitude(userId, lon, lat, context);
+    }
+
+    public void updateUserCountryAndCity(String userID, String country, String city, Context context) {
+        this.modelLayerManager.updateUserCountryAndCity(userID, country, city, context);
     }
 
     public void updateUserAccountType(String userId, String accountType, Context context) {

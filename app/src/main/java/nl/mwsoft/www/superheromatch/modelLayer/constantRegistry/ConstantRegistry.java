@@ -88,6 +88,8 @@ public class ConstantRegistry {
     public static final int FEMALE = 2;
     public static final int BOTH = 3;
 
+    public static final int PAGE_SIZE = 10;
+
     public static final int DEFAULT_AGE_MIN = 25;
     public static final int DEFAULT_AGE_MAX = 55;
 

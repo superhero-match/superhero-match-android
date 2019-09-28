@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -28,7 +30,9 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
+
         db.close();
 
         return id;
@@ -45,6 +49,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -62,6 +67,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -79,6 +85,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -94,46 +101,49 @@ public class UserDatabaseLayer {
             while (cursor.moveToNext()) {
                 String mainProfilePicUrl = "";
                 mainProfilePicUrl = cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.USER_PROFILE_PIC_URL));
-                if(mainProfilePicUrl != null){
+                if (mainProfilePicUrl != null) {
                     mainProfilePicUrls.add(mainProfilePicUrl);
                 }
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
         return mainProfilePicUrls;
     }
 
-    public String getUserGender(Context context) {
-        String myGender = "";
+    public int getUserGender(Context context) {
+        int myGender = 0;
         Cursor cursor = null;
         SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
         cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_USER, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                myGender = cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.USER_GENDER));
+                myGender = Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.USER_GENDER)));
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
         return myGender;
     }
 
-    public String getUserLookingForGender(Context context) {
-        String lookingForGender = "";
+    public int getUserLookingForGender(Context context) {
+        int lookingForGender = 0;
         Cursor cursor = null;
         SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
         cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_USER, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                lookingForGender = cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.USER_LOOKING_FOR_GENDER));
+                lookingForGender = Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.USER_LOOKING_FOR_GENDER)));
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -151,6 +161,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -168,6 +179,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -185,6 +197,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -202,6 +215,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -215,10 +229,11 @@ public class UserDatabaseLayer {
         cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_USER, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                distanceUnit = String.valueOf(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.USER_LOOKING_FOR_MAX_DISTANCE))));
+                distanceUnit = cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.USER_DISTANCE_UNIT));
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -236,6 +251,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -253,6 +269,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -270,6 +287,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -287,6 +305,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -304,6 +323,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -321,6 +341,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -338,6 +359,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -355,6 +377,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -372,6 +395,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -389,6 +413,7 @@ public class UserDatabaseLayer {
             }
         }
 
+        assert cursor != null;
         cursor.close();
         db.close();
 
@@ -420,7 +445,7 @@ public class UserDatabaseLayer {
         context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
     }
 
-    public void updateUserId(String userID, Context context){
+    public void updateUserId(String userID, Context context) {
         String selection = DBOpenHelper.U_ID + "='" + userID + "'";
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBOpenHelper.U_ID, userID);
@@ -433,6 +458,15 @@ public class UserDatabaseLayer {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBOpenHelper.USER_LATEST_LONGITUDE, lon);
         contentValues.put(DBOpenHelper.USER_LATEST_LATITUDE, lat);
+
+        context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
+    }
+
+    public void updateUserCountryAndCity(String userID, String country, String city, Context context) {
+        String selection = DBOpenHelper.U_ID + "='" + userID + "'";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBOpenHelper.USER_COUNTRY, country);
+        contentValues.put(DBOpenHelper.USER_CITY, city);
 
         context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
     }

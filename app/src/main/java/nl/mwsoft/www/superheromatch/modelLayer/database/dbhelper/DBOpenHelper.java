@@ -9,7 +9,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
     // Constants for db name and version
     private static final String DATABASE_NAME = "superheromatch.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     //=======================================================================================================================
     // Constants for identifying tables and columns
@@ -56,7 +56,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
                     U_ID + " TEXT PRIMARY KEY, " +
                     USER_EMAIL + " TEXT NOT NULL," +
                     USER_NAME + " TEXT NOT NULL," +
-                    USER_MAIN_PROFILE_PIC_URL + " TEXT NOT NULL," +
+                    USER_MAIN_PROFILE_PIC_URL + " TEXT," +
                     USER_GENDER + " INTEGER NOT NULL," +
                     USER_LOOKING_FOR_GENDER + " INTEGER NOT NULL," +
                     USER_AGE + " INTEGER NOT NULL," +

@@ -1,10 +1,8 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network.suggestions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
-import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Headers;

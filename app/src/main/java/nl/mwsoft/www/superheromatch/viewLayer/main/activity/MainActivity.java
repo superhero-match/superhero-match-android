@@ -1,12 +1,19 @@
 package nl.mwsoft.www.superheromatch.viewLayer.main.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -20,6 +27,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -28,13 +36,28 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -52,7 +75,6 @@ import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry
 import nl.mwsoft.www.superheromatch.modelLayer.event.SuperheroProfilePicEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
-import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
@@ -63,17 +85,13 @@ import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileEditFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileSettingsFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.verifyIdentity.VerifyIdentityActivity;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private int currFragmentPosition;
-    private User user;
     private ArrayList<Message> messages;
-    private boolean isRedirectedToRegister = false;
-    private boolean userExists = false;
     @BindView(R.id.bnMain)
     BottomNavigationView navigation;
     @BindView(R.id.tlMain)
@@ -86,6 +104,16 @@ public class MainActivity extends AppCompatActivity {
     private CompositeDisposable disposable;
     private Disposable subscribe;
     private LoadingDialogFragment loadingDialogFragment;
+    private int offset = 0;
+    private double lat = 0.0;
+    private double lon = 0.0;
+    private FusedLocationProviderClient fusedLocationClient;
+    private SettingsClient settingsClient;
+    private LocationRequest locationRequest;
+    private LocationSettingsRequest locationSettingsRequest;
+    private LocationCallback locationCallback;
+    private Location currentLocation;
+    private boolean loadingDialogIsActive;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,45 +125,50 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(tlMain);
 
         init();
-
-//        if (getIntent().getExtras() != null) {
-//            if (getIntent().getAction().equals("User")) {
-//                user = getIntent().getExtras().getParcelable("User");
-//                Log.d("tShoot", user != null ? user.toString() : String.valueOf(R.string.smth_went_wrong));
-//            } else if (getIntent().getAction().equals("UserExists")) {
-//                userExists = getIntent().getExtras().getBoolean("Exists");
-//            }
-//        } else {
-//            Toast.makeText(this, "getIntent().getAction() == null", Toast.LENGTH_LONG).show();
-//            isRedirectedToRegister = true;
-//            // navigateToRegister(this);
-//            navigateToVerifyIdentity(this);
-//        }
-
-        //if (!isRedirectedToRegister || userExists) {
+        // || mainPresenter.getUserIsLoggedIn(this) == 0
+        if (mainPresenter.getUserId(this).equals("default")) {
+            navigateToVerifyIdentity(this);
+        } else {
             navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
             navigation.setSelectedItemId(R.id.navigation_suggestions);
 
-            reqBody.put("id", "edfb3290366f4bf0b3898997c3700c41");
-            reqBody.put("lookingForGender", 2);
-            reqBody.put("gender", 1);
-            reqBody.put("lookingForAgeMin", 21);
-            reqBody.put("lookingForAgeMax", 55);
-            reqBody.put("maxDistance", 10);
-            reqBody.put("distanceUnit", "km");
-            reqBody.put("lat", 52.0957154);
-            reqBody.put("lon", 5.1264266);
-            reqBody.put("offset", 0);
-            reqBody.put("size", 10);
+//            configureRequestBody();
+//            getSuggestions(reqBody);
 
-            getSuggestions(reqBody);
-        //}
+            if (checkLocationPermission()) {
+                showLoadingDialog();
+                initLocationUpdateService();
+                startLocationUpdates();
+            }
+        }
+    }
+
+    private void configureRequestBody() {
+        reqBody.put("id", mainPresenter.getUserId(this));
+        reqBody.put("lookingForGender", mainPresenter.getUserLookingForGender(this));
+        reqBody.put("gender", mainPresenter.getUserGender(this));
+        reqBody.put("lookingForAgeMin", mainPresenter.getUserLookingForMinAge(this));
+        reqBody.put("lookingForAgeMax", mainPresenter.getUserLookingForMaxAge(this));
+        reqBody.put("maxDistance", mainPresenter.getUserLookingForMaxDistance(this));
+        reqBody.put("distanceUnit", mainPresenter.getUserDistanceUnit(this));
+
+        reqBody.put("lat", lat);
+        if (lat == 0.0) {
+            reqBody.put("lat", mainPresenter.getUserLat(this));
+        }
+
+        reqBody.put("lon", lon);
+        if (lon == 0.0) {
+            reqBody.put("lon", mainPresenter.getUserLon(this));
+        }
+
+        reqBody.put("offset", offset);
+        reqBody.put("size", ConstantRegistry.PAGE_SIZE);
     }
 
     private void init() {
         messages = new ArrayList<>();
         messages.addAll(createMockMessages());
-        user = new User();
         reqBody = new HashMap<>();
         disposable = new CompositeDisposable();
     }
@@ -405,6 +438,7 @@ public class MainActivity extends AppCompatActivity {
         intent.setType(ConstantRegistry.DOCUMENT_TYPE_IMAGE);
         intent.setAction(Intent.ACTION_OPEN_DOCUMENT);//Intent.ACTION_OPEN_DOCUMENT Intent.ACTION_GET_CONTENT
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+
         // Always show the chooser (if there are multiple options available)
         startActivityForResult(Intent.createChooser(intent, ConstantRegistry.SELECT_PICTURE), ConstantRegistry.PICK_PROFILE_IMAGE_REQUEST);
     }
@@ -448,7 +482,6 @@ public class MainActivity extends AppCompatActivity {
         this.profilePicURI = profilePicURI;
     }
 
-
     private void processUpdateProfilePic(Uri uri) {
         // TO-DO: Upload the new picture to the server.
         // Response from server should contain the CloudFront url to the image,
@@ -475,14 +508,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        if (requestCode == ConstantRegistry.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showProfilePicChoice();
-            } else {
-                showPopupDeniedPermission(findViewById(android.R.id.content).getRootView());
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case ConstantRegistry.MY_PERMISSIONS_REQUEST_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        initLocationUpdateService();
+                        startLocationUpdates();
+                    }
+                }
+
+                return;
             }
-            return;
+            case ConstantRegistry.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showProfilePicChoice();
+                } else {
+                    showPopupDeniedPermission(findViewById(android.R.id.content).getRootView());
+                }
+
+                return;
+            }
         }
     }
 
@@ -500,16 +546,21 @@ public class MainActivity extends AppCompatActivity {
         if (loadingDialogFragment != null) {
             loadingDialogFragment.dismiss();
         }
+
+        loadingDialogIsActive = false;
     }
 
     private void showLoadingDialog() {
         loadingDialogFragment = new LoadingDialogFragment();
         loadingDialogFragment.setCancelable(false);
         loadingDialogFragment.show(getSupportFragmentManager(), ConstantRegistry.LOADING);
+        loadingDialogIsActive = true;
     }
 
     private void getSuggestions(HashMap<String, Object> reqBody) {
-        showLoadingDialog();
+        if (!loadingDialogIsActive) {
+            showLoadingDialog();
+        }
 
         subscribe = mainPresenter.getSuggestions(reqBody)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -518,7 +569,12 @@ public class MainActivity extends AppCompatActivity {
                     closeLoadingDialog();
 
                     if (res.getStatus() == 500) {
-                        Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+                        Toast.makeText(
+                                MainActivity.this,
+                                R.string.smth_went_wrong,
+                                Toast.LENGTH_LONG
+                        ).show();
+
                         return;
                     }
 
@@ -531,5 +587,222 @@ public class MainActivity extends AppCompatActivity {
     private void handleError() {
         closeLoadingDialog();
         Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+    }
+
+    public void setLatAndLon(String userID, double lat, double lon, Context context) {
+        this.lat = lat;
+        this.lon = lon;
+
+        mainPresenter.updateUserLongitudeAndLatitude(userID, lat, lon, context);
+    }
+
+    private void initLocationUpdateService() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+        settingsClient = LocationServices.getSettingsClient(MainActivity.this);
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                currentLocation = locationResult.getLastLocation();
+
+                if (currentLocation != null) {
+                    Toast.makeText(
+                            MainActivity.this,
+                            "initLocationUpdateService Lat: " + currentLocation.getLatitude(),
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    Toast.makeText(
+                            MainActivity.this,
+                            "initLocationUpdateService Lon: " + currentLocation.getLongitude(),
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    setLatAndLon(mainPresenter.getUserId(
+                            MainActivity.this),
+                            currentLocation.getLatitude(),
+                            currentLocation.getLongitude(),
+                            MainActivity.this
+                    );
+
+                    setAddress(currentLocation.getLatitude(), currentLocation.getLongitude());
+                }
+
+                configureRequestBody();
+                Log.d("tShoot", reqBody.toString());
+                getSuggestions(reqBody);
+            }
+        };
+
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(ConstantRegistry.UPDATE_INTERVAL_IN_MILLISECONDS);
+        locationRequest.setFastestInterval(ConstantRegistry.FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(locationRequest);
+        locationSettingsRequest = builder.build();
+    }
+
+    private void setAddress(double lat, double lon) {
+        try {
+            Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
+            List<Address> addresses = gcd.getFromLocation(lat, lon, 1);
+            if (addresses.size() > 0) {
+                Toast.makeText(
+                        MainActivity.this,
+                        "City: " + addresses.get(0).getLocality(),
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                Toast.makeText(
+                        MainActivity.this,
+                        "Country: " + addresses.get(0).getCountryName(),
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                mainPresenter.updateUserCountryAndCity(
+                        mainPresenter.getUserId(MainActivity.this),
+                        addresses.get(0).getCountryName(),
+                        addresses.get(0).getLocality(),
+                        MainActivity.this
+                );
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(R.string.title_location_permission)
+                        .setMessage(R.string.text_location_permission)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                ActivityCompat.requestPermissions(
+                                        MainActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        ConstantRegistry.MY_PERMISSIONS_REQUEST_LOCATION
+                                );
+                            }
+                        })
+                        .create()
+                        .show();
+            }
+
+            ActivityCompat.requestPermissions(
+                    MainActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    ConstantRegistry.MY_PERMISSIONS_REQUEST_LOCATION
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check whether location settings are satisfied and then
+     * location updates will be requested.
+     */
+    private void startLocationUpdates() {
+        settingsClient
+                .checkLocationSettings(locationSettingsRequest)
+                .addOnSuccessListener(MainActivity.this, new OnSuccessListener<LocationSettingsResponse>() {
+                    @SuppressLint("MissingPermission")
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        Toast.makeText(
+                                MainActivity.this,
+                                getString(R.string.location_updates_started),
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        fusedLocationClient.requestLocationUpdates(
+                                locationRequest,
+                                locationCallback,
+                                Looper.myLooper()
+                        );
+
+                        if (currentLocation != null) {
+                            Toast.makeText(
+                                    MainActivity.this,
+                                    "startLocationUpdates Lat: " + currentLocation.getLatitude(),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+
+                            Toast.makeText(
+                                    MainActivity.this,
+                                    "startLocationUpdates Lon: " + currentLocation.getLongitude(),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+
+                            setLatAndLon(mainPresenter.getUserId(
+                                    MainActivity.this),
+                                    currentLocation.getLatitude(),
+                                    currentLocation.getLongitude(),
+                                    MainActivity.this
+                            );
+
+                            setAddress(currentLocation.getLatitude(), currentLocation.getLongitude());
+                        }
+                    }
+                })
+                .addOnFailureListener(MainActivity.this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        int statusCode = ((ApiException) e).getStatusCode();
+                        switch (statusCode) {
+                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                try {
+                                    ResolvableApiException rae = (ResolvableApiException) e;
+                                    rae.startResolutionForResult(MainActivity.this, ConstantRegistry.REQUEST_CHECK_SETTINGS);
+                                } catch (IntentSender.SendIntentException sie) {
+                                    Toast.makeText(
+                                            MainActivity.this,
+                                            getString(R.string.smth_went_wrong),
+                                            Toast.LENGTH_LONG
+                                    ).show();
+                                }
+
+                                break;
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                Toast.makeText(
+                                        MainActivity.this,
+                                        getString(R.string.fix_location_settings),
+                                        Toast.LENGTH_LONG
+                                ).show();
+                        }
+
+                        if (currentLocation != null) {
+                            Toast.makeText(
+                                    MainActivity.this,
+                                    "OnFailureListener Lat: " + currentLocation.getLatitude(),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+
+                            Toast.makeText(
+                                    MainActivity.this,
+                                    "OnFailureListener Lon: " + currentLocation.getLongitude(),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+
+                            setLatAndLon(
+                                    mainPresenter.getUserId(MainActivity.this),
+                                    currentLocation.getLatitude(),
+                                    currentLocation.getLongitude(),
+                                    MainActivity.this
+                            );
+
+                            setAddress(currentLocation.getLatitude(), currentLocation.getLongitude());
+                        }
+                    }
+                });
     }
 }
