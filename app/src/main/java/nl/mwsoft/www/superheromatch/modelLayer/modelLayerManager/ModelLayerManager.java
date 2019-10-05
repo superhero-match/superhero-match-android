@@ -100,7 +100,6 @@ public class ModelLayerManager {
         return this.userDatabaseLayer.getUserLookingForGender(context);
     }
 
-
     public int getUserAge(Context context) {
         return this.userDatabaseLayer.getUserAge(context);
     }
@@ -157,6 +156,10 @@ public class ModelLayerManager {
         return this.userDatabaseLayer.getUserAccountType(context);
     }
 
+    public String getUserSuperPower(Context context) {
+        return this.userDatabaseLayer.getUserSuperPower(context);
+    }
+
     public void updateInitiallyRegisteredUser(User registrationUser, Context context) {
         this.userDatabaseLayer.saveInitiallyRegisteredUser(registrationUser, context);
     }
@@ -165,12 +168,32 @@ public class ModelLayerManager {
         this.userDatabaseLayer.updateUserLongitudeAndLatitude(userId, lon, lat, context);
     }
 
+    public void updateUserLookingForAgeRange(String userID, int ageMin, int ageMax, Context context) {
+        this.userDatabaseLayer.updateUserLookingForAgeRange(userID, ageMin, ageMax, context);
+    }
+
+    public void updateUserLookingForMaxDistance(String userID, int maxDistance, Context context) {
+        this.userDatabaseLayer.updateUserLookingForMaxDistance(userID, maxDistance, context);
+    }
+
+    public void updateUserLookingForGender(String userID, int gender, Context context) {
+        this.userDatabaseLayer.updateUserLookingForGender(userID, gender, context);
+    }
+
     public void updateUserCountryAndCity(String userID, String country, String city, Context context) {
         this.userDatabaseLayer.updateUserCountryAndCity(userID, country, city, context);
     }
 
     public void updateUserAccountType(String userId, String accountType, Context context) {
         this.userDatabaseLayer.updateUserAccountType(userId, accountType, context);
+    }
+
+    public void updateUserDistanceUnit(String userID, String distanceUnit, Context context) {
+        this.userDatabaseLayer.updateUserDistanceUnit(userID, distanceUnit, context);
+    }
+
+    public void updateUserSuperPower(String userID, String superPower, Context context) {
+        this.userDatabaseLayer.updateUserSuperPower(userID, superPower, context);
     }
 
     public void updateUserMainProfilePic(String userId, String mainProfilePic, Context context) {

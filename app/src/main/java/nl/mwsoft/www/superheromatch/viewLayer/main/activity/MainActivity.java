@@ -197,6 +197,13 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         unbindButterKnife();
+        stopLocationUpdates();
+    }
+
+    private void stopLocationUpdates() {
+        if (fusedLocationClient != null && locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
     }
 
     private void unbindButterKnife() {
@@ -566,6 +573,8 @@ public class MainActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((SuggestionsResponse res) -> {
+                    stopLocationUpdates();
+
                     closeLoadingDialog();
 
                     if (res.getStatus() == 500) {
@@ -586,6 +595,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleError() {
         closeLoadingDialog();
+        stopLocationUpdates();
         Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
     }
 
@@ -620,8 +630,8 @@ public class MainActivity extends AppCompatActivity {
                             Toast.LENGTH_SHORT
                     ).show();
 
-                    setLatAndLon(mainPresenter.getUserId(
-                            MainActivity.this),
+                    setLatAndLon(
+                            mainPresenter.getUserId(MainActivity.this),
                             currentLocation.getLatitude(),
                             currentLocation.getLongitude(),
                             MainActivity.this
@@ -743,8 +753,8 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT
                             ).show();
 
-                            setLatAndLon(mainPresenter.getUserId(
-                                    MainActivity.this),
+                            setLatAndLon(
+                                    mainPresenter.getUserId(MainActivity.this),
                                     currentLocation.getLatitude(),
                                     currentLocation.getLongitude(),
                                     MainActivity.this
@@ -805,4 +815,70 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    public int getUserLookingForMinAge() {
+        return mainPresenter.getUserLookingForMinAge(MainActivity.this);
+    }
+
+    public int getUserLookingForMaxAge() {
+        return mainPresenter.getUserLookingForMaxAge(MainActivity.this);
+    }
+
+    public void updateLookingForAgeRange(int minAge, int maxAge) {
+        mainPresenter.updateUserLookingForAgeRange(
+                mainPresenter.getUserId(MainActivity.this),
+                minAge,
+                maxAge,
+                MainActivity.this
+        );
+    }
+
+    public void updateUserLookingForMaxDistance(int maxDistance) {
+        mainPresenter.updateUserLookingForMaxDistance(
+                mainPresenter.getUserId(MainActivity.this),
+                maxDistance,
+                MainActivity.this
+        );
+    }
+
+    public String getUserDistanceUnit() {
+        return mainPresenter.getUserDistanceUnit(MainActivity.this);
+    }
+
+    public int getUserMaxDistance() {
+        return mainPresenter.getUserLookingForMaxDistance(MainActivity.this);
+    }
+
+    public int getUserLookingForGender() {
+        return mainPresenter.getUserLookingForGender(MainActivity.this);
+    }
+
+    public void updateUserLookingForGender(int gender) {
+        mainPresenter.updateUserLookingForGender(
+                mainPresenter.getUserId(MainActivity.this),
+                gender,
+                MainActivity.this
+        );
+    }
+
+    public void updateUserDistanceUnit(String distanceUnit) {
+        mainPresenter.updateUserDistanceUnit(
+                mainPresenter.getUserId(MainActivity.this),
+                distanceUnit,
+                MainActivity.this
+        );
+    }
+
+    public String getUserSuperPower() {
+        return mainPresenter.getUserSuperPower(MainActivity.this);
+    }
+
+    public void updateUserSuperPower(String superPower) {
+        mainPresenter.updateUserSuperPower(
+                mainPresenter.getUserId(MainActivity.this),
+                superPower,
+                MainActivity.this
+        );
+    }
+
 }

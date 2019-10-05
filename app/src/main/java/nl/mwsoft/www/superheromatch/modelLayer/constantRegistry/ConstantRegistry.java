@@ -97,4 +97,7 @@ public class ConstantRegistry {
     public static final String DEFAULT_DISTANCE_UNIT = "km";
 
     public static final String DEFAULT_ACCOUNT_TYPE = "FREE";
+
+    public static final String KILOMETERS = "km";
+    public static final String MILES = "mi";
 }
