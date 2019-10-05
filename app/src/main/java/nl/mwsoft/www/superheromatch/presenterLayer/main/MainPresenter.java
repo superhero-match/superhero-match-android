@@ -115,12 +115,36 @@ public class MainPresenter {
         return this.modelLayerManager.getUserAccountType(context);
     }
 
+    public String getUserSuperPower(Context context) {
+        return this.modelLayerManager.getUserSuperPower(context);
+    }
+
+    public void updateUserDistanceUnit(String userID, String distanceUnit, Context context) {
+        this.modelLayerManager.updateUserDistanceUnit(userID, distanceUnit, context);
+    }
+
+    public void updateUserSuperPower(String userID, String superPower, Context context) {
+        this.modelLayerManager.updateUserSuperPower(userID, superPower, context);
+    }
+
     public void updateInitiallyRegisteredUser(RegistrationUser registrationUser, Context context) {
         this.modelLayerManager.updateInitiallyRegisteredUser(registrationUser, context);
     }
 
     public void updateUserLongitudeAndLatitude(String userId, double lon, double lat, Context context) {
         this.modelLayerManager.updateUserLongitudeAndLatitude(userId, lon, lat, context);
+    }
+
+    public void updateUserLookingForAgeRange(String userID, int ageMin, int ageMax, Context context) {
+        this.modelLayerManager.updateUserLookingForAgeRange(userID, ageMin, ageMax, context);
+    }
+
+    public void updateUserLookingForMaxDistance(String userID, int maxDistance, Context context) {
+        this.modelLayerManager.updateUserLookingForMaxDistance(userID, maxDistance, context);
+    }
+
+    public void updateUserLookingForGender(String userID, int gender, Context context) {
+        this.modelLayerManager.updateUserLookingForGender(userID, gender, context);
     }
 
     public void updateUserCountryAndCity(String userID, String country, String city, Context context) {

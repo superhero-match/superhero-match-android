@@ -496,4 +496,45 @@ public class UserDatabaseLayer {
         context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_USER_PROFILE_PICTURE, setValues);
     }
 
+    public void updateUserLookingForAgeRange(String userID, int ageMin, int ageMax, Context context) {
+        String selection = DBOpenHelper.U_ID + "='" + userID + "'";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBOpenHelper.USER_LOOKING_FOR_MIN_AGE, ageMin);
+        contentValues.put(DBOpenHelper.USER_LOOKING_FOR_MAX_AGE, ageMax);
+
+        context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
+    }
+
+    public void updateUserLookingForMaxDistance(String userID, int maxDistance, Context context) {
+        String selection = DBOpenHelper.U_ID + "='" + userID + "'";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBOpenHelper.USER_LOOKING_FOR_MAX_DISTANCE, maxDistance);
+
+        context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
+    }
+
+    public void updateUserLookingForGender(String userID, int gender, Context context) {
+        String selection = DBOpenHelper.U_ID + "='" + userID + "'";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBOpenHelper.USER_LOOKING_FOR_GENDER, gender);
+
+        context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
+    }
+
+    public void updateUserDistanceUnit(String userID, String distanceUnit, Context context) {
+        String selection = DBOpenHelper.U_ID + "='" + userID + "'";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBOpenHelper.USER_DISTANCE_UNIT, distanceUnit);
+
+        context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
+    }
+
+    public void updateUserSuperPower(String userID, String superPower, Context context) {
+        String selection = DBOpenHelper.U_ID + "='" + userID + "'";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBOpenHelper.USER_SUPER_POWER, superPower);
+
+        context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
+    }
+
 }

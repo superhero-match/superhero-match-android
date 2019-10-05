@@ -3,6 +3,7 @@ package nl.mwsoft.www.superheromatch.viewLayer.main.fragment;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +25,12 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
+import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 
-public class UserProfileSettingsSuggestionsFragment  extends Fragment {
+public class UserProfileSettingsSuggestionsFragment extends Fragment {
+
+    public static final String TAG = UserProfileSettingsSuggestionsFragment.class.getName();
 
     @BindView(R.id.tvUserProfileSettingsSuggestionsLookingForDesc)
     TextView tvUserProfileSettingsSuggestionsLookingForDesc;
@@ -69,18 +73,38 @@ public class UserProfileSettingsSuggestionsFragment  extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // TO-DO: check user is looking for gender and set the corresponding button to active.
-        btnFemale.callOnClick();
+        switch (mainActivity.getUserLookingForGender()) {
+            case ConstantRegistry.MALE:
+                btnMaleOnClick();
+                break;
+            case ConstantRegistry.FEMALE:
+                btnFemaleOnClick();
+                break;
+            case ConstantRegistry.BOTH:
+                btnBothOnClick();
+                break;
+            default:
+                Log.d(TAG, "mainActivity.getUserLookingForGender() returned incorrect result: " + mainActivity.getUserLookingForGender());
+        }
 
         tvUserProfileSettingsSuggestionsLookingForDesc.setTypeface(tvUserProfileSettingsSuggestionsLookingForDesc.getTypeface(), Typeface.BOLD);
         tvUserProfileSettingsSuggestionsAgeRangeDesc.setTypeface(tvUserProfileSettingsSuggestionsAgeRangeDesc.getTypeface(), Typeface.BOLD);
         tvUserProfileSettingsSuggestionsDistanceDesc.setTypeface(tvUserProfileSettingsSuggestionsDistanceDesc.getTypeface(), Typeface.BOLD);
+
+        rsUserProfileSettingsSuggestionsAgeRange.setMinStartValue(mainActivity.getUserLookingForMinAge());
+        rsUserProfileSettingsSuggestionsAgeRange.setMaxStartValue(mainActivity.getUserLookingForMaxAge());
+        rsUserProfileSettingsSuggestionsAgeRange.apply();
+
+        tvAgeRangeMin.setText(String.valueOf(mainActivity.getUserLookingForMinAge()));
+        tvAgeRangeMax.setText(String.valueOf(mainActivity.getUserLookingForMaxAge()));
 
         rsUserProfileSettingsSuggestionsAgeRange.setOnRangeSeekbarChangeListener(new OnRangeSeekbarChangeListener() {
             @Override
             public void valueChanged(Number minValue, Number maxValue) {
                 tvAgeRangeMin.setText(String.valueOf(minValue));
                 tvAgeRangeMax.setText(String.valueOf(maxValue));
+
+                mainActivity.updateLookingForAgeRange(minValue.intValue(), maxValue.intValue());
             }
         });
 
@@ -89,19 +113,43 @@ public class UserProfileSettingsSuggestionsFragment  extends Fragment {
             public void finalValue(Number minValue, Number maxValue) {
                 tvAgeRangeMin.setText(String.valueOf(minValue));
                 tvAgeRangeMax.setText(String.valueOf(maxValue));
+
+                mainActivity.updateLookingForAgeRange(minValue.intValue(), maxValue.intValue());
             }
         });
 
-        tvDistance.setText(getString(R.string.default_distance, "km"));
+        String maxDistance =
+                mainActivity.getUserMaxDistance() != 0 ?
+                        getString(R.string.selected_distance,
+                                mainActivity.getUserMaxDistance(),
+                                mainActivity.getUserDistanceUnit()
+                        ) :
+                        getString(R.string.default_distance, mainActivity.getUserDistanceUnit());
+
+        tvDistance.setText(maxDistance);
 
         sbDistance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(progress == 100){
-                    tvDistance.setText(getString(R.string.selected_distance, progress, "+ km"));
-                }else{
-                    tvDistance.setText(getString(R.string.selected_distance, progress, "km"));
+                if (progress == 100) {
+                    tvDistance.setText(
+                            getString(
+                                    R.string.selected_distance,
+                                    progress,
+                                    "+ " + mainActivity.getUserDistanceUnit()
+                            )
+                    );
+                } else {
+                    tvDistance.setText(
+                            getString(
+                                    R.string.selected_distance,
+                                    progress,
+                                    mainActivity.getUserDistanceUnit()
+                            )
+                    );
                 }
+
+                mainActivity.updateUserLookingForMaxDistance(progress);
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -126,24 +174,29 @@ public class UserProfileSettingsSuggestionsFragment  extends Fragment {
     }
 
     @OnClick(R.id.btnMale)
-    public void btnMaleOnClickListener(){
-        if(!maleIsSelected){
+    public void btnMaleOnClickListener() {
+        btnMaleOnClick();
+        mainActivity.updateUserLookingForGender(ConstantRegistry.MALE);
+    }
+
+    private void btnMaleOnClick() {
+        if (!maleIsSelected) {
             maleIsSelected = true;
             btnMale.setBackgroundResource(R.drawable.my_button);
             btnMale.setTextColor(getResources().getColor(R.color.colorWhite));
 
-            if(femaleIsSelected){
+            if (femaleIsSelected) {
                 femaleIsSelected = false;
                 btnFemale.setBackgroundResource(R.drawable.my_gender_button);
                 btnFemale.setTextColor(getResources().getColor(R.color.colorBlack));
             }
 
-            if(bothIsSelected){
+            if (bothIsSelected) {
                 bothIsSelected = false;
                 btnBoth.setBackgroundResource(R.drawable.my_gender_button);
                 btnBoth.setTextColor(getResources().getColor(R.color.colorBlack));
             }
-        }else{
+        } else {
             maleIsSelected = false;
             btnMale.setBackgroundResource(R.drawable.my_gender_button);
             btnMale.setTextColor(getResources().getColor(R.color.colorBlack));
@@ -151,24 +204,29 @@ public class UserProfileSettingsSuggestionsFragment  extends Fragment {
     }
 
     @OnClick(R.id.btnFemale)
-    public void btnFemaleOnClickListener(){
-        if(!femaleIsSelected){
+    public void btnFemaleOnClickListener() {
+        btnFemaleOnClick();
+        mainActivity.updateUserLookingForGender(ConstantRegistry.FEMALE);
+    }
+
+    private void btnFemaleOnClick() {
+        if (!femaleIsSelected) {
             femaleIsSelected = true;
             btnFemale.setBackgroundResource(R.drawable.my_button);
             btnFemale.setTextColor(getResources().getColor(R.color.colorWhite));
 
-            if(maleIsSelected){
+            if (maleIsSelected) {
                 maleIsSelected = false;
                 btnMale.setBackgroundResource(R.drawable.my_gender_button);
                 btnMale.setTextColor(getResources().getColor(R.color.colorBlack));
             }
 
-            if(bothIsSelected){
+            if (bothIsSelected) {
                 bothIsSelected = false;
                 btnBoth.setBackgroundResource(R.drawable.my_gender_button);
                 btnBoth.setTextColor(getResources().getColor(R.color.colorBlack));
             }
-        }else{
+        } else {
             femaleIsSelected = false;
             btnFemale.setBackgroundResource(R.drawable.my_gender_button);
             btnFemale.setTextColor(getResources().getColor(R.color.colorBlack));
@@ -176,24 +234,29 @@ public class UserProfileSettingsSuggestionsFragment  extends Fragment {
     }
 
     @OnClick(R.id.btnBoth)
-    public void btnBothOnClickListener(){
-        if(!bothIsSelected){
+    public void btnBothOnClickListener() {
+        btnBothOnClick();
+        mainActivity.updateUserLookingForGender(ConstantRegistry.BOTH);
+    }
+
+    private void btnBothOnClick() {
+        if (!bothIsSelected) {
             bothIsSelected = true;
             btnBoth.setBackgroundResource(R.drawable.my_button);
             btnBoth.setTextColor(getResources().getColor(R.color.colorWhite));
 
-            if(maleIsSelected){
+            if (maleIsSelected) {
                 maleIsSelected = false;
                 btnMale.setBackgroundResource(R.drawable.my_gender_button);
                 btnMale.setTextColor(getResources().getColor(R.color.colorBlack));
             }
 
-            if(femaleIsSelected){
+            if (femaleIsSelected) {
                 femaleIsSelected = false;
                 btnFemale.setBackgroundResource(R.drawable.my_gender_button);
                 btnFemale.setTextColor(getResources().getColor(R.color.colorBlack));
             }
-        }else{
+        } else {
             bothIsSelected = false;
             btnBoth.setBackgroundResource(R.drawable.my_gender_button);
             btnBoth.setTextColor(getResources().getColor(R.color.colorBlack));

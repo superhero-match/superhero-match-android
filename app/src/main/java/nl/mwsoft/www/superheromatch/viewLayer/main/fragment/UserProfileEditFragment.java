@@ -21,6 +21,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
+import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 
 public class UserProfileEditFragment extends Fragment {
@@ -54,9 +55,17 @@ public class UserProfileEditFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        etSuperPowerEdit.setText(mainActivity.getUserSuperPower());
         etSuperPowerEdit.addTextChangedListener(etSuperPowerWatcher);
-        // TO-DO: check current settings, and set the button
-        btnKm.callOnClick();
+
+        switch (mainActivity.getUserDistanceUnit()){
+            case ConstantRegistry.KILOMETERS:
+                renderOnKMClicked();
+                break;
+            case ConstantRegistry.MILES:
+                renderOnMICliecked();
+                break;
+        }
     }
 
     private TextWatcher etSuperPowerWatcher = new TextWatcher() {
@@ -73,7 +82,7 @@ public class UserProfileEditFragment extends Fragment {
         @Override
         public void afterTextChanged(Editable s) {
             if(s != null && s.toString().length() > 0) {
-                Toast.makeText(mainActivity, s.toString().trim(), Toast.LENGTH_SHORT).show();
+                mainActivity.updateUserSuperPower(s.toString().trim());
             }
         }
     };
@@ -81,7 +90,7 @@ public class UserProfileEditFragment extends Fragment {
     @OnClick(R.id.btnKm)
     public void kilometersListener() {
         renderOnKMClicked();
-        //TO-DO: update the settings
+        mainActivity.updateUserDistanceUnit(ConstantRegistry.KILOMETERS);
     }
 
     private void renderOnKMClicked() {
@@ -95,7 +104,7 @@ public class UserProfileEditFragment extends Fragment {
     @OnClick(R.id.btnMi)
     public void milesListener() {
         renderOnMICliecked();
-        //TO-DO: update the settings
+        mainActivity.updateUserDistanceUnit(ConstantRegistry.MILES);
     }
 
     private void renderOnMICliecked() {

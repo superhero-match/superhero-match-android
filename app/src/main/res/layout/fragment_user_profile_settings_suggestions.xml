@@ -106,7 +106,7 @@
                         android:layout_below="@+id/tvAgeRangeMin"
                         app:corner_radius="10"
                         app:min_value="18"
-                        app:max_value="65"
+                        app:max_value="100"
                         app:steps="1"
                         app:bar_color="@color/colorAccent"
                         app:bar_highlight_color="@color/colorPrimary"
