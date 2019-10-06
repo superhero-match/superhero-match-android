@@ -812,5 +812,6 @@
     <string name="location_updates_started">Started location updates!</string>
     <string name="verify_identity">Verify Your Superhero Identity</string>
     <string name="logo">Logo</string>
+    <string name="distance_unit">Distance Unit</string>
 
 </resources>
