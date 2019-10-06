@@ -81,9 +81,9 @@ public class RegistrationVPFragment extends Fragment {
     }
 
     private void showCurrentDots(int currentPosition) {
-        dots = new ImageView[6];
+        dots = new ImageView[7];
 
-        for(int i = 0; i < 6; i++){
+        for(int i = 0; i < 7; i++){
             dots[i] = new ImageView(registerActivity);
             if(i == currentPosition){
                 dots[i].setImageDrawable(ContextCompat.getDrawable(registerActivity, R.drawable.active_dots));
@@ -144,7 +144,7 @@ public class RegistrationVPFragment extends Fragment {
 
     @OnClick(R.id.btnContinue)
     public void  continueClickListener() {
-        if(currentPosition < 5){
+        if(currentPosition < 6){
              if(currentPosition == 0){
                 if(registerActivity.processSuperheroNameContinue()){
                     currentPosition++;
@@ -155,23 +155,28 @@ public class RegistrationVPFragment extends Fragment {
                     currentPosition++;
                     vpRegister.setCurrentItem(currentPosition);
                 }
-            }else if(currentPosition == 2){
+            } else if(currentPosition == 2){
+                 if(registerActivity.processDistanceUnitContinue()){
+                     currentPosition++;
+                     vpRegister.setCurrentItem(currentPosition);
+                 }
+             }else if(currentPosition == 3){
                 if(registerActivity.processSuperheroGenderContinue()){
                     currentPosition++;
                     vpRegister.setCurrentItem(currentPosition);
                 }
-            }else if(currentPosition == 3){
+            }else if(currentPosition == 4){
                 if(registerActivity.processSuperheroLookingForGenderContinue()){
                     currentPosition++;
                     vpRegister.setCurrentItem(currentPosition);
                 }
-            } else if(currentPosition == 4){
+            } else if(currentPosition == 5){
                  if(registerActivity.processSuperPowerContinue()){
                      currentPosition++;
                      vpRegister.setCurrentItem(currentPosition);
                  }
              }
-        }else if(currentPosition == 5){
+        }else if(currentPosition == 6){
             if(registerActivity.processProfilePicContinue()){
                 registerActivity.register(registerActivity.convertToJSON(registerActivity.getUser()));
             }

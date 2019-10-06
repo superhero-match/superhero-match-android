@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import nl.mwsoft.www.superheromatch.viewLayer.register.fragment.SuperheroBirthday;
+import nl.mwsoft.www.superheromatch.viewLayer.register.fragment.SuperheroDistanceUnit;
 import nl.mwsoft.www.superheromatch.viewLayer.register.fragment.SuperheroGender;
 import nl.mwsoft.www.superheromatch.viewLayer.register.fragment.SuperheroLookingForGender;
 import nl.mwsoft.www.superheromatch.viewLayer.register.fragment.SuperheroName;
@@ -27,12 +28,14 @@ public class RegisterViewPagerAdapter extends FragmentPagerAdapter {
         } else if (position == 1) {
             fragment = new SuperheroBirthday();
         } else if (position == 2) {
-            fragment = new SuperheroGender();
+            fragment = new SuperheroDistanceUnit();
         } else if (position == 3) {
-            fragment = new SuperheroLookingForGender();
+            fragment = new SuperheroGender();
         } else if (position == 4) {
-            fragment = new SuperheroSuperPower();
+            fragment = new SuperheroLookingForGender();
         } else if (position == 5) {
+            fragment = new SuperheroSuperPower();
+        } else if (position == 6) {
             fragment = new SuperheroProfilePic();
         }
         return fragment;
@@ -40,7 +43,7 @@ public class RegisterViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 6;
+        return 7;
     }
 
     @Override
@@ -57,6 +60,8 @@ public class RegisterViewPagerAdapter extends FragmentPagerAdapter {
         } else if (position == 4) {
             //title = ;
         } else if (position == 5) {
+            //title = ;
+        }else if (position == 6) {
             //title = ;
         }
 

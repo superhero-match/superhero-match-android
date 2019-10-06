@@ -219,6 +219,10 @@ public class RegisterActivity extends AppCompatActivity {
         user.setGender(gender);
     }
 
+    public void setDistanceUnit(String distanceUnit) {
+        user.setDistanceUnit(distanceUnit);
+    }
+
     public void setLookingForGender(int lookingForGender) {
         user.setLookingForGender(lookingForGender);
     }
@@ -331,6 +335,30 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         if (user.getSuperPower().equals("")) {
+            Toast.makeText(
+                    RegisterActivity.this,
+                    this.getString(R.string.all_fields_are_required),
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean processDistanceUnitContinue() {
+        if (user.getDistanceUnit() == null) {
+            Toast.makeText(
+                    RegisterActivity.this,
+                    this.getString(R.string.all_fields_are_required),
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return false;
+        }
+
+        if (user.getDistanceUnit().equals("")) {
             Toast.makeText(
                     RegisterActivity.this,
                     this.getString(R.string.all_fields_are_required),
