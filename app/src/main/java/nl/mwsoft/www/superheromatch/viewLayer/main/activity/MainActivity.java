@@ -27,6 +27,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -77,10 +78,12 @@ import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.MatchesChatsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileEditFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileFragment;
@@ -132,14 +135,11 @@ public class MainActivity extends AppCompatActivity {
             navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
             navigation.setSelectedItemId(R.id.navigation_suggestions);
 
-//            configureRequestBody();
-//            getSuggestions(reqBody);
-
-            if (checkLocationPermission()) {
-                showLoadingDialog();
-                initLocationUpdateService();
-                startLocationUpdates();
-            }
+//            if (checkLocationPermission()) {
+//                showLoadingDialog();
+//                initLocationUpdateService();
+//                startLocationUpdates();
+//            }
         }
     }
 
@@ -248,14 +248,23 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_suggestions:
                     currFragmentPosition = 1;
-                    fragment = SuggestionsFragment.newInstance(createMockUsers());
+                    Superhero superhero = new Superhero(
+                            "id",
+                            "SuperheroName",
+                            "mainProfilePicUrl",
+                            null,
+                            1,
+                            34,
+                            10.00,
+                            10.00,
+                            "Country",
+                            "City",
+                            "My Super Power described here but really long to check how it looks on the screen needs to be around 126 characters.",
+                            "FREE"
+                    );
+                    fragment = SuggestionFragment.newInstance(superhero);
                     loadFragment(fragment);
                     return true;
-//                case R.id.navigation_location:
-//                    currFragmentPosition = 2;
-//                    fragment = NearbyFragment.newInstance(createMockUsers());
-//                    loadFragment(fragment);
-//                    return true;
                 case R.id.navigation_matches:
                     currFragmentPosition = 3;
                     fragment = MatchesChatsFragment.newInstance(createMockMatchChats());
@@ -308,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
         user.setBirthday("30-05-1985");
         user.setCountry("Netherlands");
         user.setCity("Utrecht");
-        user.setSuperPower("My Super Power described here but really long to check how it looks on the screen needs to be around 250 characters");
+        user.setSuperPower("My Super Power described here but really long to check how it looks on the screen needs to be around 126 characters.");
         user.setAccountType("PAID");
 
         return user;

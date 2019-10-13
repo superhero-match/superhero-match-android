@@ -120,11 +120,15 @@ public class UserProfileSettingsSuggestionsFragment extends Fragment {
 
         String maxDistance =
                 mainActivity.getUserMaxDistance() != 0 ?
-                        getString(R.string.selected_distance,
+                        getString(
+                                R.string.selected_distance,
                                 mainActivity.getUserMaxDistance(),
                                 mainActivity.getUserDistanceUnit()
                         ) :
-                        getString(R.string.default_distance, mainActivity.getUserDistanceUnit());
+                        getString(
+                                R.string.default_distance,
+                                mainActivity.getUserDistanceUnit()
+                        );
 
         tvDistance.setText(maxDistance);
 
