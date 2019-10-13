@@ -64,9 +64,9 @@ public class OkHttpClientManager {
             okHttpClient = okHttpClient.newBuilder()
                     .sslSocketFactory(sslSocketFactory)
                     .hostnameVerifier(org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)
-                    .readTimeout(3, TimeUnit.MINUTES)
-                    .connectTimeout(3, TimeUnit.MINUTES)
-                    .writeTimeout(3, TimeUnit.MINUTES)
+                    .readTimeout(1, TimeUnit.MINUTES)
+                    .connectTimeout(1, TimeUnit.MINUTES)
+                    .writeTimeout(1, TimeUnit.MINUTES)
                     .build();
 
             return okHttpClient;

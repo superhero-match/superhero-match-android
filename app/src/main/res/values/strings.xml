@@ -60,7 +60,7 @@
     <string name="show_likes_notifications">Show likes notifications</string>
     <string name="show_profile_visits_notifications">Show profile visits notifications</string>
     <string name="show_my_recommendations_notifications">Show my recommendations notifications</string>
-    <string name="type_in_your_profession">Type in your profession...</string>
+    <string name="type_in_your_profession">Type in your profession…</string>
     <string name="change_password">CHANGE PASSWORD</string>
     <string name="confirm_new_password">Confirm New Password</string>
     <string name="new_password">New Password</string>
@@ -592,6 +592,8 @@
     <string name="distance_units">Kilometers / Miles</string>
     <string name="km">Kilometers</string>
     <string name="mi">Miles</string>
+    <string name="male_age">Male, %1$d</string>
+    <string name="female_age">Female, %1$d</string>
 
     <string-array name="countryCodes">
         <item>Afghanistan,(93)</item>

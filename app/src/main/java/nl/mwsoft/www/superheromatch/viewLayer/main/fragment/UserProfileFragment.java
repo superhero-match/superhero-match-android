@@ -12,9 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -26,15 +23,9 @@ import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
-import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.UserProfilePicturesAdapter;
 
 public class UserProfileFragment extends Fragment {
 
-//    @BindView(R.id.vpUserProfile)
-//    ViewPager vpUserProfile;
-//    private UserProfileViewPagerAdapter userProfileViewPagerAdapter;
-//    @BindView(R.id.tlUserProfile)
-//    TabLayout tlUserProfile;
     @BindView(R.id.ivUserProfilePic)
     ImageView ivUserProfilePic;
     @BindView(R.id.ivUserProfileSettings)
@@ -45,17 +36,8 @@ public class UserProfileFragment extends Fragment {
     TextView tvUserName;
     @BindView(R.id.tvUserAgeGender)
     TextView tvUserAgeGender;
-    @BindView(R.id.ivUserProfileDislike)
-    ImageView ivUserProfileDislike;
-    @BindView(R.id.ivUserProfileLike)
-    ImageView ivUserProfileLike;
-    @BindView(R.id.tvUserProfileDetailsSuperPower)
-    TextView tvUserProfileDetailsSuperPower;
     @BindView(R.id.tvUserProfileDetailsSuperPowerDesc)
     TextView tvUserProfileDetailsSuperPowerDesc;
-    @BindView(R.id.rvUserProfilePictures)
-    RecyclerView rvUserProfilePictures;
-    private UserProfilePicturesAdapter userProfilePicturesAdapter;
     private Unbinder unbinder;
     private MainActivity mainActivity;
     private User user;
@@ -81,57 +63,17 @@ public class UserProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Bundle arguments = getArguments();
-        if(arguments != null){
+        if (arguments != null) {
             user = arguments.getParcelable(USER);
-            if(user == null){
+            if (user == null) {
                 user = new User();
-                Toast.makeText(mainActivity,"Something went wrong!",Toast.LENGTH_SHORT).show();
-            }else {
+                Toast.makeText(mainActivity, "Something went wrong!", Toast.LENGTH_SHORT).show();
+            } else {
                 loadUserProfileDetails(user);
             }
-        }else{
+        } else {
             user = new User();
-            Toast.makeText(mainActivity,"Something went wrong!",Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void hideSettings() {
-        // hide settings/edit
-        if(ivUserProfileEdit.getVisibility() == View.VISIBLE){
-            ivUserProfileEdit.setVisibility(View.GONE);
-        }
-
-        if(ivUserProfileSettings.getVisibility() == View.VISIBLE){
-            ivUserProfileSettings.setVisibility(View.GONE);
-        }
-
-        // show like/dislike/etc
-        if(ivUserProfileDislike.getVisibility() == View.GONE){
-            ivUserProfileDislike.setVisibility(View.VISIBLE);
-        }
-
-        if(ivUserProfileLike.getVisibility() == View.GONE){
-            ivUserProfileLike.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void showSettings() {
-        // show settings/edit
-        if(ivUserProfileEdit.getVisibility() == View.GONE){
-            ivUserProfileEdit.setVisibility(View.VISIBLE);
-        }
-
-        if(ivUserProfileSettings.getVisibility() == View.GONE){
-            ivUserProfileSettings.setVisibility(View.VISIBLE);
-        }
-
-        // hide like/dislike/etc
-        if(ivUserProfileDislike.getVisibility() == View.VISIBLE){
-            ivUserProfileDislike.setVisibility(View.GONE);
-        }
-
-        if(ivUserProfileLike.getVisibility() == View.VISIBLE){
-            ivUserProfileLike.setVisibility(View.GONE);
+            Toast.makeText(mainActivity, "Something went wrong!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -148,20 +90,15 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void loadUserProfileDetails(User user) {
-        Glide
-                .with(mainActivity)
+        Glide.with(mainActivity)
                 .load(R.drawable.test)
-                .apply(RequestOptions.circleCropTransform())
                 .into(ivUserProfilePic);
         configureUserName(user);
         configureUserAgeAndGender(user);
-        configureUserControls(user);
         configureUserSuperPower(user);
-        loadUserProfilePictures(user);
     }
 
     private void configureUserSuperPower(User user) {
-        tvUserProfileDetailsSuperPower.setTypeface(tvUserProfileDetailsSuperPower.getTypeface(), Typeface.BOLD);
         tvUserProfileDetailsSuperPowerDesc.setText(user.getSuperPower());
     }
 
@@ -174,49 +111,18 @@ public class UserProfileFragment extends Fragment {
         tvUserName.setText(user.getName());
     }
 
-    private void configureUserControls(User user) {
-        if(user.getUserID().equals(mainActivity.getUserId())){
-            showSettings();
-        }else{
-            hideSettings();
-        }
-    }
-
-    private void loadUserProfilePictures(User user) {
-        userProfilePicturesAdapter = new UserProfilePicturesAdapter(user, mainActivity);
-        StaggeredGridLayoutManager mLayoutManager =
-                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        rvUserProfilePictures.setLayoutManager(mLayoutManager);
-        rvUserProfilePictures.setItemAnimator(new DefaultItemAnimator());
-        rvUserProfilePictures.setAdapter(userProfilePicturesAdapter);
-    }
-
     @OnClick(R.id.ivUserProfileSettings)
-    public void onUserProfileSettingsClickListener(){
+    public void onUserProfileSettingsClickListener() {
         mainActivity.loadSuggestionUserProfileSettingsFragment(mainActivity.createMockUser());
     }
 
     @OnClick(R.id.ivUserProfileEdit)
-    public void onUserProfileEditClickListener(){
+    public void onUserProfileEditClickListener() {
         mainActivity.loadSuggestionUserProfileEditFragment();
     }
 
     @OnClick(R.id.ivUserProfilePic)
-    public void onUserProfilePicClickListener(){
+    public void onUserProfilePicClickListener() {
         mainActivity.loadBackStackFragment(ImageDetailFragment.newInstance(user.getMainProfilePicUrl()));
-    }
-
-    @OnClick(R.id.ivUserProfileLike)
-    public void onUserProfileLike(){
-        // TO-DO: make request to server to process like and to check if there is match,
-        // and then remove the user from the list and return to the suggestions list.
-        Toast.makeText(mainActivity, "Like", Toast.LENGTH_SHORT).show();
-    }
-
-    @OnClick(R.id.ivUserProfileDislike)
-    public void onUserProfileDislike(){
-        // TO-DO: make request to server to process dislike,
-        // and then remove the user from the list and return to the suggestions list.
-        Toast.makeText(mainActivity, "Dislike", Toast.LENGTH_SHORT).show();
     }
 }
