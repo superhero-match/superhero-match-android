@@ -164,6 +164,10 @@ public class ModelLayerManager {
         this.userDatabaseLayer.saveInitiallyRegisteredUser(registrationUser, context);
     }
 
+    public void saveUserToDB(User user, Context context) {
+        this.userDatabaseLayer.saveUserToDB(user, context);
+    }
+
     public void updateUserLongitudeAndLatitude(String userId, double lon, double lat, Context context) {
         this.userDatabaseLayer.updateUserLongitudeAndLatitude(userId, lon, lat, context);
     }

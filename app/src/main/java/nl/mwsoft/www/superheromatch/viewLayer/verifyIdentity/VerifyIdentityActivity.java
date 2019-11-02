@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 
@@ -44,7 +43,6 @@ import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.presenterLayer.verifyIdentity.VerifyIdentityPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.register.activity.RegisterActivity;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static android.widget.Toast.LENGTH_SHORT;
@@ -96,7 +94,7 @@ public class VerifyIdentityActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
     }
 
-    public void configureWith(RootCoordinator rootCoordinator, VerifyIdentityPresenter verifyIdentityPresenter){
+    public void configureWith(RootCoordinator rootCoordinator, VerifyIdentityPresenter verifyIdentityPresenter) {
         this.rootCoordinator = rootCoordinator;
         this.verifyIdentityPresenter = verifyIdentityPresenter;
     }
@@ -162,7 +160,7 @@ public class VerifyIdentityActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.btnSignIn)
-    public void signInListener(){
+    public void signInListener() {
         signIn();
     }
 
@@ -183,7 +181,7 @@ public class VerifyIdentityActivity extends AppCompatActivity {
     }
 
     private void unbindButterKnife() {
-        if(unbinder != null) {
+        if (unbinder != null) {
             unbinder.unbind();
         }
     }
@@ -205,7 +203,7 @@ public class VerifyIdentityActivity extends AppCompatActivity {
     }
 
     private void closeLoadingDialog() {
-        if(loadingDialogFragment != null){
+        if (loadingDialogFragment != null) {
             loadingDialogFragment.dismiss();
         }
     }
@@ -216,7 +214,7 @@ public class VerifyIdentityActivity extends AppCompatActivity {
         loadingDialogFragment.show(getSupportFragmentManager(), ConstantRegistry.LOADING);
     }
 
-    private void checkIfEmailRegistered(GoogleSignInAccount acct){
+    private void checkIfEmailRegistered(GoogleSignInAccount acct) {
         showLoadingDialog();
 
         subscribe = verifyIdentityPresenter.checkEmailAlreadyExists(acct.getEmail())
@@ -225,25 +223,35 @@ public class VerifyIdentityActivity extends AppCompatActivity {
                 .subscribe((CheckEmailResponse res) -> {
                     closeLoadingDialog();
 
-                    if (res.getStatus() == 500) {
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Toast.makeText(VerifyIdentityActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+
                         return;
                     }
 
-                    if (res.isRegistered()) {
-                        navigateToMain();
-                    } else {
+                    if (!res.isRegistered()) {
                         navigateToRegister(VerifyIdentityActivity.this, acct.getDisplayName(), acct.getEmail());
+
+                        return;
                     }
+
+                    // Save user to local db
+                    if (verifyIdentityPresenter.getUserId(VerifyIdentityActivity.this).isEmpty()) {
+                        verifyIdentityPresenter.saveUserToDB(res.getSuperhero(), VerifyIdentityActivity.this);
+                    } else {
+                        verifyIdentityPresenter.updateInitiallyRegisteredUser(res.getSuperhero(), VerifyIdentityActivity.this);
+                    }
+
+                    navigateToMain();
 
                     Toast.makeText(VerifyIdentityActivity.this, res.toString(), Toast.LENGTH_LONG).show();
                 }, throwable -> handleError());
 
         disposable.add(subscribe);
     }
+
     private void handleError() {
         closeLoadingDialog();
         Toast.makeText(VerifyIdentityActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
     }
-
 }

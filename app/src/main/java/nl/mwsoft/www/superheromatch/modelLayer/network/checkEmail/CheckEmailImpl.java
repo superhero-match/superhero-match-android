@@ -1,10 +1,14 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network.checkEmail;
 
+import android.util.Log;
+import android.widget.Toast;
+
 import java.io.IOException;
 
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -34,7 +38,8 @@ public class CheckEmailImpl {
                 ConstantRegistry.SERVER_RESPONSE_ERROR,
                 false,
                 false,
-                false
+                false,
+                new User()
         );
     }
 }

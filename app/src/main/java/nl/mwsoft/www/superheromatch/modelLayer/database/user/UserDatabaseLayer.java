@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -30,8 +29,9 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
 
         db.close();
 
@@ -49,8 +49,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return userName;
@@ -67,8 +69,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return userName;
@@ -85,8 +89,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return mainProfilePicUrl;
@@ -107,8 +113,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return mainProfilePicUrls;
@@ -125,8 +133,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return myGender;
@@ -143,8 +153,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return lookingForGender;
@@ -161,8 +173,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return myAge;
@@ -179,8 +193,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return minAge;
@@ -197,8 +213,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return maxAge;
@@ -215,8 +233,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return maxDistance;
@@ -233,8 +253,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return distanceUnit;
@@ -251,8 +273,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return lat;
@@ -269,8 +293,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return lon;
@@ -287,8 +313,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return birthday;
@@ -305,8 +333,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return myCountry;
@@ -323,8 +353,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return myCity;
@@ -341,8 +373,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return superPower;
@@ -359,8 +393,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return verified;
@@ -377,8 +413,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return loggedIn;
@@ -395,8 +433,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return created;
@@ -413,8 +453,10 @@ public class UserDatabaseLayer {
             }
         }
 
-        assert cursor != null;
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
+
         db.close();
 
         return accountType;
@@ -423,7 +465,7 @@ public class UserDatabaseLayer {
     public void saveInitiallyRegisteredUser(User user, Context context) {
         String selection = DBOpenHelper.U_ID + "='default'";
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBOpenHelper.U_ID, user.getUserID());
+        contentValues.put(DBOpenHelper.U_ID, user.getId());
         contentValues.put(DBOpenHelper.USER_EMAIL, user.getEmail());
         contentValues.put(DBOpenHelper.USER_NAME, user.getName());
         contentValues.put(DBOpenHelper.USER_MAIN_PROFILE_PIC_URL, user.getMainProfilePicUrl());
@@ -496,6 +538,30 @@ public class UserDatabaseLayer {
         context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_USER_PROFILE_PICTURE, setValues);
     }
 
+    public void saveUserToDB(User user, Context context) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBOpenHelper.U_ID, user.getId());
+        contentValues.put(DBOpenHelper.USER_EMAIL, user.getEmail());
+        contentValues.put(DBOpenHelper.USER_NAME, user.getName());
+        contentValues.put(DBOpenHelper.USER_MAIN_PROFILE_PIC_URL, user.getMainProfilePicUrl());
+        contentValues.put(DBOpenHelper.USER_GENDER, user.getGender());
+        contentValues.put(DBOpenHelper.USER_LOOKING_FOR_GENDER, user.getLookingForGender());
+        contentValues.put(DBOpenHelper.USER_AGE, user.getAge());
+        contentValues.put(DBOpenHelper.USER_LOOKING_FOR_MIN_AGE, user.getLookingForAgeMin());
+        contentValues.put(DBOpenHelper.USER_LOOKING_FOR_MAX_AGE, user.getLookingForAgeMax());
+        contentValues.put(DBOpenHelper.USER_LOOKING_FOR_MAX_DISTANCE, user.getLookingForDistanceMax());
+        contentValues.put(DBOpenHelper.USER_DISTANCE_UNIT, user.getDistanceUnit());
+        contentValues.put(DBOpenHelper.USER_LATEST_LATITUDE, user.getLat());
+        contentValues.put(DBOpenHelper.USER_LATEST_LONGITUDE, user.getLon());
+        contentValues.put(DBOpenHelper.USER_BIRTHDAY, user.getBirthday());
+        contentValues.put(DBOpenHelper.USER_COUNTRY, user.getCountry());
+        contentValues.put(DBOpenHelper.USER_CITY, user.getCity());
+        contentValues.put(DBOpenHelper.USER_SUPER_POWER, user.getSuperPower());
+        contentValues.put(DBOpenHelper.USER_ACCOUNT_TYPE, user.getAccountType());
+
+        context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues);
+    }
+
     public void updateUserLookingForAgeRange(String userID, int ageMin, int ageMax, Context context) {
         String selection = DBOpenHelper.U_ID + "='" + userID + "'";
         ContentValues contentValues = new ContentValues();
@@ -536,5 +602,4 @@ public class UserDatabaseLayer {
 
         context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
     }
-
 }

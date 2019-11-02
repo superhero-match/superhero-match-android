@@ -133,7 +133,7 @@ public class RegisterActivity extends AppCompatActivity {
             user.setEmail(email);
 
             String userID = registerPresenter.getUUID();
-            user.setUserID(userID);
+            user.setId(userID);
 
             user.setLookingForAgeMax(ConstantRegistry.DEFAULT_AGE_MAX);
             user.setLookingForAgeMin(ConstantRegistry.DEFAULT_AGE_MIN);
@@ -673,7 +673,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     public HashMap<String, Object> convertToJSON(User user) {
         HashMap<String, Object> userJson = new HashMap();
-        userJson.put("id", user.getUserID());
+        userJson.put("id", user.getId());
         userJson.put("email", user.getEmail());
         userJson.put("name", user.getName());
         userJson.put("superheroName", user.getSuperHeroName());
