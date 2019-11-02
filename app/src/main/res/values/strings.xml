@@ -573,6 +573,7 @@
     <string name="enter_your_phone">Please enter your phone number</string>
     <string name="no_country">Sorry! We could not determine your country. Please select your country from the drop down menu.</string>
     <string name="smth_went_wrong">Sorry, something went wrong. Please try again later.</string>
+    <string name="blocked_deleted">There is something wrong with your account, please get in touch with our customer support.</string>
     <string name="no_internet_connection">No internet connection. Try again later.</string>
     <string name="account_already_exists">We are glad to see you back! Have fun!</string>
     <string name="what_is_your_superhero_name">What is your Superhero name?</string>

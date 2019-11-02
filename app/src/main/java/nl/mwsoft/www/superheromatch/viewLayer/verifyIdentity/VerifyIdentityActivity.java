@@ -235,6 +235,12 @@ public class VerifyIdentityActivity extends AppCompatActivity {
                         return;
                     }
 
+                    if (res.isBlocked() || res.isDeleted()) {
+                        Toast.makeText(VerifyIdentityActivity.this, R.string.blocked_deleted, Toast.LENGTH_LONG).show();
+
+                        return;
+                    }
+
                     // Save user to local db
                     if (verifyIdentityPresenter.getUserId(VerifyIdentityActivity.this).isEmpty()) {
                         verifyIdentityPresenter.saveUserToDB(res.getSuperhero(), VerifyIdentityActivity.this);
