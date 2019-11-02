@@ -23,10 +23,15 @@ public class ConstantRegistry {
     public static final int PERMISSION_DENIED = 2;
     public static final int ALL_PERMISSIONS_GRANTED = 3;
 
+    public static final int SERVER_RESPONSE_ERROR = 500;
+
     public static final String BASE_SERVER_URL = "https://192.168.178.13";
     public static final String IMAGE_URL_PREFIX = "https:";
 
-    public static final String SUPERHEROVILLE_MUNICIPALITY_PORT = ":3000";
+    public static final String SUPERHERO_REGISTER_PORT = ":3000";
+    public static final String SUPERHERO_UPDATE_PORT = ":3100";
+    public static final String SUPERHERO_SCREEN_PORT = ":3200";
+    public static final String SUPERHERO_DELETE_PORT = ":3300";
     public static final String SUPERHERO_SUGGESTIONS_PORT = ":4000";
     public static final String SUPERHERO_MATCHMAKER_PORT = ":5000";
     public static final String SUPERHERO_CHAT_PORT = ":6000";

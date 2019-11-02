@@ -12,7 +12,7 @@ public interface Update {
             "User-Agent: SuperheroMatch",
             "X-Platform: Android"
     })
-    @POST("/api/v1/superheroville_municipality/update_superhero")
+    @POST("/api/v1/superhero_update/update_superhero")
     Call<String> update(@Body String body);
 
 

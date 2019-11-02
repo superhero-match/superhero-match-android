@@ -1,7 +1,7 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network.register;
 
 
-import org.json.JSONObject;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,15 +16,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RegisterImpl {
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHEROVILLE_MUNICIPALITY_PORT))
+            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_REGISTER_PORT))
             .client(OkHttpClientManager.setUpSecureClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build();
+
     Register service = retrofit.create(Register.class);
 
-    public RegisterImpl() {
-
-    }
+    public RegisterImpl() { }
 
     public RegisterResponse register(HashMap<String, Object> body) {
 
@@ -33,8 +32,12 @@ public class RegisterImpl {
             return call.execute().body();
         } catch (IOException e) {
             // handle errors
+            Log.d("tShoot", e.getMessage());
         }
 
-        return new RegisterResponse(500, false);
+        return new RegisterResponse(
+                ConstantRegistry.SERVER_RESPONSE_ERROR,
+                false
+        );
     }
 }

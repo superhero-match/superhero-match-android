@@ -23,32 +23,28 @@
         android:textSize="20sp"
         android:layout_marginTop="20dp"/>
 
-    <ImageView
+    <Button
         android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/ivSuperHeroGenderMale"
-        android:src="@drawable/male_inactive_256"
+        android:layout_height="50dp"
+        android:id="@+id/btnSuperHeroGenderMale"
         android:layout_below="@+id/tvSuperHeroGenderQ"
         android:layout_toStartOf="@+id/tvSuperHeroGenderDelimeter"
         android:layout_marginTop="40dp"
         android:layout_marginBottom="15dp"
         android:layout_marginEnd="30dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="@string/male_icon"/>
+        android:background="@drawable/my_gender_button"
+        android:text="@string/male"/>
 
-    <ImageView
+    <Button
         android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/ivSuperHeroGenderFemale"
-        android:src="@drawable/female_inactive_256"
+        android:layout_height="50dp"
+        android:id="@+id/btnSuperHeroGenderFemale"
         android:layout_below="@+id/tvSuperHeroGenderQ"
         android:layout_toEndOf="@+id/tvSuperHeroGenderDelimeter"
         android:layout_marginTop="40dp"
         android:layout_marginBottom="15dp"
         android:layout_marginStart="30dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="@string/female_icon"/>
+        android:background="@drawable/my_gender_button"
+        android:text="@string/female"/>
 
 </RelativeLayout>

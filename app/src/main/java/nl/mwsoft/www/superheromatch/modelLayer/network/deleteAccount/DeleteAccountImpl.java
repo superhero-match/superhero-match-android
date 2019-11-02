@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class DeleteAccountImpl {
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHEROVILLE_MUNICIPALITY_PORT))
+            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_DELETE_PORT))
             .client(OkHttpClientManager.setUpSecureClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build();

@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import android.os.Looper;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -697,6 +698,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void register(HashMap<String, Object> body) {
         showLoadingDialog();
+
+        Log.d("tShoot", body.toString());
 
         subscribe = registerPresenter.register(body)
                 .observeOn(AndroidSchedulers.mainThread())

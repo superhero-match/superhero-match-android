@@ -17,6 +17,6 @@ public interface Register {
             "User-Agent: SuperheroMatch",
             "X-Platform: Android"
     })
-    @POST("/api/v1/superheroville_municipality/register")
+    @POST("/api/v1/superhero_register/register")
     Call<RegisterResponse> register(@Body HashMap<String, Object> body);
 }
