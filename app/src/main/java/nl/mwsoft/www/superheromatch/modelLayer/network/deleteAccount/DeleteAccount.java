@@ -11,6 +11,6 @@ public interface DeleteAccount {
             "User-Agent: SuperheroMatch",
             "X-Platform: Android"
     })
-    @POST("/api/v1/superheroville_municipality/delete_account")
+    @POST("/api/v1/superhero_delete/delete_account")
     Call<String> deleteAccount(@Query("userID") String userID);
 }

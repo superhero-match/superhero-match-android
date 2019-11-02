@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -22,14 +23,16 @@ import nl.mwsoft.www.superheromatch.viewLayer.register.activity.RegisterActivity
 public class SuperheroLookingForGender extends Fragment {
 
     private Unbinder unbinder;
-    @BindView(R.id.ivSuperHeroLookingForGenderMale)
-    ImageView ivSuperHeroLookingForGenderMale;
-    @BindView(R.id.ivSuperHeroLookingForGenderFemale)
-    ImageView ivSuperHeroLookingForGenderFemale;
-    @BindView(R.id.ivSuperHeroLookingForGenderBoth)
-    ImageView ivSuperHeroLookingForGenderBoth;
-
+    @BindView(R.id.btnSuperHeroLookingForGenderMale)
+    Button btnSuperHeroLookingForGenderMale;
+    @BindView(R.id.btnSuperHeroLookingForGenderFemale)
+    Button btnSuperHeroLookingForGenderFemale;
+    @BindView(R.id.btnSuperHeroLookingForGenderBoth)
+    Button btnSuperHeroLookingForGenderBoth;
     private RegisterActivity registerActivity;
+    private boolean maleIsSelected = false;
+    private boolean femaleIsSelected = false;
+    private boolean bothIsSelected = false;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -44,28 +47,94 @@ public class SuperheroLookingForGender extends Fragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    @OnClick(R.id.ivSuperHeroLookingForGenderMale)
+    @OnClick(R.id.btnSuperHeroLookingForGenderMale)
     public void maleListener(){
         registerActivity.setLookingForGender(ConstantRegistry.MALE);
-        ivSuperHeroLookingForGenderMale.setImageResource(R.drawable.male_256);
-        ivSuperHeroLookingForGenderFemale.setImageResource(R.drawable.female_inactive_256);
-        ivSuperHeroLookingForGenderBoth.setImageResource(R.drawable.both_inactive_256);
+        btnMaleOnClick();
     }
 
-    @OnClick(R.id.ivSuperHeroLookingForGenderFemale)
+    private void btnMaleOnClick() {
+        if (!maleIsSelected) {
+            maleIsSelected = true;
+            btnSuperHeroLookingForGenderMale.setBackgroundResource(R.drawable.my_button);
+            btnSuperHeroLookingForGenderMale.setTextColor(getResources().getColor(R.color.colorWhite));
+
+            if (femaleIsSelected) {
+                femaleIsSelected = false;
+                btnSuperHeroLookingForGenderFemale.setBackgroundResource(R.drawable.my_gender_button);
+                btnSuperHeroLookingForGenderFemale.setTextColor(getResources().getColor(R.color.colorBlack));
+            }
+
+            if (bothIsSelected) {
+                bothIsSelected = false;
+                btnSuperHeroLookingForGenderBoth.setBackgroundResource(R.drawable.my_gender_button);
+                btnSuperHeroLookingForGenderBoth.setTextColor(getResources().getColor(R.color.colorBlack));
+            }
+        } else {
+            maleIsSelected = false;
+            btnSuperHeroLookingForGenderMale.setBackgroundResource(R.drawable.my_gender_button);
+            btnSuperHeroLookingForGenderMale.setTextColor(getResources().getColor(R.color.colorBlack));
+        }
+    }
+
+    @OnClick(R.id.btnSuperHeroLookingForGenderFemale)
     public void femaleListener(){
         registerActivity.setLookingForGender(ConstantRegistry.FEMALE);
-        ivSuperHeroLookingForGenderMale.setImageResource(R.drawable.male_inactive_256);
-        ivSuperHeroLookingForGenderFemale.setImageResource(R.drawable.female_256);
-        ivSuperHeroLookingForGenderBoth.setImageResource(R.drawable.both_inactive_256);
+        btnFemaleOnClick();
     }
 
-    @OnClick(R.id.ivSuperHeroLookingForGenderBoth)
+    private void btnFemaleOnClick() {
+        if (!femaleIsSelected) {
+            femaleIsSelected = true;
+            btnSuperHeroLookingForGenderFemale.setBackgroundResource(R.drawable.my_button);
+            btnSuperHeroLookingForGenderFemale.setTextColor(getResources().getColor(R.color.colorWhite));
+
+            if (maleIsSelected) {
+                maleIsSelected = false;
+                btnSuperHeroLookingForGenderMale.setBackgroundResource(R.drawable.my_gender_button);
+                btnSuperHeroLookingForGenderMale.setTextColor(getResources().getColor(R.color.colorBlack));
+            }
+
+            if (bothIsSelected) {
+                bothIsSelected = false;
+                btnSuperHeroLookingForGenderBoth.setBackgroundResource(R.drawable.my_gender_button);
+                btnSuperHeroLookingForGenderBoth.setTextColor(getResources().getColor(R.color.colorBlack));
+            }
+        } else {
+            femaleIsSelected = false;
+            btnSuperHeroLookingForGenderFemale.setBackgroundResource(R.drawable.my_gender_button);
+            btnSuperHeroLookingForGenderFemale.setTextColor(getResources().getColor(R.color.colorBlack));
+        }
+    }
+
+    @OnClick(R.id.btnSuperHeroLookingForGenderBoth)
     public void bothListener(){
         registerActivity.setLookingForGender(ConstantRegistry.BOTH);
-        ivSuperHeroLookingForGenderMale.setImageResource(R.drawable.male_inactive_256);
-        ivSuperHeroLookingForGenderFemale.setImageResource(R.drawable.female_inactive_256);
-        ivSuperHeroLookingForGenderBoth.setImageResource(R.drawable.both_256);
+        btnBothOnClick();
+    }
+
+    private void btnBothOnClick() {
+        if (!bothIsSelected) {
+            bothIsSelected = true;
+            btnSuperHeroLookingForGenderBoth.setBackgroundResource(R.drawable.my_button);
+            btnSuperHeroLookingForGenderBoth.setTextColor(getResources().getColor(R.color.colorWhite));
+
+            if (maleIsSelected) {
+                maleIsSelected = false;
+                btnSuperHeroLookingForGenderMale.setBackgroundResource(R.drawable.my_gender_button);
+                btnSuperHeroLookingForGenderMale.setTextColor(getResources().getColor(R.color.colorBlack));
+            }
+
+            if (femaleIsSelected) {
+                femaleIsSelected = false;
+                btnSuperHeroLookingForGenderFemale.setBackgroundResource(R.drawable.my_gender_button);
+                btnSuperHeroLookingForGenderFemale.setTextColor(getResources().getColor(R.color.colorBlack));
+            }
+        } else {
+            bothIsSelected = false;
+            btnSuperHeroLookingForGenderBoth.setBackgroundResource(R.drawable.my_gender_button);
+            btnSuperHeroLookingForGenderBoth.setTextColor(getResources().getColor(R.color.colorBlack));
+        }
     }
 
     @Override

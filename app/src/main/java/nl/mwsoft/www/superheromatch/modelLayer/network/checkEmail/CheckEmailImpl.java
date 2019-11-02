@@ -12,7 +12,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class CheckEmailImpl {
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHEROVILLE_MUNICIPALITY_PORT))
+            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_SCREEN_PORT))
             .client(OkHttpClientManager.setUpSecureClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build();
@@ -30,6 +30,11 @@ public class CheckEmailImpl {
             e.printStackTrace();
         }
 
-        return new CheckEmailResponse(500, false, false, false);
+        return new CheckEmailResponse(
+                ConstantRegistry.SERVER_RESPONSE_ERROR,
+                false,
+                false,
+                false
+        );
     }
 }

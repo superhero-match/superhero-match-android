@@ -12,6 +12,6 @@ public interface CheckEmail {
             "User-Agent: SuperheroMatch",
             "X-Platform: Android"
     })
-    @POST("/api/v1/superheroville_municipality/check_email")
+    @POST("/api/v1/superhero_screen/check_email")
     Call<CheckEmailResponse> checkEmail(@Query("email") String email);
 }

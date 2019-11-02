@@ -11,7 +11,7 @@ public interface UpdateToken {
             "User-Agent: SuperheroMatch",
             "X-Platform: Android"
     })
-    @POST("/api/v1/superheroville_municipality/update_user_messaging_token")
+    @POST("/api/v1/firebase_token/update_user_messaging_token")
     Call<String> updateUserMessagingToken(
             @Query("userID") String userID,
             @Query("messagingToken") String messagingToken
