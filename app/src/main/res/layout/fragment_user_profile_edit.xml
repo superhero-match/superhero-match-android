@@ -25,7 +25,7 @@
         android:textAlignment="viewStart"
         android:gravity="start"
         android:background="@drawable/mytextview"
-        android:maxLength="250"
+        android:maxLength="126"
         android:hint="@string/hint_super_power" />
 
     <TextView

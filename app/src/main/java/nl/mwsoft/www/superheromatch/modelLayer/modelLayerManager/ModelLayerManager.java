@@ -4,9 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.widget.Toast;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +19,8 @@ import nl.mwsoft.www.superheromatch.modelLayer.helper.util.internet.InternetConn
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.uuid.UUIDUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
-import nl.mwsoft.www.superheromatch.modelLayer.model.RegistrationUser;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.modelLayer.network.NetworkLayer;
 
@@ -102,6 +99,10 @@ public class ModelLayerManager {
 
     public int getUserAge(Context context) {
         return this.userDatabaseLayer.getUserAge(context);
+    }
+
+    public String getUserBirthday(Context context) {
+        return this.userDatabaseLayer.getUserBirthday(context);
     }
 
     public int getUserLookingForMinAge(Context context) {
@@ -403,8 +404,8 @@ public class ModelLayerManager {
 
     // region Update User's Data
 
-    public Observable<String> updateUserData(String toDo) {
-        return this.networkLayer.updateUserData(toDo);
+    public Observable<UpdateResponse> updateProfile(HashMap<String, Object> body) {
+        return this.networkLayer.updateProfile(body);
     }
 
     // endregion

@@ -4,14 +4,12 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -63,7 +61,7 @@ public class UserProfileEditFragment extends Fragment {
                 renderOnKMClicked();
                 break;
             case ConstantRegistry.MILES:
-                renderOnMICliecked();
+                renderOnMIClicked();
                 break;
         }
     }
@@ -103,11 +101,11 @@ public class UserProfileEditFragment extends Fragment {
 
     @OnClick(R.id.btnMi)
     public void milesListener() {
-        renderOnMICliecked();
+        renderOnMIClicked();
         mainActivity.updateUserDistanceUnit(ConstantRegistry.MILES);
     }
 
-    private void renderOnMICliecked() {
+    private void renderOnMIClicked() {
         btnMi.setBackgroundResource(R.drawable.my_button);
         btnMi.setTextColor(getResources().getColor(R.color.colorWhite));
 
@@ -120,6 +118,7 @@ public class UserProfileEditFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+        mainActivity.updateUserProfile();
     }
 
     @Override

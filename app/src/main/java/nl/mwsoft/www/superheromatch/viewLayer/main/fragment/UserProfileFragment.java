@@ -113,7 +113,7 @@ public class UserProfileFragment extends Fragment {
 
     @OnClick(R.id.ivUserProfileSettings)
     public void onUserProfileSettingsClickListener() {
-        mainActivity.loadSuggestionUserProfileSettingsFragment(mainActivity.createMockUser());
+        mainActivity.loadSuggestionUserProfileSettingsFragment();
     }
 
     @OnClick(R.id.ivUserProfileEdit)
@@ -123,6 +123,6 @@ public class UserProfileFragment extends Fragment {
 
     @OnClick(R.id.ivUserProfilePic)
     public void onUserProfilePicClickListener() {
-        mainActivity.loadBackStackFragment(ImageDetailFragment.newInstance(user.getMainProfilePicUrl()));
+        mainActivity.loadImageDetailFragment(mainActivity.createMockUser());
     }
 }

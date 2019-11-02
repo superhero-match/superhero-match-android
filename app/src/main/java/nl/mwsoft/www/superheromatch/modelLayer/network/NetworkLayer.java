@@ -1,8 +1,6 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network;
 
 
-import org.json.JSONObject;
-
 import java.util.HashMap;
 
 import io.reactivex.Observable;
@@ -11,6 +9,7 @@ import io.reactivex.ObservableOnSubscribe;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.network.checkEmail.CheckEmailImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteAccount.DeleteAccountImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.inviteUser.InviteSuperheroImpl;
@@ -145,13 +144,13 @@ public class NetworkLayer {
 
     // region Update User's Data
 
-    public Observable<String> updateUserData(String body) {
-        return Observable.create(new ObservableOnSubscribe<String>() {
+    public Observable<UpdateResponse> updateProfile(HashMap<String, Object> body) {
+        return Observable.create(new ObservableOnSubscribe<UpdateResponse>() {
             @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+            public void subscribe(ObservableEmitter<UpdateResponse> emitter) throws Exception {
                 try {
                     UpdateImpl updateUserData = new UpdateImpl();
-                    String response = updateUserData.updateUserData(body);
+                    UpdateResponse response = updateUserData.updateProfile(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {

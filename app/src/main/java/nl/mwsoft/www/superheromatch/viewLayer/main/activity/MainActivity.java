@@ -14,7 +14,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -54,7 +53,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -78,14 +80,17 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
+import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.ImageDetailFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.MatchesChatsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileEditFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileSettingsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileSettingsSuggestionsFragment;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
@@ -101,13 +106,11 @@ public class MainActivity extends AppCompatActivity {
     private RootCoordinator rootCoordinator;
     private MainPresenter mainPresenter;
     private Uri profilePicURI;
-    private HashMap<String, Object> reqBody;
     private CompositeDisposable disposable;
-    private Disposable subscribe;
+    private Disposable subscribeSuggestions;
+    private Disposable subscribeUpdateProfile;
     private LoadingDialogFragment loadingDialogFragment;
     private int offset = 0;
-    private double lat = 0.0;
-    private double lon = 0.0;
     private FusedLocationProviderClient fusedLocationClient;
     private SettingsClient settingsClient;
     private LocationRequest locationRequest;
@@ -141,33 +144,67 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void configureRequestBody() {
-        reqBody.put("id", mainPresenter.getUserId(this));
-        reqBody.put("lookingForGender", mainPresenter.getUserLookingForGender(this));
-        reqBody.put("gender", mainPresenter.getUserGender(this));
-        reqBody.put("lookingForAgeMin", mainPresenter.getUserLookingForMinAge(this));
-        reqBody.put("lookingForAgeMax", mainPresenter.getUserLookingForMaxAge(this));
-        reqBody.put("maxDistance", mainPresenter.getUserLookingForMaxDistance(this));
-        reqBody.put("distanceUnit", mainPresenter.getUserDistanceUnit(this));
+    private HashMap<String, Object> configureSuggestionsRequestBody(MainPresenter mainPresenter) {
+        HashMap<String, Object> reqBodySuggestions =  new HashMap<>();
+        reqBodySuggestions.put("id", mainPresenter.getUserId(this));
+        reqBodySuggestions.put("lookingForGender", mainPresenter.getUserLookingForGender(this));
+        reqBodySuggestions.put("gender", mainPresenter.getUserGender(this));
+        reqBodySuggestions.put("lookingForAgeMin", mainPresenter.getUserLookingForMinAge(this));
+        reqBodySuggestions.put("lookingForAgeMax", mainPresenter.getUserLookingForMaxAge(this));
+        reqBodySuggestions.put("maxDistance", mainPresenter.getUserLookingForMaxDistance(this));
+        reqBodySuggestions.put("distanceUnit", mainPresenter.getUserDistanceUnit(this));
+        reqBodySuggestions.put("lat", mainPresenter.getUserLat(this));
+        reqBodySuggestions.put("lon", mainPresenter.getUserLon(this));
+        reqBodySuggestions.put("offset", offset);
+        reqBodySuggestions.put("size", ConstantRegistry.PAGE_SIZE);
 
-        reqBody.put("lat", lat);
-        if (lat == 0.0) {
-            reqBody.put("lat", mainPresenter.getUserLat(this));
+        return reqBodySuggestions;
+    }
+
+    public int calculateUserAge(Date currentDate, String birthday) {
+        SimpleDateFormat sdf = new SimpleDateFormat(ConstantRegistry.SUPERHERO_BIRTHDAY_FORMAT, Locale.getDefault());
+
+        long years = 0;
+
+        try {
+            Date birthDate = sdf.parse(birthday);
+
+            long diff = currentDate.getTime() - birthDate.getTime();
+            long seconds = diff / 1000;
+            long minutes = seconds / 60;
+            long hours = minutes / 60;
+            long days = hours / 24;
+            years = days / 365;
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
-        reqBody.put("lon", lon);
-        if (lon == 0.0) {
-            reqBody.put("lon", mainPresenter.getUserLon(this));
-        }
+        return (int) years;
+    }
 
-        reqBody.put("offset", offset);
-        reqBody.put("size", ConstantRegistry.PAGE_SIZE);
+    private HashMap<String, Object> configureUpdateProfileRequestBody(MainPresenter mainPresenter) {
+        HashMap<String, Object> reqBodyUpdateProfile =  new HashMap<>();
+        reqBodyUpdateProfile.put("id", mainPresenter.getUserId(this));
+        reqBodyUpdateProfile.put("lookingForGender", mainPresenter.getUserLookingForGender(MainActivity.this));
+        reqBodyUpdateProfile.put("age",calculateUserAge(new Date(), mainPresenter.getUserBirthday(MainActivity.this)));
+        reqBodyUpdateProfile.put("gender", mainPresenter.getUserGender(this));
+        reqBodyUpdateProfile.put("lookingForAgeMin", mainPresenter.getUserLookingForMinAge(MainActivity.this));
+        reqBodyUpdateProfile.put("lookingForAgeMax", mainPresenter.getUserLookingForMaxAge(MainActivity.this));
+        reqBodyUpdateProfile.put("lookingForDistanceMax", mainPresenter.getUserLookingForMaxDistance(MainActivity.this));
+        reqBodyUpdateProfile.put("distanceUnit", mainPresenter.getUserDistanceUnit(MainActivity.this));
+        reqBodyUpdateProfile.put("lat", mainPresenter.getUserLat(MainActivity.this));
+        reqBodyUpdateProfile.put("lon", mainPresenter.getUserLon(MainActivity.this));
+        reqBodyUpdateProfile.put("country", mainPresenter.getUserCountry(MainActivity.this));
+        reqBodyUpdateProfile.put("city", mainPresenter.getUserCity(MainActivity.this));
+        reqBodyUpdateProfile.put("superPower", mainPresenter.getUserSuperPower(MainActivity.this));
+        reqBodyUpdateProfile.put("accountType", mainPresenter.getUserAccountType(MainActivity.this));
+
+        return reqBodyUpdateProfile;
     }
 
     private void init() {
         messages = new ArrayList<>();
         messages.addAll(createMockMessages());
-        reqBody = new HashMap<>();
         disposable = new CompositeDisposable();
     }
 
@@ -295,12 +332,16 @@ public class MainActivity extends AppCompatActivity {
         loadBackStackFragment(UserProfileFragment.newInstance(user));
     }
 
-    public void loadSuggestionUserProfileSettingsFragment(User user) {
-        loadBackStackFragment(UserProfileSettingsFragment.newInstance(user));
+    public void loadSuggestionUserProfileSettingsFragment() {
+        loadBackStackFragment(UserProfileSettingsSuggestionsFragment.newInstance());
     }
 
     public void loadSuggestionUserProfileEditFragment() {
         loadBackStackFragment(UserProfileEditFragment.newInstance());
+    }
+
+    public void loadImageDetailFragment(User user){
+        loadBackStackFragment(ImageDetailFragment.newInstance(user.getMainProfilePicUrl()));
     }
 
     public User createMockUser() {
@@ -576,7 +617,7 @@ public class MainActivity extends AppCompatActivity {
             showLoadingDialog();
         }
 
-        subscribe = mainPresenter.getSuggestions(reqBody)
+        subscribeSuggestions = mainPresenter.getSuggestions(reqBody)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((SuggestionsResponse res) -> {
@@ -597,7 +638,39 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, res.toString(), Toast.LENGTH_LONG).show();
                 }, throwable -> handleError());
 
-        disposable.add(subscribe);
+        disposable.add(subscribeSuggestions);
+    }
+
+    public void updateUserProfile(){
+        updateProfile(configureUpdateProfileRequestBody(mainPresenter));
+    }
+
+    private void updateProfile(HashMap<String, Object> reqBody) {
+        if (!loadingDialogIsActive) {
+            showLoadingDialog();
+        }
+
+        subscribeUpdateProfile = mainPresenter.updateProfile(reqBody)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe((UpdateResponse res) -> {
+
+                    closeLoadingDialog();
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                        Toast.makeText(
+                                MainActivity.this,
+                                R.string.smth_went_wrong,
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        return;
+                    }
+
+                    Toast.makeText(MainActivity.this, res.toString(), Toast.LENGTH_LONG).show();
+                }, throwable -> handleError());
+
+        disposable.add(subscribeUpdateProfile);
     }
 
     private void handleError() {
@@ -607,9 +680,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setLatAndLon(String userID, double lat, double lon, Context context) {
-        this.lat = lat;
-        this.lon = lon;
-
         mainPresenter.updateUserLongitudeAndLatitude(userID, lat, lon, context);
     }
 
@@ -647,9 +717,7 @@ public class MainActivity extends AppCompatActivity {
                     setAddress(currentLocation.getLatitude(), currentLocation.getLongitude());
                 }
 
-                configureRequestBody();
-                Log.d("tShoot", reqBody.toString());
-                getSuggestions(reqBody);
+                getSuggestions(configureSuggestionsRequestBody(mainPresenter));
             }
         };
 

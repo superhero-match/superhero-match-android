@@ -14,6 +14,7 @@ import java.util.HashMap;
 import io.reactivex.Observable;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegistrationUser;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.modelLayer.modelLayerManager.ModelLayerManager;
 
@@ -61,6 +62,10 @@ public class MainPresenter {
 
     public int getUserAge(Context context) {
         return this.modelLayerManager.getUserAge(context);
+    }
+
+    public String getUserBirthday(Context context) {
+        return this.modelLayerManager.getUserBirthday(context);
     }
 
     public int getUserLookingForMinAge(Context context) {
@@ -333,8 +338,8 @@ public class MainPresenter {
 
     // region Update User's Data
 
-    public Observable<String> updateUserData(String body) {
-        return this.modelLayerManager.updateUserData(body);
+    public Observable<UpdateResponse> updateProfile(HashMap<String, Object> body) {
+        return this.modelLayerManager.updateProfile(body);
     }
 
     // endregion
