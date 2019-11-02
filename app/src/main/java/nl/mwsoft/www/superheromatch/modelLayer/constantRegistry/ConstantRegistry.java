@@ -2,6 +2,8 @@ package nl.mwsoft.www.superheromatch.modelLayer.constantRegistry;
 
 public class ConstantRegistry {
 
+    public static final String DEFAULT_USER_ID = "default";
+
     public static final String IMAGE = "image";
     public static final String TEXT = "text";
 

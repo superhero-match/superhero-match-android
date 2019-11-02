@@ -26,7 +26,7 @@ public class MatchedUserDatabaseLayer {
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 matchedUser = new User();
-                matchedUser.setUserID(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCHED_USER_ID)));
+                matchedUser.setId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCHED_USER_ID)));
                 matchedUser.setName(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCHED_USER_NAME)));
                 matchedUser.setMainProfilePicUrl(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCHED_USER_MAIN_PROFILE_PIC_URL)));
                 matchedUser.setProfilePicsUrls(getMatchedUserProfilePicUrlsByID(context, matchedUserId));
@@ -55,10 +55,10 @@ public class MatchedUserDatabaseLayer {
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 matchedUser = new User();
-                matchedUser.setUserID(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCHED_USER_ID)));
+                matchedUser.setId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCHED_USER_ID)));
                 matchedUser.setName(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCHED_USER_NAME)));
                 matchedUser.setMainProfilePicUrl(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCHED_USER_MAIN_PROFILE_PIC_URL)));
-                matchedUser.setProfilePicsUrls(getMatchedUserProfilePicUrlsByID(context, matchedUser.getUserID()));
+                matchedUser.setProfilePicsUrls(getMatchedUserProfilePicUrlsByID(context, matchedUser.getId()));
                 matchedUser.setGender(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCHED_USER_GENDER))));
                 matchedUser.setAge(Integer.parseInt(String.valueOf(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCHED_USER_AGE))))));
                 matchedUser.setCountry(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCHED_USER_COUNTRY)));
@@ -225,7 +225,7 @@ public class MatchedUserDatabaseLayer {
 
     public void insertMatchedUser(User user, Context context) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBOpenHelper.MATCHED_USER_ID, user.getUserID());
+        contentValues.put(DBOpenHelper.MATCHED_USER_ID, user.getId());
         contentValues.put(DBOpenHelper.MATCHED_USER_NAME, user.getName());
         contentValues.put(DBOpenHelper.MATCHED_USER_AGE, user.getAge());
         contentValues.put(DBOpenHelper.MATCHED_USER_MAIN_PROFILE_PIC_URL, user.getMainProfilePicUrl());

@@ -8,13 +8,13 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 
 public class User implements Parcelable {
-
-    private String userID;
+    private String id;
     @Nullable
     private String email;
     private String name;
     private String superHeroName;
     private String mainProfilePicUrl;
+    @Nullable
     private ArrayList<String> profilePicsUrls;
     private int gender;
     @Nullable
@@ -50,8 +50,8 @@ public class User implements Parcelable {
         this.status = status;
     }
 
-    public User(String userID, @Nullable String email, String name, String superHeroName, String mainProfilePicUrl, ArrayList<String> profilePicsUrls, int gender, int lookingForGender, int age, int lookingForAgeMin, int lookingForAgeMax, int lookingForDistanceMax, @Nullable String distanceUnit, double lat, double lon, @Nullable String birthday, @Nullable String country, @Nullable String city, String superPower, String accountType) {
-        this.userID = userID;
+    public User(String id, @Nullable String email, String name, String superHeroName, String mainProfilePicUrl, @Nullable ArrayList<String> profilePicsUrls, int gender, int lookingForGender, int age, int lookingForAgeMin, int lookingForAgeMax, int lookingForDistanceMax, @Nullable String distanceUnit, double lat, double lon, @Nullable String birthday, @Nullable String country, @Nullable String city, String superPower, String accountType, @Nullable String status) {
+        this.id = id;
         this.email = email;
         this.name = name;
         this.superHeroName = superHeroName;
@@ -71,10 +71,11 @@ public class User implements Parcelable {
         this.city = city;
         this.superPower = superPower;
         this.accountType = accountType;
+        this.status = status;
     }
 
     protected User(Parcel in) {
-        userID = in.readString();
+        id = in.readString();
         email = in.readString();
         name = in.readString();
         superHeroName = in.readString();
@@ -97,36 +98,6 @@ public class User implements Parcelable {
         status = in.readString();
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(userID);
-        dest.writeString(email);
-        dest.writeString(name);
-        dest.writeString(superHeroName);
-        dest.writeString(mainProfilePicUrl);
-        dest.writeStringList(profilePicsUrls);
-        dest.writeInt(gender);
-        dest.writeInt(lookingForGender);
-        dest.writeInt(age);
-        dest.writeInt(lookingForAgeMin);
-        dest.writeInt(lookingForAgeMax);
-        dest.writeInt(lookingForDistanceMax);
-        dest.writeString(distanceUnit);
-        dest.writeDouble(lat);
-        dest.writeDouble(lon);
-        dest.writeString(birthday);
-        dest.writeString(country);
-        dest.writeString(city);
-        dest.writeString(superPower);
-        dest.writeString(accountType);
-        dest.writeString(status);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
     public static final Creator<User> CREATOR = new Creator<User>() {
         @Override
         public User createFromParcel(Parcel in) {
@@ -139,12 +110,12 @@ public class User implements Parcelable {
         }
     };
 
-    public String getUserID() {
-        return userID;
+    public String getId() {
+        return id;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Nullable
@@ -180,11 +151,12 @@ public class User implements Parcelable {
         this.mainProfilePicUrl = mainProfilePicUrl;
     }
 
+    @Nullable
     public ArrayList<String> getProfilePicsUrls() {
         return profilePicsUrls;
     }
 
-    public void setProfilePicsUrls(ArrayList<String> profilePicsUrls) {
+    public void setProfilePicsUrls(@Nullable ArrayList<String> profilePicsUrls) {
         this.profilePicsUrls = profilePicsUrls;
     }
 
@@ -316,7 +288,7 @@ public class User implements Parcelable {
     @Override
     public String toString() {
         return "User{" +
-                "userID='" + userID + '\'' +
+                "id='" + id + '\'' +
                 ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
                 ", superHeroName='" + superHeroName + '\'' +
@@ -338,5 +310,35 @@ public class User implements Parcelable {
                 ", accountType='" + accountType + '\'' +
                 ", status='" + status + '\'' +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(email);
+        dest.writeString(name);
+        dest.writeString(superHeroName);
+        dest.writeString(mainProfilePicUrl);
+        dest.writeStringList(profilePicsUrls);
+        dest.writeInt(gender);
+        dest.writeInt(lookingForGender);
+        dest.writeInt(age);
+        dest.writeInt(lookingForAgeMin);
+        dest.writeInt(lookingForAgeMax);
+        dest.writeInt(lookingForDistanceMax);
+        dest.writeString(distanceUnit);
+        dest.writeDouble(lat);
+        dest.writeDouble(lon);
+        dest.writeString(birthday);
+        dest.writeString(country);
+        dest.writeString(city);
+        dest.writeString(superPower);
+        dest.writeString(accountType);
+        dest.writeString(status);
     }
 }

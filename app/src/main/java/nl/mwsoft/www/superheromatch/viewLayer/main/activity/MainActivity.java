@@ -27,7 +27,6 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -84,7 +83,6 @@ import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.MatchesChatsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileEditFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileSettingsFragment;
@@ -308,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
     public User createMockUser() {
         ArrayList<String> urls = new ArrayList<>(createMockUserProfilePicturesUrls());
         User user = new User();
-        user.setUserID("311234567890L");
+        user.setId("311234567890L");
         user.setName("Super Hero");
         user.setMainProfilePicUrl("main");
         user.setProfilePicsUrls(urls);
@@ -327,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<User> users = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             User user = createMockUser();
-            user.setUserID("311234567890");
+            user.setId("311234567890");
             users.add(user);
         }
 

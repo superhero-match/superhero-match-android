@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
 
 import nl.mwsoft.www.superheromatch.R;
-import nl.mwsoft.www.superheromatch.modelLayer.helper.image.ImageCircleTransformUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.ImageDetailFragment;
@@ -67,7 +66,7 @@ public class UserProfilePicturesAdapter extends RecyclerView.Adapter<RecyclerVie
 
     @Override
     public int getItemViewType(int position) {
-        if(user.getUserID() == mainActivity.getUserId()){
+        if(user.getId() == mainActivity.getUserId()){
             if(position == 0){
                 return 1;
             }else{

@@ -32,11 +32,11 @@ public class DependencyRegistry {
 
     // region Database Layer
 
-    public UserDatabaseLayer createUserDatabaseLayer(){
+    public UserDatabaseLayer createUserDatabaseLayer() {
         return new UserDatabaseLayer();
     }
 
-    public MatchedUserDatabaseLayer createMatchedUserDatabaseLayer(){
+    public MatchedUserDatabaseLayer createMatchedUserDatabaseLayer() {
         return new MatchedUserDatabaseLayer();
     }
 
@@ -44,19 +44,19 @@ public class DependencyRegistry {
 
     // region Util
 
-    public UUIDUtil createUUIDUtil(){
+    public UUIDUtil createUUIDUtil() {
         return new UUIDUtil();
     }
 
-    public DateTimeUtil createDateTimeUtil(){
+    public DateTimeUtil createDateTimeUtil() {
         return new DateTimeUtil();
     }
 
-    public ImageProcessingUtil createImageProcessingUtil(DateTimeUtil dateTimeUtil){
+    public ImageProcessingUtil createImageProcessingUtil(DateTimeUtil dateTimeUtil) {
         return new ImageProcessingUtil(dateTimeUtil);
     }
 
-    public InternetConnectionUtil createInternetConnectionUtil(){
+    public InternetConnectionUtil createInternetConnectionUtil() {
         return new InternetConnectionUtil();
     }
 
@@ -66,7 +66,7 @@ public class DependencyRegistry {
 
     // region AddNewGroupMemberPresenter
 
-    private UtilModelLayerManager createUtilModelLayerManager(InternetConnectionUtil internetConnectionUtil){
+    private UtilModelLayerManager createUtilModelLayerManager(InternetConnectionUtil internetConnectionUtil) {
         return new UtilModelLayerManager(internetConnectionUtil);
     }
 
@@ -76,29 +76,30 @@ public class DependencyRegistry {
 
     private UtilModelLayerManager createUtilModelLayerManager(InternetConnectionUtil internetConnectionUtil,
                                                               UUIDUtil uuidUtil,
-                                                              DateTimeUtil dateTimeUtil){
+                                                              DateTimeUtil dateTimeUtil) {
         return new UtilModelLayerManager(uuidUtil, internetConnectionUtil, dateTimeUtil);
     }
-    private UtilModelLayerManager createUtilModelLayerManager(DateTimeUtil dateTimeUtil){
+
+    private UtilModelLayerManager createUtilModelLayerManager(DateTimeUtil dateTimeUtil) {
         return new UtilModelLayerManager(dateTimeUtil);
     }
 
     private UtilModelLayerManager createUtilModelLayerManager(InternetConnectionUtil internetConnectionUtil,
-                                                              UUIDUtil uuidUtil){
+                                                              UUIDUtil uuidUtil) {
         return new UtilModelLayerManager(uuidUtil, internetConnectionUtil);
     }
 
     // endregion
 
 
-    private UserModelLayerManager createUserModelLayerManager(){
+    private UserModelLayerManager createUserModelLayerManager() {
         return new UserModelLayerManager();
     }
 
 
     // region Network
 
-    public NetworkLayer createNetworkLayer(){
+    public NetworkLayer createNetworkLayer() {
         return new NetworkLayer();
     }
 
@@ -115,7 +116,7 @@ public class DependencyRegistry {
     public ModelLayerManager createModelLayerManager(UserDatabaseLayer userDatabaseLayer,
                                                      InternetConnectionUtil internetConnectionUtil,
                                                      NetworkLayer networkLayer,
-                                                    UUIDUtil uuidUtil){
+                                                     UUIDUtil uuidUtil) {
         return new ModelLayerManager(userDatabaseLayer, internetConnectionUtil, networkLayer, uuidUtil);
     }
 
@@ -125,7 +126,7 @@ public class DependencyRegistry {
                                                      DateTimeUtil dateTimeUtil,
                                                      ImageProcessingUtil imageProcessingUtil,
                                                      InternetConnectionUtil internetConnectionUtil,
-                                                     NetworkLayer networkLayer){
+                                                     NetworkLayer networkLayer) {
         return new ModelLayerManager(
                 userDatabaseLayer,
                 matchedUserDatabaseLayer,
@@ -138,7 +139,7 @@ public class DependencyRegistry {
     }
 
     public ModelLayerManager createModelLayerManager(InternetConnectionUtil internetConnectionUtil,
-                                                     NetworkLayer networkLayer){
+                                                     NetworkLayer networkLayer) {
         return new ModelLayerManager(internetConnectionUtil, networkLayer);
     }
 
@@ -146,7 +147,7 @@ public class DependencyRegistry {
 
     // region inject
 
-    public void inject(MainActivity mainActivity){
+    public void inject(MainActivity mainActivity) {
         mainActivity.configureWith(
                 rootCoordinator,
                 new MainPresenter(
@@ -163,35 +164,36 @@ public class DependencyRegistry {
         );
     }
 
-    public void inject(RegisterActivity registerActivity){
+    public void inject(RegisterActivity registerActivity) {
         registerActivity.configureWith(
                 rootCoordinator,
                 new RegisterPresenter(
-                    createModelLayerManager(
-                            createUserDatabaseLayer(),
-                            createInternetConnectionUtil(),
-                            createNetworkLayer(),
-                            createUUIDUtil()
-                    )
+                        createModelLayerManager(
+                                createUserDatabaseLayer(),
+                                createInternetConnectionUtil(),
+                                createNetworkLayer(),
+                                createUUIDUtil()
+                        )
                 )
         );
     }
 
-    public void inject(IntroActivity introActivity){
+    public void inject(IntroActivity introActivity) {
         introActivity.configureWith(rootCoordinator);
     }
 
-    public void inject(PermissionsRequestActivity permissionsRequestActivity){
+    public void inject(PermissionsRequestActivity permissionsRequestActivity) {
         permissionsRequestActivity.configureWith(rootCoordinator);
     }
 
-    public void inject(VerifyIdentityActivity verifyIdentityActivity){
+    public void inject(VerifyIdentityActivity verifyIdentityActivity) {
         verifyIdentityActivity.configureWith(
                 rootCoordinator,
                 new VerifyIdentityPresenter(
                         createModelLayerManager(
-                            createInternetConnectionUtil(),
-                            createNetworkLayer()
+                                createUserDatabaseLayer(),
+                                createInternetConnectionUtil(),
+                                createNetworkLayer()
                         )
                 )
         );
