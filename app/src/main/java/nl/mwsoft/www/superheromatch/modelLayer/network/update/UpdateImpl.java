@@ -1,9 +1,11 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network.update;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
+import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -15,23 +17,19 @@ public class UpdateImpl {
             .client(OkHttpClientManager.setUpSecureClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build();
+
     Update service = retrofit.create(Update.class);
 
-    public UpdateImpl() {
+    public UpdateImpl() { }
 
-    }
-
-    public String updateUserData(String body) {
-
-        Call<String> call = service.update(body);
+    public UpdateResponse updateProfile(HashMap<String, Object> body) {
+        Call<UpdateResponse> call = service.update(body);
         try {
-            String responseMessage = call.execute().body();
-
-            return responseMessage;
+            return call.execute().body();
         } catch (IOException e) {
             // handle errors
         }
 
-        return ConstantRegistry.ERROR;
+        return new UpdateResponse(ConstantRegistry.SERVER_RESPONSE_ERROR, false);
     }
 }

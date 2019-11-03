@@ -61,6 +61,15 @@ public class UserProfileSettingsSuggestionsFragment extends Fragment {
     private boolean femaleIsSelected = false;
     private boolean bothIsSelected = false;
 
+    public static UserProfileSettingsSuggestionsFragment newInstance() {
+        
+        Bundle args = new Bundle();
+        
+        UserProfileSettingsSuggestionsFragment fragment = new UserProfileSettingsSuggestionsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -162,13 +171,13 @@ public class UserProfileSettingsSuggestionsFragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+        mainActivity.updateUserProfile();
     }
 
     @Override
