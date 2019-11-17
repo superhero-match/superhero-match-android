@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
@@ -22,26 +21,25 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
-import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
-import nl.mwsoft.www.superheromatch.modelLayer.model.User;
-import nl.mwsoft.www.superheromatch.modelLayer.network.suggestions.Suggestions;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 
 public class SuggestionFragment extends Fragment {
 
     @BindView(R.id.ivSuggestionProfilePic)
     ImageView ivSuggestionProfilePic;
-    @BindView(R.id.tvSuggestionName)
-    TextView tvSuggestionName;
-    @BindView(R.id.tvSuggestionAgeGender)
-    TextView tvSuggestionAgeGender;
+    @BindView(R.id.tvSuggestionNameAge)
+    TextView tvSuggestionNameAge;
+    @BindView(R.id.tvSuggestionCity)
+    TextView tvSuggestionCity;
     @BindView(R.id.tvSuggestionSuperPowerDesc)
     TextView tvSuggestionSuperPowerDesc;
     @BindView(R.id.ivSuggestionDislike)
     ImageView ivSuggestionDislike;
     @BindView(R.id.ivSuggestionLike)
     ImageView ivSuggestionLike;
+    @BindView(R.id.ivSuperPowerIconSuggestion)
+    ImageView ivSuperPowerIconSuggestion;
     private Unbinder unbinder;
     private MainActivity mainActivity;
     private Superhero superhero;
@@ -73,27 +71,23 @@ public class SuggestionFragment extends Fragment {
                 superhero = new Superhero();
                 Toast.makeText(mainActivity, "Something went wrong!", Toast.LENGTH_SHORT).show();
             } else {
+                ivSuggestionProfilePic.setClipToOutline(true);
                 Glide.with(mainActivity)
                         .load(R.drawable.test)
                         .into(ivSuggestionProfilePic);
 
-                tvSuggestionName.setTypeface(tvSuggestionName.getTypeface(), Typeface.BOLD);
-                tvSuggestionName.setText(superhero.getSuperheroName());
+                tvSuggestionNameAge.bringToFront();
+                tvSuggestionNameAge.setTypeface(tvSuggestionNameAge.getTypeface(), Typeface.BOLD);
+                tvSuggestionNameAge.setText(
+                        getString(
+                                R.string.name_age,
+                                superhero.getSuperheroName(),
+                                superhero.getAge()
+                        )
+                );
 
-                switch (superhero.getGender()) {
-                    case ConstantRegistry.MALE:
-                        tvSuggestionAgeGender.setText(getString(
-                                R.string.male_age,
-                                superhero.getAge())
-                        );
-                        break;
-                    case ConstantRegistry.FEMALE:
-                        tvSuggestionAgeGender.setText(getString(
-                                R.string.female_age,
-                                superhero.getAge())
-                        );
-                        break;
-                }
+                tvSuggestionCity.setTypeface(tvSuggestionCity.getTypeface(), Typeface.BOLD);
+                tvSuggestionCity.setText(superhero.getCity());
 
                 tvSuggestionSuperPowerDesc.setText(superhero.getSuperpower());
             }
@@ -116,16 +110,26 @@ public class SuggestionFragment extends Fragment {
     }
 
     @OnClick(R.id.ivSuggestionLike)
-    public void onSuggestionLike(){
+    public void onSuggestionLike() {
         // TO-DO: make request to server to process like and to check if there is match,
         // and then remove the user from the list and return to the suggestions list.
-        Toast.makeText(mainActivity, "Like", Toast.LENGTH_SHORT).show();
+        mainActivity.loadNextSuggestion(newInstance(mainActivity.createMockSuperhero()));
     }
 
     @OnClick(R.id.ivSuggestionDislike)
-    public void onSuggestionDislike(){
+    public void onSuggestionDislike() {
         // TO-DO: make request to server to process dislike,
         // and then remove the user from the list and return to the suggestions list.
-        Toast.makeText(mainActivity, "Dislike", Toast.LENGTH_SHORT).show();
+        mainActivity.loadNextSuggestion(newInstance(mainActivity.createMockSuperhero()));
+    }
+
+    @OnClick(R.id.ivSuperPowerIconSuggestion)
+    public void onSuggestionSuperpowerIcon() {
+        mainActivity.openSuggestionDescriptionWindow();
+        mainActivity.loadSuggestionDescriptionFragment(
+                SuggestionDescriptionFragment.newInstance(
+                        mainActivity.createMockSuperhero()
+                )
+        );
     }
 }

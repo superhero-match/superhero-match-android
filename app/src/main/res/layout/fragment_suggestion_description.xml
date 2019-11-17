@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite">
+
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:id="@+id/ivSuggestionDescriptionClose"
+        android:src="@drawable/close_256"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:contentDescription="@string/close_window" />
+
+    <TextView
+        android:id="@+id/tvSuggestionDescriptionNameAge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/ivSuggestionDescriptionClose"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvSuggestionDescriptionCity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvSuggestionDescriptionNameAge"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tvSuggestionDescriptionTopDelimiter"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/tvSuggestionDescriptionCity"
+        android:layout_marginTop="15dp"
+        android:backgroundTint="@color/colorDelimiter"/>
+
+    <TextView
+        android:id="@+id/tvSuggestionDescriptionSuperpower"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvSuggestionDescriptionTopDelimiter"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="10dp"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvSuggestionDescriptionBottomDelimiter"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/tvSuggestionDescriptionSuperpower"
+        android:layout_marginTop="15dp"
+        android:backgroundTint="@color/colorDelimiter"/>
+
+</RelativeLayout>

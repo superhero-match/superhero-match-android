@@ -13,4 +13,5 @@
     <color name="colorActiveDots">#fffafa</color>
     <color name="colorInactiveDots">#edecec</color>
     <color name="colorUserNameUnAvailable">#ed2424</color>
+    <color name="black">#22000000</color>
 </resources>
