@@ -2,63 +2,86 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorWhite">
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="275dp"
+        android:layout_height="wrap_content"
         android:id="@+id/ivSuggestionProfilePic"
         android:src="@drawable/test"
+        android:maxHeight="435dp"
         android:clickable="true"
         android:focusable="true"
-        android:layout_centerHorizontal="true"
-        android:contentDescription="@string/user_profile_image"
-        android:layout_marginBottom="3dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tvSuggestionName"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_below="@+id/ivSuggestionProfilePic"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tvSuggestionAgeGender"
-        android:textSize="14sp"
-        android:layout_below="@+id/tvSuggestionName"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"/>
-
-    <ImageView
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:id="@+id/ivSuperPowerIconSuggestion"
-        android:src="@drawable/superpower_256"
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp"
-        android:layout_marginTop="10dp"
-        android:layout_below="@+id/tvSuggestionAgeGender"
-        android:contentDescription="@string/super_power"/>
+        android:layout_marginTop="5dp"
+        android:contentDescription="@string/user_profile_image"
+        android:background="@drawable/my_image_view"
+        android:elevation="5dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="125dp"
+        android:elevation="10dp"
+        android:background="@drawable/black_gradient">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvSuggestionNameAge"
+        android:text="Superhero, 34"
+        android:textStyle="bold"
+        android:textSize="24sp"
+        android:textColor="@color/colorWhite"
+        android:shadowColor="@color/colorDarkGrey"
+        android:shadowRadius="2"
+        android:shadowDy="2"
+        android:shadowDx="2"
+        android:layout_marginStart="20dp"
+        android:elevation="10dp"
+        android:layout_above="@+id/tvSuggestionCity"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvSuggestionCity"
+        android:text="Utrecht"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorWhite"
+        android:shadowColor="@color/colorDarkGrey"
+        android:shadowRadius="2"
+        android:shadowDy="2"
+        android:shadowDx="2"
+        android:layout_marginStart="20dp"
+        android:layout_above="@+id/tvSuggestionSuperPowerDesc"
+        android:elevation="10dp"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tvSuggestionSuperPowerDesc"
-        android:layout_below="@+id/tvSuggestionAgeGender"
-        android:layout_toEndOf="@+id/ivSuperPowerIconSuggestion"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginTop="10dp"
-        android:textSize="16sp" />
+        android:text="@string/test_superpower"
+        android:textSize="14sp"
+        android:textColor="@color/colorWhite"
+        android:shadowColor="@color/colorDarkGrey"
+        android:shadowRadius="1"
+        android:shadowDy="-1"
+        android:shadowDx="-1"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="12dp"
+        android:elevation="10dp"
+        android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
 
     <ImageView
         android:layout_width="45dp"
@@ -68,11 +91,22 @@
         android:clickable="true"
         android:focusable="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/tvSuggestionSuperPowerDesc"
+        android:layout_alignParentBottom="true"
         android:layout_marginStart="25dp"
-        android:contentDescription="@string/user_profile_settings"
-        android:layout_marginTop="25dp"
-        android:visibility="visible" />
+        android:layout_marginBottom="65dp"
+        android:contentDescription="@string/dislike" />
+
+    <ImageView
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:id="@+id/ivSuperPowerIconSuggestion"
+        android:src="@drawable/superpower_256"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="65dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="@string/super_power"/>
 
     <ImageView
         android:layout_width="45dp"
@@ -82,9 +116,11 @@
         android:clickable="true"
         android:focusable="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/tvSuggestionSuperPowerDesc"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="65dp"
         android:layout_marginEnd="25dp"
-        android:contentDescription="@string/user_profile_edit"
+        android:contentDescription="@string/like"
         android:layout_marginTop="25dp"
         android:visibility="visible"/>
+
 </RelativeLayout>

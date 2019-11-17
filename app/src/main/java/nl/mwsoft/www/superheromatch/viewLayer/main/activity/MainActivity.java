@@ -1,6 +1,8 @@
 package nl.mwsoft.www.superheromatch.viewLayer.main.activity;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,7 +23,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
@@ -33,6 +38,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.transition.Slide;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.api.ApiException;
@@ -118,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
     private LocationCallback locationCallback;
     private Location currentLocation;
     private boolean loadingDialogIsActive;
+    @BindView(R.id.frame_superhero_details)
+    FrameLayout suggestionFrameLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -283,21 +293,7 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_suggestions:
                     currFragmentPosition = 1;
-                    Superhero superhero = new Superhero(
-                            "id",
-                            "SuperheroName",
-                            "mainProfilePicUrl",
-                            null,
-                            1,
-                            34,
-                            10.00,
-                            10.00,
-                            "Country",
-                            "City",
-                            "My Super Power described here but really long to check how it looks on the screen needs to be around 126 characters.",
-                            "FREE"
-                    );
-                    fragment = SuggestionFragment.newInstance(superhero);
+                    fragment = SuggestionFragment.newInstance(createMockSuperhero());
                     loadFragment(fragment);
                     return true;
                 case R.id.navigation_matches:
@@ -317,14 +313,41 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
+        transaction.replace(R.id.frame_main_container, fragment);
+        transaction.commit();
+    }
+
+    public void loadNextSuggestion(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
         transaction.replace(R.id.frame_main_container, fragment);
         transaction.commit();
     }
 
     public void loadBackStackFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
         transaction.replace(R.id.frame_main_container, fragment);
         transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    public void closeSuggestionDescriptionWindow(){
+        Animation slideDown = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_down);
+        suggestionFrameLayout.setVisibility(View.GONE);
+        suggestionFrameLayout.startAnimation(slideDown);
+    }
+
+    public void openSuggestionDescriptionWindow(){
+        Animation slideUp = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_up);
+        suggestionFrameLayout.setVisibility(View.VISIBLE);
+        suggestionFrameLayout.startAnimation(slideUp);
+    }
+
+    public void loadSuggestionDescriptionFragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_superhero_details, fragment);
         transaction.commit();
     }
 
@@ -342,6 +365,23 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadImageDetailFragment(User user){
         loadBackStackFragment(ImageDetailFragment.newInstance(user.getMainProfilePicUrl()));
+    }
+
+    public Superhero createMockSuperhero(){
+        return  new Superhero(
+                "id",
+                "SuperheroName",
+                "mainProfilePicUrl",
+                null,
+                1,
+                34,
+                10.00,
+                10.00,
+                "Country",
+                "City",
+                "My Super Power described here but really long to check how it looks on the screen needs to be around 126 characters.",
+                "FREE"
+        );
     }
 
     public User createMockUser() {
