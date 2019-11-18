@@ -27,6 +27,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
@@ -72,6 +73,7 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import io.fabric.sdk.android.Fabric;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -94,6 +96,7 @@ import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.ImageDetailFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.MatchesChatsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionDescriptionFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileEditFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileFragment;
@@ -110,6 +113,12 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView navigation;
     @BindView(R.id.tlMain)
     Toolbar tlMain;
+    @BindView(R.id.ivSuggestionDislike)
+    ImageView ivSuggestionDislike;
+    @BindView(R.id.ivSuggestionLike)
+    ImageView ivSuggestionLike;
+    @BindView(R.id.ivSuperPowerIconSuggestion)
+    ImageView ivSuperPowerIconSuggestion;
     private Unbinder unbinder;
     private RootCoordinator rootCoordinator;
     private MainPresenter mainPresenter;
@@ -316,6 +325,16 @@ public class MainActivity extends AppCompatActivity {
         transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
         transaction.replace(R.id.frame_main_container, fragment);
         transaction.commit();
+
+        if (currFragmentPosition != 1) {
+            ivSuggestionDislike.setVisibility(View.GONE);
+            ivSuggestionLike.setVisibility(View.GONE);
+            ivSuperPowerIconSuggestion.setVisibility(View.GONE);
+        } else {
+            ivSuggestionDislike.setVisibility(View.VISIBLE);
+            ivSuggestionLike.setVisibility(View.VISIBLE);
+            ivSuperPowerIconSuggestion.setVisibility(View.VISIBLE);
+        }
     }
 
     public void loadNextSuggestion(Fragment fragment) {
@@ -368,11 +387,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public Superhero createMockSuperhero(){
+        ArrayList<String> profilePicUrls = new ArrayList<>();
+        profilePicUrls.add("test");
+        profilePicUrls.add("test1");
+        profilePicUrls.add("test2");
+        profilePicUrls.add("test3");
+        profilePicUrls.add("test4");
+        profilePicUrls.add("test5");
+        profilePicUrls.add("test6");
+        profilePicUrls.add("test7");
+        profilePicUrls.add("test8");
+        profilePicUrls.add("test9");
+        profilePicUrls.add("test10");
+        profilePicUrls.add("test11");
+        profilePicUrls.add("test12");
+
         return  new Superhero(
                 "id",
                 "SuperheroName",
                 "mainProfilePicUrl",
-                null,
+                profilePicUrls,
                 1,
                 34,
                 10.00,
@@ -994,6 +1028,26 @@ public class MainActivity extends AppCompatActivity {
                 superPower,
                 MainActivity.this
         );
+    }
+
+    @OnClick(R.id.ivSuggestionLike)
+    public void onSuggestionLike() {
+        // TO-DO: make request to server to process like and to check if there is match,
+        // and then remove the user from the list and return to the suggestions list.
+        loadNextSuggestion(SuggestionFragment.newInstance(createMockSuperhero()));
+    }
+
+    @OnClick(R.id.ivSuggestionDislike)
+    public void onSuggestionDislike() {
+        // TO-DO: make request to server to process dislike,
+        // and then remove the user from the list and return to the suggestions list.
+        loadNextSuggestion(SuggestionFragment.newInstance(createMockSuperhero()));
+    }
+
+    @OnClick(R.id.ivSuperPowerIconSuggestion)
+    public void onSuggestionSuperpowerIcon() {
+        openSuggestionDescriptionWindow();
+       loadSuggestionDescriptionFragment(SuggestionDescriptionFragment.newInstance(createMockSuperhero()));
     }
 
 }
