@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,28 +19,17 @@ import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
+import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.SuggestionProfileViewPagerAdapter;
 
 public class SuggestionFragment extends Fragment {
 
-    @BindView(R.id.ivSuggestionProfilePic)
-    ImageView ivSuggestionProfilePic;
-    @BindView(R.id.tvSuggestionNameAge)
-    TextView tvSuggestionNameAge;
-    @BindView(R.id.tvSuggestionCity)
-    TextView tvSuggestionCity;
-    @BindView(R.id.tvSuggestionSuperPowerDesc)
-    TextView tvSuggestionSuperPowerDesc;
-    @BindView(R.id.ivSuggestionDislike)
-    ImageView ivSuggestionDislike;
-    @BindView(R.id.ivSuggestionLike)
-    ImageView ivSuggestionLike;
-    @BindView(R.id.ivSuperPowerIconSuggestion)
-    ImageView ivSuperPowerIconSuggestion;
+    @BindView(R.id.vpSuggestionUserProfile)
+    ViewPager vpSuggestionUserProfile;
+    private SuggestionProfileViewPagerAdapter suggestionUserProfileViewPagerAdapter;
     private Unbinder unbinder;
     private MainActivity mainActivity;
     private Superhero superhero;
@@ -50,6 +40,7 @@ public class SuggestionFragment extends Fragment {
         args.putParcelable(SUPERHERO, superhero);
         SuggestionFragment fragment = new SuggestionFragment();
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -57,6 +48,7 @@ public class SuggestionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_suggestion, container, false);
         unbinder = ButterKnife.bind(this, view);
+
         return view;
     }
 
@@ -67,29 +59,12 @@ public class SuggestionFragment extends Fragment {
         Bundle arguments = getArguments();
         if (arguments != null) {
             superhero = arguments.getParcelable(SUPERHERO);
+
             if (superhero == null) {
                 superhero = new Superhero();
                 Toast.makeText(mainActivity, "Something went wrong!", Toast.LENGTH_SHORT).show();
             } else {
-                ivSuggestionProfilePic.setClipToOutline(true);
-                Glide.with(mainActivity)
-                        .load(R.drawable.test)
-                        .into(ivSuggestionProfilePic);
-
-                tvSuggestionNameAge.bringToFront();
-                tvSuggestionNameAge.setTypeface(tvSuggestionNameAge.getTypeface(), Typeface.BOLD);
-                tvSuggestionNameAge.setText(
-                        getString(
-                                R.string.name_age,
-                                superhero.getSuperheroName(),
-                                superhero.getAge()
-                        )
-                );
-
-                tvSuggestionCity.setTypeface(tvSuggestionCity.getTypeface(), Typeface.BOLD);
-                tvSuggestionCity.setText(superhero.getCity());
-
-                tvSuggestionSuperPowerDesc.setText(superhero.getSuperpower());
+                configureViewPager(superhero);
             }
         } else {
             superhero = new Superhero();
@@ -109,27 +84,13 @@ public class SuggestionFragment extends Fragment {
         mainActivity = (MainActivity) context;
     }
 
-    @OnClick(R.id.ivSuggestionLike)
-    public void onSuggestionLike() {
-        // TO-DO: make request to server to process like and to check if there is match,
-        // and then remove the user from the list and return to the suggestions list.
-        mainActivity.loadNextSuggestion(newInstance(mainActivity.createMockSuperhero()));
-    }
-
-    @OnClick(R.id.ivSuggestionDislike)
-    public void onSuggestionDislike() {
-        // TO-DO: make request to server to process dislike,
-        // and then remove the user from the list and return to the suggestions list.
-        mainActivity.loadNextSuggestion(newInstance(mainActivity.createMockSuperhero()));
-    }
-
-    @OnClick(R.id.ivSuperPowerIconSuggestion)
-    public void onSuggestionSuperpowerIcon() {
-        mainActivity.openSuggestionDescriptionWindow();
-        mainActivity.loadSuggestionDescriptionFragment(
-                SuggestionDescriptionFragment.newInstance(
-                        mainActivity.createMockSuperhero()
-                )
+    private void configureViewPager(Superhero suggestion) {
+        suggestionUserProfileViewPagerAdapter = new SuggestionProfileViewPagerAdapter(
+                getChildFragmentManager(),
+                suggestion
         );
+
+        vpSuggestionUserProfile.setOffscreenPageLimit(1);
+        vpSuggestionUserProfile.setAdapter(suggestionUserProfileViewPagerAdapter);
     }
 }
