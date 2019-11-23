@@ -13,7 +13,7 @@ import com.squareup.picasso.Picasso;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.ImageDetailFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.ImageDetailFragment;
 
 public class UserProfilePicturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

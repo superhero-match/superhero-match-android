@@ -1,9 +1,6 @@
 package nl.mwsoft.www.superheromatch.viewLayer.main.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;

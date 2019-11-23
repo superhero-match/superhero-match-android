@@ -15,7 +15,7 @@ import java.util.List;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.ChatFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.ChatFragment;
 
 public class MatchesChatsAdapter extends RecyclerView.Adapter<MatchesChatsAdapter.MyViewHolder> {
 

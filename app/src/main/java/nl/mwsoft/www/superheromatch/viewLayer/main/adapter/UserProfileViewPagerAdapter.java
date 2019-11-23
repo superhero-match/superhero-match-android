@@ -5,8 +5,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.ProfileDetailsFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserPicturesFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileImageFragment;
 
 public class UserProfileViewPagerAdapter extends FragmentPagerAdapter {
 
@@ -19,31 +18,33 @@ public class UserProfileViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Fragment fragment = null;
-        if (position == 0) {
-            fragment = ProfileDetailsFragment.newInstance(this.user);
-        }
-        else if (position == 1) {
-            fragment = UserPicturesFragment.newInstance(this.user);
+        String profilePic = this.user.getMainProfilePicUrl();
+
+        if (this.user.getProfilePicsUrls() != null) {
+            profilePic = this.user.getProfilePicsUrls().get(position);
         }
 
-        return fragment;
+        return UserProfileImageFragment.newInstance(
+                profilePic,
+                this.user.getSuperHeroName(),
+                this.user.getAge(),
+                this.user.getCity(),
+                this.user.getSuperPower()
+        );
     }
 
     @Override
     public int getCount() {
-        return 2;
+        if (this.user.getProfilePicsUrls() != null) {
+            return this.user.getProfilePicsUrls().size();
+        }
+
+        return 0;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
         String title = null;
-        if (position == 0) {
-            // set title here if needed
-        }
-        else if (position == 1) {
-            // set title here if needed
-        }
         return title;
     }
 }

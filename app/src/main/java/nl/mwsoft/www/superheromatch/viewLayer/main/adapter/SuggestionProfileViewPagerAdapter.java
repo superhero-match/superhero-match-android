@@ -1,13 +1,11 @@
 package nl.mwsoft.www.superheromatch.viewLayer.main.adapter;
 
-import android.util.Log;
-
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionProfileImageFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionProfileImageFragment;
 
 public class SuggestionProfileViewPagerAdapter extends FragmentPagerAdapter {
 

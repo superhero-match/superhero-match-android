@@ -2,63 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorWhite">
 
-    <ImageView
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/vpUserProfile"
         android:layout_width="match_parent"
-        android:layout_height="275dp"
-        android:id="@+id/ivUserProfilePic"
-        android:src="@drawable/test"
-        android:clickable="true"
-        android:focusable="true"
-        android:layout_centerHorizontal="true"
-        android:contentDescription="@string/user_profile_image"
-        android:layout_marginBottom="3dp"/>
+        android:layout_height="435dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tvUserName"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_below="@+id/ivUserProfilePic"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tvUserAgeGender"
-        android:textSize="14sp"
-        android:layout_below="@+id/tvUserName"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"/>
-
-    <ImageView
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:id="@+id/ivSuperPowerIcon"
-        android:src="@drawable/superpower_256"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginTop="10dp"
-        android:layout_below="@+id/tvUserAgeGender"
-        android:contentDescription="@string/super_power"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/tvUserProfileDetailsSuperPowerDesc"
-        android:layout_below="@+id/tvUserAgeGender"
-        android:layout_toEndOf="@+id/ivSuperPowerIcon"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginTop="10dp"
-        android:textSize="16sp" />
 
     <ImageView
         android:layout_width="45dp"
@@ -68,11 +20,24 @@
         android:clickable="true"
         android:focusable="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/tvUserProfileDetailsSuperPowerDesc"
+        android:layout_alignParentBottom="true"
         android:layout_marginStart="25dp"
         android:contentDescription="@string/user_profile_settings"
-        android:layout_marginTop="25dp"
+        android:layout_marginBottom="65dp"
         android:visibility="visible" />
+
+    <ImageView
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:id="@+id/ivUserProfileImageGallery"
+        android:src="@drawable/user_imgs_256"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:contentDescription="@string/user_profile_image"
+        android:layout_marginBottom="65dp"
+        android:visibility="visible"/>
 
     <ImageView
         android:layout_width="45dp"
@@ -82,9 +47,9 @@
         android:clickable="true"
         android:focusable="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/tvUserProfileDetailsSuperPowerDesc"
+        android:layout_alignParentBottom="true"
         android:layout_marginEnd="25dp"
         android:contentDescription="@string/user_profile_edit"
-        android:layout_marginTop="25dp"
+        android:layout_marginBottom="65dp"
         android:visibility="visible"/>
 </RelativeLayout>
