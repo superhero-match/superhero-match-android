@@ -1,4 +1,4 @@
-package nl.mwsoft.www.superheromatch.viewLayer.main.fragment;
+package nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -20,30 +20,30 @@ import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
-import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.NearbyAdapter;
+import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.SuggestionsAdapter;
 
-public class NearbyFragment extends Fragment {
+public class SuggestionsFragment extends Fragment {
 
-    @BindView(R.id.rvNearby)
+    @BindView(R.id.rvSuggestions)
     RecyclerView rvSuggestions;
-    private NearbyAdapter nearbyAdapter;
+    private SuggestionsAdapter suggestionsAdapter;
     private Unbinder unbinder;
     private MainActivity mainActivity;
     private ArrayList<User> users;
     private static final String USERS = "users";
     private int currentPosition = 0;
 
-    public static NearbyFragment newInstance(ArrayList<User> users) {
+    public static SuggestionsFragment newInstance(ArrayList<User> users) {
         Bundle args = new Bundle();
         args.putParcelableArrayList(USERS, users);
-        NearbyFragment fragment = new NearbyFragment();
+        SuggestionsFragment fragment = new SuggestionsFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_nearby, container, false);
+        View view = inflater.inflate(R.layout.fragment_suggestions, container, false);
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
@@ -66,12 +66,12 @@ public class NearbyFragment extends Fragment {
     }
 
     private void loadSuggestions(ArrayList<User> users) {
-        nearbyAdapter = new NearbyAdapter(users);
+        suggestionsAdapter = new SuggestionsAdapter(users);
         StaggeredGridLayoutManager mLayoutManager =
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         rvSuggestions.setLayoutManager(mLayoutManager);
         rvSuggestions.setItemAnimator(new DefaultItemAnimator());
-        rvSuggestions.setAdapter(nearbyAdapter);
+        rvSuggestions.setAdapter(suggestionsAdapter);
     }
 
     @Override
@@ -90,4 +90,5 @@ public class NearbyFragment extends Fragment {
         super.onAttach(context);
         mainActivity = (MainActivity) context;
     }
+
 }

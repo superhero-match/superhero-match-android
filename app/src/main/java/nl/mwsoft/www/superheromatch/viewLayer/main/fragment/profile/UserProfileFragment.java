@@ -1,4 +1,4 @@
-package nl.mwsoft.www.superheromatch.viewLayer.main.fragment;
+package nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -12,32 +12,26 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
+import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.SuggestionProfileViewPagerAdapter;
+import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.UserProfileViewPagerAdapter;
 
 public class UserProfileFragment extends Fragment {
 
-    @BindView(R.id.ivUserProfilePic)
-    ImageView ivUserProfilePic;
-    @BindView(R.id.ivUserProfileSettings)
-    ImageView ivUserProfileSettings;
-    @BindView(R.id.ivUserProfileEdit)
-    ImageView ivUserProfileEdit;
-    @BindView(R.id.tvUserName)
-    TextView tvUserName;
-    @BindView(R.id.tvUserAgeGender)
-    TextView tvUserAgeGender;
-    @BindView(R.id.tvUserProfileDetailsSuperPowerDesc)
-    TextView tvUserProfileDetailsSuperPowerDesc;
+    @BindView(R.id.vpUserProfile)
+    ViewPager vpUserProfile;
+    private UserProfileViewPagerAdapter userProfileViewPagerAdapter;
     private Unbinder unbinder;
     private MainActivity mainActivity;
     private User user;
@@ -69,7 +63,7 @@ public class UserProfileFragment extends Fragment {
                 user = new User();
                 Toast.makeText(mainActivity, "Something went wrong!", Toast.LENGTH_SHORT).show();
             } else {
-                loadUserProfileDetails(user);
+                configureViewPager(user);
             }
         } else {
             user = new User();
@@ -89,26 +83,14 @@ public class UserProfileFragment extends Fragment {
         mainActivity = (MainActivity) context;
     }
 
-    private void loadUserProfileDetails(User user) {
-        Glide.with(mainActivity)
-                .load(R.drawable.test)
-                .into(ivUserProfilePic);
-        configureUserName(user);
-        configureUserAgeAndGender(user);
-        configureUserSuperPower(user);
-    }
+    private void configureViewPager(User user) {
+        userProfileViewPagerAdapter = new UserProfileViewPagerAdapter(
+                getChildFragmentManager(),
+                user
+        );
 
-    private void configureUserSuperPower(User user) {
-        tvUserProfileDetailsSuperPowerDesc.setText(user.getSuperPower());
-    }
-
-    private void configureUserAgeAndGender(User user) {
-        tvUserAgeGender.setText(String.valueOf(user.getAge()).concat(", ").concat(user.getGender() == 1 ? "Male" : "Female"));
-    }
-
-    private void configureUserName(User user) {
-        tvUserName.setTypeface(tvUserName.getTypeface(), Typeface.BOLD);
-        tvUserName.setText(user.getName());
+        vpUserProfile.setOffscreenPageLimit(1);
+        vpUserProfile.setAdapter(userProfileViewPagerAdapter);
     }
 
     @OnClick(R.id.ivUserProfileSettings)
@@ -121,7 +103,7 @@ public class UserProfileFragment extends Fragment {
         mainActivity.loadSuggestionUserProfileEditFragment();
     }
 
-    @OnClick(R.id.ivUserProfilePic)
+    @OnClick(R.id.ivUserProfileImageGallery)
     public void onUserProfilePicClickListener() {
         mainActivity.loadImageDetailFragment(mainActivity.createMockUser());
     }

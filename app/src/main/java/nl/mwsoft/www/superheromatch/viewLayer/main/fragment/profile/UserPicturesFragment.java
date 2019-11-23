@@ -1,4 +1,4 @@
-package nl.mwsoft.www.superheromatch.viewLayer.main.fragment;
+package nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,19 +14,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 
-import com.squareup.picasso.Picasso;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.modelLayer.event.SuperheroProfilePicEvent;
-import nl.mwsoft.www.superheromatch.modelLayer.helper.image.ImageCircleTransformUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.UserProfilePicturesAdapter;

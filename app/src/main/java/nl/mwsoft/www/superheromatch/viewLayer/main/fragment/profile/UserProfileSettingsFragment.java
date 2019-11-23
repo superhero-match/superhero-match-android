@@ -1,4 +1,4 @@
-package nl.mwsoft.www.superheromatch.viewLayer.main.fragment;
+package nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile;
 
 import android.content.Context;
 import android.os.Bundle;

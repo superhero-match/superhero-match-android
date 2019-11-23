@@ -1,8 +1,6 @@
 package nl.mwsoft.www.superheromatch.viewLayer.main.activity;
 
 import android.Manifest;
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,9 +37,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.transition.Slide;
-import androidx.transition.Transition;
-import androidx.transition.TransitionManager;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.api.ApiException;
@@ -94,14 +89,13 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.ImageDetailFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.MatchesChatsFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionDescriptionFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.SuggestionFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileEditFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileSettingsFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.UserProfileSettingsSuggestionsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.ImageDetailFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.MatchesChatsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionDescriptionFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileEditFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileSettingsSuggestionsFragment;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
@@ -419,12 +413,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public User createMockUser() {
-        ArrayList<String> urls = new ArrayList<>(createMockUserProfilePicturesUrls());
+        ArrayList<String> profilePicUrls = new ArrayList<>();
+        profilePicUrls.add("test");
+        profilePicUrls.add("test1");
+        profilePicUrls.add("test2");
+        profilePicUrls.add("test3");
+        profilePicUrls.add("test4");
+        profilePicUrls.add("test5");
+        profilePicUrls.add("test6");
+        profilePicUrls.add("test7");
+        profilePicUrls.add("test8");
+        profilePicUrls.add("test9");
+        profilePicUrls.add("test10");
+        profilePicUrls.add("test11");
+        profilePicUrls.add("test12");
+
         User user = new User();
         user.setId("311234567890L");
-        user.setName("Super Hero");
+        user.setName("Superhero");
+        user.setSuperHeroName("Superhero");
         user.setMainProfilePicUrl("main");
-        user.setProfilePicsUrls(urls);
+        user.setProfilePicsUrls(profilePicUrls);
         user.setGender(1);
         user.setAge(32);
         user.setBirthday("30-05-1985");

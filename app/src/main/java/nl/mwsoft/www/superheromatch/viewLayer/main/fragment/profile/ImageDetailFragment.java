@@ -1,48 +1,44 @@
-package nl.mwsoft.www.superheromatch.viewLayer.main.fragment;
+package nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.squareup.picasso.Picasso;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
-import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 
-public class ProfileDetailsFragment extends Fragment {
+public class ImageDetailFragment extends Fragment {
 
-    @BindView(R.id.tvUserProfileDetailsSuperPower)
-    TextView tvUserProfileDetailsAbout;
-    @BindView(R.id.tvUserProfileDetailsSuperPowerDesc)
-    TextView tvUserProfileDetailsAboutDesc;
-
+    @BindView(R.id.ivImageDetail)
+    ImageView ivImageDetail;
     private Unbinder unbinder;
     private MainActivity mainActivity;
-    private User user;
-    private final static String USER = "user";
+    private String imageUrl;
+    private static final String IMAGE_URL = "image_url";
 
-    public static ProfileDetailsFragment newInstance(User user) {
+    public static ImageDetailFragment newInstance(String imageUrl) {
         Bundle args = new Bundle();
-        args.putParcelable(USER, user);
-        ProfileDetailsFragment fragment = new ProfileDetailsFragment();
+        args.putString(IMAGE_URL, imageUrl);
+        ImageDetailFragment fragment = new ImageDetailFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_user_profile_details, container, false);
+        View view = inflater.inflate(R.layout.fragment_image_detail, container, false);
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
@@ -50,23 +46,24 @@ public class ProfileDetailsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mainActivity.setToolbarStatusBarColorBlack();
         Bundle arguments = getArguments();
         if(arguments != null){
-            user = arguments.getParcelable(USER);
-            loadUserProfileDetails(user);
+            imageUrl = arguments.getString(IMAGE_URL);
+            if(imageUrl == null){
+                Toast.makeText(mainActivity,"Something went wrong!",Toast.LENGTH_SHORT).show();
+            }else {
+                Picasso.with(mainActivity).load(R.drawable.user_512).into(ivImageDetail);
+            }
         }else{
-            Toast.makeText(mainActivity, "Something went wrong!", Toast.LENGTH_LONG).show();
+            Toast.makeText(mainActivity,"Something went wrong!",Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void loadUserProfileDetails(User user) {
-        tvUserProfileDetailsAbout.setTypeface(tvUserProfileDetailsAbout.getTypeface(), Typeface.BOLD);
-        tvUserProfileDetailsAboutDesc.setText(user.getSuperPower());
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mainActivity.setToolbarStatusBarColorPrimary();
         unbinder.unbind();
     }
 
