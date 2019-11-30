@@ -84,9 +84,14 @@ public class UserProfileImageFragment  extends Fragment {
         ivUserProfilePic.setClipToOutline(true);
 
         switch (picUrl) {
-            case "test1":
+            case "test":
                 Glide.with(mainActivity)
-                        .load(R.drawable.test1)
+                        .load(R.drawable.test)
+                        .into(ivUserProfilePic);
+                break;
+            case "test5":
+                Glide.with(mainActivity)
+                        .load(R.drawable.test5)
                         .into(ivUserProfilePic);
                 break;
             case "test2":
@@ -99,56 +104,11 @@ public class UserProfileImageFragment  extends Fragment {
                         .load(R.drawable.test3)
                         .into(ivUserProfilePic);
                 break;
-            case "test4":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test4)
-                        .into(ivUserProfilePic);
-                break;
-            case "test5":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test5)
-                        .into(ivUserProfilePic);
-                break;
-            case "test6":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test6)
-                        .into(ivUserProfilePic);
-                break;
             case "test7":
                 Glide.with(mainActivity)
                         .load(R.drawable.test7)
                         .into(ivUserProfilePic);
                 break;
-            case "test8":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test8)
-                        .into(ivUserProfilePic);
-                break;
-            case "test9":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test9)
-                        .into(ivUserProfilePic);
-                break;
-            case "test10":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test10)
-                        .into(ivUserProfilePic);
-                break;
-            case "test11":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test11)
-                        .into(ivUserProfilePic);
-                break;
-            case "test12":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test12)
-                        .into(ivUserProfilePic);
-                break;
-            case "test":
-            default:
-                Glide.with(mainActivity)
-                        .load(R.drawable.test)
-                        .into(ivUserProfilePic);
         }
 
         tvUserNameAge.bringToFront();

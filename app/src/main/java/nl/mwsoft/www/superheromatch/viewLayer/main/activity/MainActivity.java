@@ -79,6 +79,11 @@ import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.coordinator.RootCoordinator;
 import nl.mwsoft.www.superheromatch.dependencyRegistry.DependencyRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
+import nl.mwsoft.www.superheromatch.modelLayer.event.MainProfilePicSettingsEvent;
+import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic1SettingsEvent;
+import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic2SettingsEvent;
+import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic3SettingsEvent;
+import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic4SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.SuperheroProfilePicEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
@@ -91,6 +96,7 @@ import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.ImageDetailFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.MatchesChatsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfilePictureSettingsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionDescriptionFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileEditFragment;
@@ -131,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean loadingDialogIsActive;
     @BindView(R.id.frame_superhero_details)
     FrameLayout suggestionFrameLayout;
+    public int currentProfileImageView = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -376,30 +383,27 @@ public class MainActivity extends AppCompatActivity {
         loadBackStackFragment(UserProfileEditFragment.newInstance());
     }
 
-    public void loadImageDetailFragment(User user){
-        loadBackStackFragment(ImageDetailFragment.newInstance(user.getMainProfilePicUrl()));
+    public void loadProfilePictureSettingsFragment(User user){
+        loadBackStackFragment(
+                UserProfilePictureSettingsFragment.newInstance(
+                        user.getMainProfilePicUrl(),
+                        user.getProfilePicsUrls()
+                )
+        );
     }
 
     public Superhero createMockSuperhero(){
         ArrayList<String> profilePicUrls = new ArrayList<>();
-        profilePicUrls.add("test");
-        profilePicUrls.add("test1");
+        profilePicUrls.add(0, "test");// add main profile pic first always
+        profilePicUrls.add("test5");
         profilePicUrls.add("test2");
         profilePicUrls.add("test3");
-        profilePicUrls.add("test4");
-        profilePicUrls.add("test5");
-        profilePicUrls.add("test6");
         profilePicUrls.add("test7");
-        profilePicUrls.add("test8");
-        profilePicUrls.add("test9");
-        profilePicUrls.add("test10");
-        profilePicUrls.add("test11");
-        profilePicUrls.add("test12");
 
-        return  new Superhero(
+        return new Superhero(
                 "id",
                 "SuperheroName",
-                "mainProfilePicUrl",
+                "test",
                 profilePicUrls,
                 1,
                 34,
@@ -414,25 +418,17 @@ public class MainActivity extends AppCompatActivity {
 
     public User createMockUser() {
         ArrayList<String> profilePicUrls = new ArrayList<>();
-        profilePicUrls.add("test");
-        profilePicUrls.add("test1");
+        profilePicUrls.add(0, "test");// add main profile pic first always
+        profilePicUrls.add("test5");
         profilePicUrls.add("test2");
         profilePicUrls.add("test3");
-        profilePicUrls.add("test4");
-        profilePicUrls.add("test5");
-        profilePicUrls.add("test6");
         profilePicUrls.add("test7");
-        profilePicUrls.add("test8");
-        profilePicUrls.add("test9");
-        profilePicUrls.add("test10");
-        profilePicUrls.add("test11");
-        profilePicUrls.add("test12");
 
         User user = new User();
         user.setId("311234567890L");
         user.setName("Superhero");
         user.setSuperHeroName("Superhero");
-        user.setMainProfilePicUrl("main");
+        user.setMainProfilePicUrl("test");
         user.setProfilePicsUrls(profilePicUrls);
         user.setGender(1);
         user.setAge(32);
@@ -443,27 +439,6 @@ public class MainActivity extends AppCompatActivity {
         user.setAccountType("PAID");
 
         return user;
-    }
-
-    public ArrayList<User> createMockUsers() {
-        ArrayList<User> users = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            User user = createMockUser();
-            user.setId("311234567890");
-            users.add(user);
-        }
-
-        return users;
-    }
-
-    public ArrayList<String> createMockUserProfilePicturesUrls() {
-        ArrayList<String> userProfilePicturesUrls = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            String userProfilePictureUrl = "mockUrl";
-            userProfilePicturesUrls.add(userProfilePictureUrl);
-        }
-
-        return userProfilePicturesUrls;
     }
 
     public ArrayList<Chat> createMockMatchChats() {
@@ -554,6 +529,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void showBottomNavigation() {
+        if (navigation.getVisibility() == View.GONE) {
+            navigation.setVisibility(View.VISIBLE);
+        }
+    }
+
     public void setToolbarStatusBarColorPrimary() {
         showBottomNavigation();
         changeToolbarColor(MainActivity.this, R.color.colorPrimary);
@@ -564,10 +545,12 @@ public class MainActivity extends AppCompatActivity {
         tlMain.setBackgroundColor(ContextCompat.getColor(context, colorId));
     }
 
-    public void showBottomNavigation() {
-        if (navigation.getVisibility() == View.GONE) {
-            navigation.setVisibility(View.VISIBLE);
-        }
+    public void setCurrentProfileImageView(int currentProfileImageView) {
+        this.currentProfileImageView = currentProfileImageView;
+    }
+
+    public int getCurrentProfileImageView() {
+        return currentProfileImageView;
     }
 
     public void showProfilePicChoice() {
@@ -589,7 +572,8 @@ public class MainActivity extends AppCompatActivity {
         final PopupWindow popupWindow = new PopupWindow(
                 popupView,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
 
         popupWindow.setBackgroundDrawable(new BitmapDrawable());
         popupWindow.setOutsideTouchable(true);
@@ -609,25 +593,36 @@ public class MainActivity extends AppCompatActivity {
                 popupWindow.dismiss();
             }
         });
-
-    }
-
-    public Uri getProfilePicURI() {
-        return profilePicURI;
-    }
-
-    public void setProfilePicURI(Uri profilePicURI) {
-        this.profilePicURI = profilePicURI;
     }
 
     private void processUpdateProfilePic(Uri uri) {
-        // TO-DO: Upload the new picture to the server.
-        // Response from server should contain the CloudFront url to the image,
-        // and this url should be passed to the event and new item should be added to the list of
-        // profile pictures.
-        setProfilePicURI(uri);
-        SuperheroProfilePicEvent event = new SuperheroProfilePicEvent(uri);
-        EventBus.getDefault().post(event);
+        switch (getCurrentProfileImageView()){
+            case ConstantRegistry.MAIN_PROFILE_IMAGE_VIEW:
+                MainProfilePicSettingsEvent mainProfilePicSettingsEvent = new MainProfilePicSettingsEvent(uri);
+                EventBus.getDefault().post(mainProfilePicSettingsEvent);
+
+                break;
+            case ConstantRegistry.FIRST_PROFILE_IMAGE_VIEW:
+                ProfilePic1SettingsEvent profilePic1SettingsEvent = new ProfilePic1SettingsEvent(uri);
+                EventBus.getDefault().post(profilePic1SettingsEvent);
+
+                break;
+            case ConstantRegistry.SECOND_PROFILE_IMAGE_VIEW:
+                ProfilePic2SettingsEvent profilePic2SettingsEvent = new ProfilePic2SettingsEvent(uri);
+                EventBus.getDefault().post(profilePic2SettingsEvent);
+
+                break;
+            case ConstantRegistry.THIRD_PROFILE_IMAGE_VIEW:
+                ProfilePic3SettingsEvent profilePic3SettingsEvent = new ProfilePic3SettingsEvent(uri);
+                EventBus.getDefault().post(profilePic3SettingsEvent);
+
+                break;
+            case ConstantRegistry.FOURTH_PROFILE_IMAGE_VIEW:
+                ProfilePic4SettingsEvent profilePic4SettingsEvent = new ProfilePic4SettingsEvent(uri);
+                EventBus.getDefault().post(profilePic4SettingsEvent);
+
+                break;
+        }
     }
 
     public boolean accessFilesPermissionIsGranted() {

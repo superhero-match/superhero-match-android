@@ -12,6 +12,12 @@ public class ConstantRegistry {
     public static final int INTRO_VIEW_PAGER_ONE_BEFORE_LAST_PAGE = 1;
     public static final int INTRO_VIEW_PAGER_TOTAL_AMOUNT_PAGES = 3;
 
+    public static final int MAIN_PROFILE_IMAGE_VIEW = 1;
+    public static final int FIRST_PROFILE_IMAGE_VIEW = 2;
+    public static final int SECOND_PROFILE_IMAGE_VIEW = 3;
+    public static final int THIRD_PROFILE_IMAGE_VIEW = 4;
+    public static final int FOURTH_PROFILE_IMAGE_VIEW = 5;
+
     public static final String LOADING = "LOADING";
     public static final String SUCCESS = "success";
     public static final String ERROR = "error";
