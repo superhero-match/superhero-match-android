@@ -819,5 +819,6 @@
     <string name="logo">Logo</string>
     <string name="distance_unit">Distance Unit</string>
     <string name="close_window">Close Window</string>
+    <string name="upload_images">Upload Images</string>
 
 </resources>

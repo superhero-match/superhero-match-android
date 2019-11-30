@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite">
+
+    <ImageView
+        android:layout_width="165dp"
+        android:layout_height="165dp"
+        android:id="@+id/ivMainProfilePic"
+        android:src="@drawable/test"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@string/user_profile_image"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/my_profile_image_settings_image_view"
+        android:scaleType="centerInside"
+        android:elevation="5dp"/>
+
+    <ImageView
+        android:layout_width="145dp"
+        android:layout_height="145dp"
+        android:id="@+id/ivProfilePic1"
+        android:src="@drawable/test1"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="20dp"
+        android:layout_below="@+id/ivMainProfilePic"
+        android:contentDescription="@string/user_profile_image"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/my_profile_image_settings_image_view"
+        android:scaleType="centerInside"
+        android:elevation="5dp"/>
+
+    <ImageView
+        android:layout_width="145dp"
+        android:layout_height="145dp"
+        android:id="@+id/ivProfilePic2"
+        android:src="@drawable/test2"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:layout_below="@+id/ivMainProfilePic"
+        android:contentDescription="@string/user_profile_image"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/my_profile_image_settings_image_view"
+        android:scaleType="centerInside"
+        android:elevation="5dp"/>
+
+    <ImageView
+        android:layout_width="145dp"
+        android:layout_height="145dp"
+        android:id="@+id/ivProfilePic3"
+        android:src="@drawable/test3"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="20dp"
+        android:layout_below="@+id/ivProfilePic1"
+        android:contentDescription="@string/user_profile_image"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/my_profile_image_settings_image_view"
+        android:scaleType="centerInside"
+        android:elevation="5dp"/>
+
+    <ImageView
+        android:layout_width="145dp"
+        android:layout_height="145dp"
+        android:id="@+id/ivProfilePic4"
+        android:src="@drawable/test4"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:layout_below="@+id/ivProfilePic2"
+        android:contentDescription="@string/user_profile_image"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/my_profile_image_settings_image_view"
+        android:scaleType="centerInside"
+        android:elevation="5dp"/>
+
+    <Button
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:id="@+id/btnUploadImages"
+        android:background="@drawable/my_button"
+        android:backgroundTint="@color/colorPrimary"
+        android:textColor="@color/colorWhite"
+        android:text="@string/upload_images"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp" />
+</RelativeLayout>

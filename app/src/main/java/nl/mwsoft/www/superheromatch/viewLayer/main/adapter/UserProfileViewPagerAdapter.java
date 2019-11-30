@@ -1,5 +1,7 @@
 package nl.mwsoft.www.superheromatch.viewLayer.main.adapter;
 
+import android.util.Log;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -18,7 +20,11 @@ public class UserProfileViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        String profilePic = this.user.getMainProfilePicUrl();
+        String profilePic = "";
+
+        if (position == 0 || (this.user.getProfilePicsUrls() == null)){
+            profilePic = this.user.getMainProfilePicUrl();
+        }
 
         if (this.user.getProfilePicsUrls() != null) {
             profilePic = this.user.getProfilePicsUrls().get(position);
@@ -44,7 +50,6 @@ public class UserProfileViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        String title = null;
-        return title;
+        return null;
     }
 }
