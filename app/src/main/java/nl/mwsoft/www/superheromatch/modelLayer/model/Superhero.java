@@ -14,7 +14,7 @@ public class Superhero implements Parcelable {
     private String  superheroName;
     private String mainProfilePicUrl;
     @Nullable
-    private ArrayList<String> profilePicsUrls;
+    private ArrayList<ProfilePicture> profilePictures;
     private int gender;
     private int age;
     private double lat;
@@ -27,11 +27,11 @@ public class Superhero implements Parcelable {
     public Superhero() {
     }
 
-    public Superhero(String id, String superheroName, String mainProfilePicUrl, @Nullable ArrayList<String> profilePicsUrls, int gender, int age, double lat, double lon, String country, String city, String superpower, String accountType) {
+    public Superhero(String id, String superheroName, String mainProfilePicUrl, @Nullable ArrayList<ProfilePicture> profilePictures, int gender, int age, double lat, double lon, String country, String city, String superpower, String accountType) {
         this.id = id;
         this.superheroName = superheroName;
         this.mainProfilePicUrl = mainProfilePicUrl;
-        this.profilePicsUrls = profilePicsUrls;
+        this.profilePictures = profilePictures;
         this.gender = gender;
         this.age = age;
         this.lat = lat;
@@ -46,7 +46,7 @@ public class Superhero implements Parcelable {
         id = in.readString();
         superheroName = in.readString();
         mainProfilePicUrl = in.readString();
-        profilePicsUrls = in.createStringArrayList();
+        profilePictures = in.createTypedArrayList(ProfilePicture.CREATOR);
         gender = in.readInt();
         age = in.readInt();
         lat = in.readDouble();
@@ -55,6 +55,27 @@ public class Superhero implements Parcelable {
         city = in.readString();
         superpower = in.readString();
         accountType = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(superheroName);
+        dest.writeString(mainProfilePicUrl);
+        dest.writeTypedList(profilePictures);
+        dest.writeInt(gender);
+        dest.writeInt(age);
+        dest.writeDouble(lat);
+        dest.writeDouble(lon);
+        dest.writeString(country);
+        dest.writeString(city);
+        dest.writeString(superpower);
+        dest.writeString(accountType);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<Superhero> CREATOR = new Creator<Superhero>() {
@@ -94,12 +115,12 @@ public class Superhero implements Parcelable {
     }
 
     @Nullable
-    public ArrayList<String> getProfilePicsUrls() {
-        return profilePicsUrls;
+    public ArrayList<ProfilePicture> getProfilePictures() {
+        return profilePictures;
     }
 
-    public void setProfilePicsUrls(@Nullable ArrayList<String> profilePicsUrls) {
-        this.profilePicsUrls = profilePicsUrls;
+    public void setProfilePictures(@Nullable ArrayList<ProfilePicture> profilePictures) {
+        this.profilePictures = profilePictures;
     }
 
     public int getGender() {
@@ -164,26 +185,5 @@ public class Superhero implements Parcelable {
 
     public void setAccountType(String accountType) {
         this.accountType = accountType;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(superheroName);
-        dest.writeString(mainProfilePicUrl);
-        dest.writeStringList(profilePicsUrls);
-        dest.writeInt(gender);
-        dest.writeInt(age);
-        dest.writeDouble(lat);
-        dest.writeDouble(lon);
-        dest.writeString(country);
-        dest.writeString(city);
-        dest.writeString(superpower);
-        dest.writeString(accountType);
     }
 }

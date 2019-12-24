@@ -820,5 +820,6 @@
     <string name="distance_unit">Distance Unit</string>
     <string name="close_window">Close Window</string>
     <string name="upload_images">Upload Images</string>
+    <string name="no_suggestions_found">Unfortunatelly we couldn\'t find any suggestions based on your profile settings. Try changing settings or come back later.</string>
 
 </resources>

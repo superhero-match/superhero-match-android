@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -86,13 +87,13 @@ public class SuggestionProfileImageFragment extends Fragment {
 
         switch (picUrl) {
             case "test":
-            Glide.with(mainActivity)
-                    .load(R.drawable.test)
-                    .into(ivSuggestionProfilePic);
-                break;
-            case "test5":
                 Glide.with(mainActivity)
-                        .load(R.drawable.test5)
+                        .load(R.drawable.test)
+                        .into(ivSuggestionProfilePic);
+                break;
+            case "test1":
+                Glide.with(mainActivity)
+                        .load(R.drawable.test1)
                         .into(ivSuggestionProfilePic);
                 break;
             case "test2":
@@ -105,9 +106,49 @@ public class SuggestionProfileImageFragment extends Fragment {
                         .load(R.drawable.test3)
                         .into(ivSuggestionProfilePic);
                 break;
+            case "test4":
+                Glide.with(mainActivity)
+                        .load(R.drawable.test4)
+                        .into(ivSuggestionProfilePic);
+                break;
+            case "test5":
+                Glide.with(mainActivity)
+                        .load(R.drawable.test5)
+                        .into(ivSuggestionProfilePic);
+                break;
+            case "test6":
+                Glide.with(mainActivity)
+                        .load(R.drawable.test6)
+                        .into(ivSuggestionProfilePic);
+                break;
             case "test7":
                 Glide.with(mainActivity)
                         .load(R.drawable.test7)
+                        .into(ivSuggestionProfilePic);
+                break;
+            case "test8":
+                Glide.with(mainActivity)
+                        .load(R.drawable.test8)
+                        .into(ivSuggestionProfilePic);
+                break;
+            case "test9":
+                Glide.with(mainActivity)
+                        .load(R.drawable.test9)
+                        .into(ivSuggestionProfilePic);
+                break;
+            case "test10":
+                Glide.with(mainActivity)
+                        .load(R.drawable.test10)
+                        .into(ivSuggestionProfilePic);
+                break;
+            case "test11":
+                Glide.with(mainActivity)
+                        .load(R.drawable.test11)
+                        .into(ivSuggestionProfilePic);
+                break;
+            case "test12":
+                Glide.with(mainActivity)
+                        .load(R.drawable.test12)
                         .into(ivSuggestionProfilePic);
                 break;
         }
