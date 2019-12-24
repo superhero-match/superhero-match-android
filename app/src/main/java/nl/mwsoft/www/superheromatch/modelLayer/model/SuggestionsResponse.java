@@ -6,13 +6,15 @@ public class SuggestionsResponse {
 
     private int status;
     private ArrayList<Superhero> suggestions;
+    private ArrayList<String> superheroIds;
 
     public SuggestionsResponse() {
     }
 
-    public SuggestionsResponse(int status, ArrayList<Superhero> superheroes) {
+    public SuggestionsResponse(int status, ArrayList<Superhero> suggestions, ArrayList<String> superheroIds) {
         this.status = status;
-        this.suggestions = superheroes;
+        this.suggestions = suggestions;
+        this.superheroIds = superheroIds;
     }
 
     public int getStatus() {
@@ -31,11 +33,20 @@ public class SuggestionsResponse {
         this.suggestions = suggestions;
     }
 
+    public ArrayList<String> getSuperheroIds() {
+        return superheroIds;
+    }
+
+    public void setSuperheroIds(ArrayList<String> superheroIds) {
+        this.superheroIds = superheroIds;
+    }
+
     @Override
     public String toString() {
         return "SuggestionsResponse{" +
                 "status=" + status +
                 ", suggestions=" + suggestions +
+                ", superheroIds=" + superheroIds +
                 '}';
     }
 }

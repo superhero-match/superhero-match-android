@@ -14,6 +14,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -64,6 +65,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -88,6 +90,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.event.SuperheroProfilePicEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
+import nl.mwsoft.www.superheromatch.modelLayer.model.ProfilePicture;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
@@ -97,6 +100,7 @@ import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialog
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.ImageDetailFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.MatchesChatsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfilePictureSettingsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.NoSuggestionsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionDescriptionFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileEditFragment;
@@ -127,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
     private Disposable subscribeSuggestions;
     private Disposable subscribeUpdateProfile;
     private LoadingDialogFragment loadingDialogFragment;
-    private int offset = 0;
     private FusedLocationProviderClient fusedLocationClient;
     private SettingsClient settingsClient;
     private LocationRequest locationRequest;
@@ -138,6 +141,10 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.frame_superhero_details)
     FrameLayout suggestionFrameLayout;
     public int currentProfileImageView = 1;
+    private ArrayList<String> superheroIds;
+    private ArrayList<String> retrievedSuperheroIds;
+    private ArrayList<Superhero> suggestions;
+    private int currentSuggestion = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,20 +159,20 @@ public class MainActivity extends AppCompatActivity {
         // || mainPresenter.getUserIsLoggedIn(this) == 0
         if (mainPresenter.getUserId(this).equals("default")) {
             navigateToVerifyIdentity(this);
-        } else {
-            navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
-            navigation.setSelectedItemId(R.id.navigation_suggestions);
 
-//            if (checkLocationPermission()) {
-//                showLoadingDialog();
-//                initLocationUpdateService();
-//                startLocationUpdates();
-//            }
+            return;
+        }
+
+        if (checkLocationPermission()) {
+            showLoadingDialog();
+            initLocationUpdateService();
+            startLocationUpdates();
         }
     }
 
     private HashMap<String, Object> configureSuggestionsRequestBody(MainPresenter mainPresenter) {
-        HashMap<String, Object> reqBodySuggestions =  new HashMap<>();
+        HashMap<String, Object> reqBodySuggestions = new HashMap<>();
+
         reqBodySuggestions.put("id", mainPresenter.getUserId(this));
         reqBodySuggestions.put("lookingForGender", mainPresenter.getUserLookingForGender(this));
         reqBodySuggestions.put("gender", mainPresenter.getUserGender(this));
@@ -175,8 +182,41 @@ public class MainActivity extends AppCompatActivity {
         reqBodySuggestions.put("distanceUnit", mainPresenter.getUserDistanceUnit(this));
         reqBodySuggestions.put("lat", mainPresenter.getUserLat(this));
         reqBodySuggestions.put("lon", mainPresenter.getUserLon(this));
-        reqBodySuggestions.put("offset", offset);
-        reqBodySuggestions.put("size", ConstantRegistry.PAGE_SIZE);
+
+        // 1. Check if superheroIds is empty. If so, that means it is ES request.
+        reqBodySuggestions.put("isEsRequest", false);
+
+        if (this.superheroIds.size() == 0) {
+            reqBodySuggestions.put("isEsRequest", true);
+        }
+
+        // 2. If superheroIds is not empty, then pop maximum first 10 ids from superheroIds
+        // and put them in reqBodySuggestions --> superheroIds.
+        ArrayList<String> superherosToBeFetched = new ArrayList<>();
+        ArrayList<Integer> indicesToBeDeleted = new ArrayList<>();
+
+        if (this.superheroIds.size() > 0) {
+            int index = 0;
+
+            for (String superheroId : this.superheroIds) {
+                if (superherosToBeFetched.size() == ConstantRegistry.PAGE_SIZE) {
+                    break;
+                }
+
+                superherosToBeFetched.add(superheroId);
+                // After superhero id has been added to the list of ids to be fetched,
+                // it can be removed there is no need to fetch the same suggestions.
+                indicesToBeDeleted.add(index);
+                index++;
+            }
+
+            for (Integer ignored : indicesToBeDeleted) {
+                this.superheroIds.remove(0);
+            }
+        }
+
+        reqBodySuggestions.put("superheroIds", superherosToBeFetched);
+        reqBodySuggestions.put("retrievedSuperheroIds", this.retrievedSuperheroIds);
 
         return reqBodySuggestions;
     }
@@ -203,10 +243,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private HashMap<String, Object> configureUpdateProfileRequestBody(MainPresenter mainPresenter) {
-        HashMap<String, Object> reqBodyUpdateProfile =  new HashMap<>();
+        HashMap<String, Object> reqBodyUpdateProfile = new HashMap<>();
         reqBodyUpdateProfile.put("id", mainPresenter.getUserId(this));
         reqBodyUpdateProfile.put("lookingForGender", mainPresenter.getUserLookingForGender(MainActivity.this));
-        reqBodyUpdateProfile.put("age",calculateUserAge(new Date(), mainPresenter.getUserBirthday(MainActivity.this)));
+        reqBodyUpdateProfile.put("age", calculateUserAge(new Date(), mainPresenter.getUserBirthday(MainActivity.this)));
         reqBodyUpdateProfile.put("gender", mainPresenter.getUserGender(this));
         reqBodyUpdateProfile.put("lookingForAgeMin", mainPresenter.getUserLookingForMinAge(MainActivity.this));
         reqBodyUpdateProfile.put("lookingForAgeMax", mainPresenter.getUserLookingForMaxAge(MainActivity.this));
@@ -226,6 +266,9 @@ public class MainActivity extends AppCompatActivity {
         messages = new ArrayList<>();
         messages.addAll(createMockMessages());
         disposable = new CompositeDisposable();
+        superheroIds = new ArrayList<>();
+        retrievedSuperheroIds = new ArrayList<>();
+        suggestions = new ArrayList<>();
     }
 
     public void configureWith(RootCoordinator rootCoordinator, MainPresenter mainPresenter) {
@@ -303,20 +346,33 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_suggestions:
                     currFragmentPosition = 1;
-                    fragment = SuggestionFragment.newInstance(createMockSuperhero());
-                    loadFragment(fragment);
+
+                    if (suggestions.size() > 0) {
+                        fragment = SuggestionFragment.newInstance(suggestions.get(currentSuggestion));
+                        loadFragment(fragment);
+
+                        return true;
+                    }
+
+                    loadFragment(NoSuggestionsFragment.newInstance());
+
                     return true;
                 case R.id.navigation_matches:
                     currFragmentPosition = 3;
+
                     fragment = MatchesChatsFragment.newInstance(createMockMatchChats());
                     loadFragment(fragment);
+
                     return true;
                 case R.id.navigation_profile:
                     currFragmentPosition = 5;
+
                     fragment = UserProfileFragment.newInstance(createMockUser());
                     loadFragment(fragment);
+
                     return true;
             }
+
             return false;
         }
     };
@@ -353,13 +409,13 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
-    public void closeSuggestionDescriptionWindow(){
+    public void closeSuggestionDescriptionWindow() {
         Animation slideDown = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_down);
         suggestionFrameLayout.setVisibility(View.GONE);
         suggestionFrameLayout.startAnimation(slideDown);
     }
 
-    public void openSuggestionDescriptionWindow(){
+    public void openSuggestionDescriptionWindow() {
         Animation slideUp = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_up);
         suggestionFrameLayout.setVisibility(View.VISIBLE);
         suggestionFrameLayout.startAnimation(slideUp);
@@ -383,7 +439,7 @@ public class MainActivity extends AppCompatActivity {
         loadBackStackFragment(UserProfileEditFragment.newInstance());
     }
 
-    public void loadProfilePictureSettingsFragment(User user){
+    public void loadProfilePictureSettingsFragment(User user) {
         loadBackStackFragment(
                 UserProfilePictureSettingsFragment.newInstance(
                         user.getMainProfilePicUrl(),
@@ -392,29 +448,29 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    public Superhero createMockSuperhero(){
-        ArrayList<String> profilePicUrls = new ArrayList<>();
-        profilePicUrls.add(0, "test");// add main profile pic first always
-        profilePicUrls.add("test5");
-        profilePicUrls.add("test2");
-        profilePicUrls.add("test3");
-        profilePicUrls.add("test7");
-
-        return new Superhero(
-                "id",
-                "SuperheroName",
-                "test",
-                profilePicUrls,
-                1,
-                34,
-                10.00,
-                10.00,
-                "Country",
-                "City",
-                "My Super Power described here but really long to check how it looks on the screen needs to be around 126 characters.",
-                "FREE"
-        );
-    }
+//    public Superhero createMockSuperhero() {
+//        ArrayList<String> profilePicUrls = new ArrayList<>();
+//        profilePicUrls.add(0, "test");// add main profile pic first always
+//        profilePicUrls.add("test5");
+//        profilePicUrls.add("test2");
+//        profilePicUrls.add("test3");
+//        profilePicUrls.add("test7");
+//
+//        return new Superhero(
+//                "id",
+//                "SuperheroName",
+//                "test",
+//                profilePicUrls,
+//                1,
+//                34,
+//                10.00,
+//                10.00,
+//                "Country",
+//                "City",
+//                "My Super Power described here but really long to check how it looks on the screen needs to be around 126 characters.",
+//                "FREE"
+//        );
+//    }
 
     public User createMockUser() {
         ArrayList<String> profilePicUrls = new ArrayList<>();
@@ -596,7 +652,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void processUpdateProfilePic(Uri uri) {
-        switch (getCurrentProfileImageView()){
+        switch (getCurrentProfileImageView()) {
             case ConstantRegistry.MAIN_PROFILE_IMAGE_VIEW:
                 MainProfilePicSettingsEvent mainProfilePicSettingsEvent = new MainProfilePicSettingsEvent(uri);
                 EventBus.getDefault().post(mainProfilePicSettingsEvent);
@@ -690,7 +746,7 @@ public class MainActivity extends AppCompatActivity {
         loadingDialogIsActive = true;
     }
 
-    private void getSuggestions(HashMap<String, Object> reqBody) {
+    private void getSuggestions(HashMap<String, Object> reqBody, boolean isInitialRequest) {
         if (!loadingDialogIsActive) {
             showLoadingDialog();
         }
@@ -713,13 +769,50 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
 
-                    Toast.makeText(MainActivity.this, res.toString(), Toast.LENGTH_LONG).show();
+                    // These are ids of cached suggestions. When the next request to fetch more
+                    // suggestions will be made, maximum 10 of these ids will be passed to request
+                    // so that the next batch of suggestions could be retrieved
+                    this.superheroIds.addAll(res.getSuperheroIds());
+
+                    // These are ids of the suggestions that were already retrieved and viewed.
+                    // So if user will make more requests where all the cached suggestions
+                    // were shown and the request to the Elasticsearch will have to be made again
+                    // the users who were shown will be excluded from Elasticsearch results.
+                    for (Superhero suggestion : res.getSuggestions()) {
+                        this.retrievedSuperheroIds.add(suggestion.getId());
+                    }
+
+                    // These are suggestions that are going to be shown to the user.
+                    this.suggestions.addAll(res.getSuggestions());
+
+                    // This is the first batch of suggestions, so no need to open the
+                    // Suggestions fragment until the suggestions are fetched from the server.
+                    if (isInitialRequest) {
+                        navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
+                        navigation.setSelectedItemId(R.id.navigation_suggestions);
+
+                        return;
+                    }
+
+                    if (res.getSuggestions().size() == 0) {
+                        loadFragment(NoSuggestionsFragment.newInstance());
+
+                        return;
+                    }
+
+                    this.currentSuggestion++;
+
+                    loadNextSuggestion(
+                            SuggestionFragment.newInstance(
+                                    this.suggestions.get(this.currentSuggestion)
+                            )
+                    );
                 }, throwable -> handleError());
 
         disposable.add(subscribeSuggestions);
     }
 
-    public void updateUserProfile(){
+    public void updateUserProfile() {
         updateProfile(configureUpdateProfileRequestBody(mainPresenter));
     }
 
@@ -773,18 +866,6 @@ public class MainActivity extends AppCompatActivity {
                 currentLocation = locationResult.getLastLocation();
 
                 if (currentLocation != null) {
-                    Toast.makeText(
-                            MainActivity.this,
-                            "initLocationUpdateService Lat: " + currentLocation.getLatitude(),
-                            Toast.LENGTH_SHORT
-                    ).show();
-
-                    Toast.makeText(
-                            MainActivity.this,
-                            "initLocationUpdateService Lon: " + currentLocation.getLongitude(),
-                            Toast.LENGTH_SHORT
-                    ).show();
-
                     setLatAndLon(
                             mainPresenter.getUserId(MainActivity.this),
                             currentLocation.getLatitude(),
@@ -795,7 +876,7 @@ public class MainActivity extends AppCompatActivity {
                     setAddress(currentLocation.getLatitude(), currentLocation.getLongitude());
                 }
 
-                getSuggestions(configureSuggestionsRequestBody(mainPresenter));
+                getSuggestions(configureSuggestionsRequestBody(mainPresenter), true);
             }
         };
 
@@ -814,18 +895,6 @@ public class MainActivity extends AppCompatActivity {
             Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
             List<Address> addresses = gcd.getFromLocation(lat, lon, 1);
             if (addresses.size() > 0) {
-                Toast.makeText(
-                        MainActivity.this,
-                        "City: " + addresses.get(0).getLocality(),
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                Toast.makeText(
-                        MainActivity.this,
-                        "Country: " + addresses.get(0).getCountryName(),
-                        Toast.LENGTH_SHORT
-                ).show();
-
                 mainPresenter.updateUserCountryAndCity(
                         mainPresenter.getUserId(MainActivity.this),
                         addresses.get(0).getCountryName(),
@@ -881,12 +950,6 @@ public class MainActivity extends AppCompatActivity {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        Toast.makeText(
-                                MainActivity.this,
-                                getString(R.string.location_updates_started),
-                                Toast.LENGTH_SHORT
-                        ).show();
-
                         fusedLocationClient.requestLocationUpdates(
                                 locationRequest,
                                 locationCallback,
@@ -894,18 +957,6 @@ public class MainActivity extends AppCompatActivity {
                         );
 
                         if (currentLocation != null) {
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    "startLocationUpdates Lat: " + currentLocation.getLatitude(),
-                                    Toast.LENGTH_SHORT
-                            ).show();
-
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    "startLocationUpdates Lon: " + currentLocation.getLongitude(),
-                                    Toast.LENGTH_SHORT
-                            ).show();
-
                             setLatAndLon(
                                     mainPresenter.getUserId(MainActivity.this),
                                     currentLocation.getLatitude(),
@@ -944,18 +995,6 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         if (currentLocation != null) {
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    "OnFailureListener Lat: " + currentLocation.getLatitude(),
-                                    Toast.LENGTH_SHORT
-                            ).show();
-
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    "OnFailureListener Lon: " + currentLocation.getLongitude(),
-                                    Toast.LENGTH_SHORT
-                            ).show();
-
                             setLatAndLon(
                                     mainPresenter.getUserId(MainActivity.this),
                                     currentLocation.getLatitude(),
@@ -1036,22 +1075,51 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.ivSuggestionLike)
     public void onSuggestionLike() {
-        // TO-DO: make request to server to process like and to check if there is match,
-        // and then remove the user from the list and return to the suggestions list.
-        loadNextSuggestion(SuggestionFragment.newInstance(createMockSuperhero()));
+        // Make background call to server to save the choice made by the user.
+        // Don't show no loading dialogs, just make background call that's it.
+
+        if ((this.suggestions.size() - 1) > this.currentSuggestion) {
+            this.currentSuggestion++;
+
+            loadNextSuggestion(
+                    SuggestionFragment.newInstance(
+                            this.suggestions.get(this.currentSuggestion)
+                    )
+            );
+
+            return;
+        }
+
+        getSuggestions(configureSuggestionsRequestBody(this.mainPresenter), false);
     }
 
     @OnClick(R.id.ivSuggestionDislike)
     public void onSuggestionDislike() {
-        // TO-DO: make request to server to process dislike,
-        // and then remove the user from the list and return to the suggestions list.
-        loadNextSuggestion(SuggestionFragment.newInstance(createMockSuperhero()));
+        // Make background call to server to save the choice made by the user.
+        // Don't show no loading dialogs, just make background call that's it.
+
+        if ((this.suggestions.size() - 1) > this.currentSuggestion) {
+            this.currentSuggestion++;
+
+            loadNextSuggestion(
+                    SuggestionFragment.newInstance(
+                            this.suggestions.get(this.currentSuggestion)
+                    )
+            );
+
+            return;
+        }
+
+        getSuggestions(configureSuggestionsRequestBody(this.mainPresenter), false);
     }
 
     @OnClick(R.id.ivSuperPowerIconSuggestion)
     public void onSuggestionSuperpowerIcon() {
         openSuggestionDescriptionWindow();
-       loadSuggestionDescriptionFragment(SuggestionDescriptionFragment.newInstance(createMockSuperhero()));
+        loadSuggestionDescriptionFragment(
+                SuggestionDescriptionFragment.newInstance(
+                        this.suggestions.get(this.currentSuggestion)
+                )
+        );
     }
-
 }

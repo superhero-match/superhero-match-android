@@ -1,6 +1,8 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network;
 
 
+import android.util.Log;
+
 import java.util.HashMap;
 
 import io.reactivex.Observable;
@@ -114,6 +116,7 @@ public class NetworkLayer {
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
+                    Log.d("tShoot", "Exception: " + e.getMessage());
                     emitter.onError(e);
                 }
             }
