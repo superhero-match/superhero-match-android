@@ -531,7 +531,7 @@ public class UserDatabaseLayer {
     public void insertProfilePic(String userID, String profilePicUri, String profilePicUrl, Context context) {
         ContentValues setValues = new ContentValues();
         setValues.put(DBOpenHelper.USER_ID, userID);
-        setValues.put(DBOpenHelper.USER_PROFILE_PIC_URI, profilePicUri);
+        setValues.put(DBOpenHelper.PROFILE_PIC_POSITION, profilePicUri);
         setValues.put(DBOpenHelper.USER_PROFILE_PIC_URL, profilePicUrl);
 
         context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_USER_PROFILE_PICTURE, setValues);

@@ -1,7 +1,7 @@
 package nl.mwsoft.www.superheromatch.dependencyRegistry;
 
 import nl.mwsoft.www.superheromatch.coordinator.RootCoordinator;
-import nl.mwsoft.www.superheromatch.modelLayer.database.matchedUser.MatchedUserDatabaseLayer;
+import nl.mwsoft.www.superheromatch.modelLayer.database.chat.ChatDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.database.user.UserDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.dateTimeUtil.DateTimeUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.imageProcessing.ImageProcessingUtil;
@@ -20,6 +20,7 @@ import nl.mwsoft.www.superheromatch.viewLayer.permissionsRequest.activity.Permis
 import nl.mwsoft.www.superheromatch.viewLayer.register.activity.RegisterActivity;
 import nl.mwsoft.www.superheromatch.viewLayer.verifyIdentity.VerifyIdentityActivity;
 
+
 public class DependencyRegistry {
 
     public static DependencyRegistry shared = new DependencyRegistry();
@@ -36,10 +37,9 @@ public class DependencyRegistry {
         return new UserDatabaseLayer();
     }
 
-    public MatchedUserDatabaseLayer createMatchedUserDatabaseLayer() {
-        return new MatchedUserDatabaseLayer();
+    public ChatDatabaseLayer createChatDatabaseLayer(DateTimeUtil dateTimeUtil) {
+        return new ChatDatabaseLayer(dateTimeUtil);
     }
-
     // endregion
 
     // region Util
@@ -121,7 +121,6 @@ public class DependencyRegistry {
     }
 
     public ModelLayerManager createModelLayerManager(UserDatabaseLayer userDatabaseLayer,
-                                                     MatchedUserDatabaseLayer matchedUserDatabaseLayer,
                                                      UUIDUtil uuidUtil,
                                                      DateTimeUtil dateTimeUtil,
                                                      ImageProcessingUtil imageProcessingUtil,
@@ -129,7 +128,24 @@ public class DependencyRegistry {
                                                      NetworkLayer networkLayer) {
         return new ModelLayerManager(
                 userDatabaseLayer,
-                matchedUserDatabaseLayer,
+                uuidUtil,
+                dateTimeUtil,
+                imageProcessingUtil,
+                internetConnectionUtil,
+                networkLayer
+        );
+    }
+
+    public ModelLayerManager createModelLayerManager(UserDatabaseLayer userDatabaseLayer,
+                                                     ChatDatabaseLayer chatDatabaseLayer,
+                                                     UUIDUtil uuidUtil,
+                                                     DateTimeUtil dateTimeUtil,
+                                                     ImageProcessingUtil imageProcessingUtil,
+                                                     InternetConnectionUtil internetConnectionUtil,
+                                                     NetworkLayer networkLayer) {
+        return new ModelLayerManager(
+                userDatabaseLayer,
+                chatDatabaseLayer,
                 uuidUtil,
                 dateTimeUtil,
                 imageProcessingUtil,
@@ -153,7 +169,7 @@ public class DependencyRegistry {
                 new MainPresenter(
                         createModelLayerManager(
                                 createUserDatabaseLayer(),
-                                createMatchedUserDatabaseLayer(),
+                                createChatDatabaseLayer(createDateTimeUtil()),
                                 createUUIDUtil(),
                                 createDateTimeUtil(),
                                 createImageProcessingUtil(createDateTimeUtil()),

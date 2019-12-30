@@ -10,6 +10,6 @@ public class UUIDUtil {
     }
 
     public String generateUUID() {
-        return UUID.randomUUID().toString().replace(ConstantRegistry.DASH,ConstantRegistry.EMPTY_STRING);
+        return UUID.randomUUID().toString().replace(ConstantRegistry.DASH, ConstantRegistry.EMPTY_STRING);
     }
 }

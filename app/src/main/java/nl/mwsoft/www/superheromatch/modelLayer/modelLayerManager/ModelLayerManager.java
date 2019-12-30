@@ -11,14 +11,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
-import nl.mwsoft.www.superheromatch.modelLayer.database.matchedUser.MatchedUserDatabaseLayer;
+import nl.mwsoft.www.superheromatch.modelLayer.database.chat.ChatDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.database.user.UserDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.dateTimeUtil.DateTimeUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.imageProcessing.ImageProcessingUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.internet.InternetConnectionUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.uuid.UUIDUtil;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
+import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
@@ -29,7 +32,7 @@ public class ModelLayerManager {
 
 
     private UserDatabaseLayer userDatabaseLayer;
-    private MatchedUserDatabaseLayer matchedUserDatabaseLayer;
+    private ChatDatabaseLayer chatDatabaseLayer;
     private UUIDUtil uuidUtil;
     private DateTimeUtil dateTimeUtil;
     private ImageProcessingUtil imageProcessingUtil;
@@ -58,9 +61,18 @@ public class ModelLayerManager {
         this.uuidUtil = uuidUtil;
     }
 
-    public ModelLayerManager(UserDatabaseLayer userDatabaseLayer, MatchedUserDatabaseLayer matchedUserDatabaseLayer, UUIDUtil uuidUtil, DateTimeUtil dateTimeUtil, ImageProcessingUtil imageProcessingUtil, InternetConnectionUtil internetConnectionUtil, NetworkLayer networkLayer) {
+    public ModelLayerManager(UserDatabaseLayer userDatabaseLayer, UUIDUtil uuidUtil, DateTimeUtil dateTimeUtil, ImageProcessingUtil imageProcessingUtil, InternetConnectionUtil internetConnectionUtil, NetworkLayer networkLayer) {
         this.userDatabaseLayer = userDatabaseLayer;
-        this.matchedUserDatabaseLayer = matchedUserDatabaseLayer;
+        this.uuidUtil = uuidUtil;
+        this.dateTimeUtil = dateTimeUtil;
+        this.imageProcessingUtil = imageProcessingUtil;
+        this.internetConnectionUtil = internetConnectionUtil;
+        this.networkLayer = networkLayer;
+    }
+
+    public ModelLayerManager(UserDatabaseLayer userDatabaseLayer, ChatDatabaseLayer chatDatabaseLayer, UUIDUtil uuidUtil, DateTimeUtil dateTimeUtil, ImageProcessingUtil imageProcessingUtil, InternetConnectionUtil internetConnectionUtil, NetworkLayer networkLayer) {
+        this.userDatabaseLayer = userDatabaseLayer;
+        this.chatDatabaseLayer = chatDatabaseLayer;
         this.uuidUtil = uuidUtil;
         this.dateTimeUtil = dateTimeUtil;
         this.imageProcessingUtil = imageProcessingUtil;
@@ -212,65 +224,68 @@ public class ModelLayerManager {
 
     // endregion
 
-    // region Matched User Database Layer
 
-    public User getMatchedUserById(Context context, String matchedUserId) {
-        return this.matchedUserDatabaseLayer.getMatchedUserById(context, matchedUserId);
+    // region Chat Database Layer
+
+    public void updateMessageHasBeenReadByMessageId(int messageId, Context context){
+        this.chatDatabaseLayer.updateMessageHasBeenReadByMessageId(messageId, context);
     }
 
-    public ArrayList<User> getAllMatchedUsers(String matchedUserID, Context context) {
-        return this.matchedUserDatabaseLayer.getAllMatchedUsers(matchedUserID, context);
+    public int getUnreadMessageCountByChatId(Context context, String chatId) {
+        return this.chatDatabaseLayer.getUnreadMessageCountByChatId(context, chatId);
     }
 
-    public String getMatchedUserNameById(Context context, String matchedUserId) {
-        return this.matchedUserDatabaseLayer.getMatchedUserNameByID(context, matchedUserId);
+    public Message getLastChatMessageByChatId(Context context, String chatId) {
+        return this.chatDatabaseLayer.getLastChatMessageByChatId(context, chatId);
     }
 
-    public String getMatchedUserMainProfilePicUrlById(Context context, String matchedUserId) {
-        return this.matchedUserDatabaseLayer.getMatchedUserMainProfilePicUrlByID(context, matchedUserId);
+    public ArrayList<Message> getAllMessagesForChatWithId(Context context, String chatId) {
+        return this.chatDatabaseLayer.getAllMessagesForChatWithId(context, chatId);
     }
 
-    public ArrayList<String> getMatchedUserProfilePicUrlsById(Context context, String matchedUserId) {
-        return this.matchedUserDatabaseLayer.getMatchedUserProfilePicUrlsByID(context, matchedUserId);
+    public String getChatIdByChatName(Context context, String chatName) {
+        return this.chatDatabaseLayer.getChatIdByChatName(context, chatName);
     }
 
-    public int getMatchedUserGenderById(Context context, String matchedUserId) {
-        return this.matchedUserDatabaseLayer.getMatchedUserGenderByID(context, matchedUserId);
+    public ArrayList<Chat> getAllChats(Context context) {
+        return this.chatDatabaseLayer.getAllChats(context);
     }
 
-    public int getMatchedUserAge(Context context, String matchedUserId) {
-        return this.matchedUserDatabaseLayer.getMatchedUserAge(context, matchedUserId);
+    public Chat getChatByContactId(Context context, String matchName) {
+        return this.chatDatabaseLayer.getChatByContactId(context, matchName);
     }
 
-    public String getMatchedUserCountry(Context context, String matchedUserId) {
-        return this.matchedUserDatabaseLayer.getMatchedUserCountry(context, matchedUserId);
+    public Chat getChatById(Context context, String chatId) {
+        return this.chatDatabaseLayer.getChatById(context, chatId);
     }
 
-    public String getMatchedUserCity(Context context, String matchedUserId) {
-        return this.matchedUserDatabaseLayer.getMatchedUserCity(context, matchedUserId);
+    public void deleteChatMessageById(int messageId, Context context){
+        this.chatDatabaseLayer.deleteChatMessageById(messageId, context);
     }
 
-    public String getMatchedUserSuperPower(Context context, String matchedUserId) {
-        return this.matchedUserDatabaseLayer.getMatchedUserSuperPower(context, matchedUserId);
+    public void deleteChatMessageBySenderId(String senderId, Context context){
+        this.chatDatabaseLayer.deleteChatMessageBySenderId(senderId, context);
     }
 
-    public void insertMatchedUser(User user, Context context) {
-        this.matchedUserDatabaseLayer.insertMatchedUser(user, context);
+    public void insertChat(String chatId, String matchName, String matchedUserId, String chatProfilePic, Context context) {
+        this.chatDatabaseLayer.insertChat(chatId, matchName, matchedUserId, chatProfilePic, context);
     }
 
-    public void insertMatchedUserProfilePic(String userId, String profilePicUrl, Context context) {
-        this.matchedUserDatabaseLayer.insertMatchedUserProfilePic(userId, profilePicUrl, context);
+    public Message getChatMessageByUUID(Context context, String uuid) {
+        return this.chatDatabaseLayer.getChatMessageByUUID(context, uuid);
     }
 
-    public void insertMatchChat(String matchedUserId, String chatName, Context context) {
-        this.matchedUserDatabaseLayer.insertMatchChat(matchedUserId, chatName, context);
+    public void insertChatMessage(Message chatMessage, Context context) {
+        this.chatDatabaseLayer.insertChatMessage(chatMessage, context);
     }
 
-    public void insertMatchChatMessage(String chatName, String senderId, String message, String messageUUID, Context context) {
-        this.matchedUserDatabaseLayer.insertMatchChatMessage(chatName, senderId, message, messageUUID, context);
+    public void deleteChatById(String chatId, Context context){
+        this.chatDatabaseLayer.deleteChatById(chatId, context);
     }
+
 
     // endregion
+
 
     // region Util
 
@@ -407,6 +422,14 @@ public class ModelLayerManager {
 
     public Observable<Integer> uploadMatch(HashMap<String, Object> body){
         return this.networkLayer.uploadMatch(body);
+    }
+
+    // endregion
+
+    // region Get Suggestion Profile
+
+    public Observable<ProfileResponse> getSuggestionProfile(HashMap<String, Object> body){
+        return this.networkLayer.getSuggestionProfile(body);
     }
 
     // endregion

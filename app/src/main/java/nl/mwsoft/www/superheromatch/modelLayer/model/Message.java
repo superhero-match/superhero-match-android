@@ -7,7 +7,7 @@ import android.os.Parcelable;
 public class Message implements Parcelable {
 
     private int messageId;
-    private int messageChatId;
+    private String messageChatId;
     private String messageSenderId;
     private String messageText;
     private String messageCreated;
@@ -16,7 +16,7 @@ public class Message implements Parcelable {
     public Message() {
     }
 
-    public Message(int messageId, int messageChatId, String messageSenderId, String messageText, String messageCreated, String messageUUID) {
+    public Message(int messageId, String messageChatId, String messageSenderId, String messageText, String messageCreated, String messageUUID) {
         this.messageId = messageId;
         this.messageChatId = messageChatId;
         this.messageSenderId = messageSenderId;
@@ -27,7 +27,7 @@ public class Message implements Parcelable {
 
     protected Message(Parcel in) {
         messageId = in.readInt();
-        messageChatId = in.readInt();
+        messageChatId = in.readString();
         messageSenderId = in.readString();
         messageText = in.readString();
         messageCreated = in.readString();
@@ -37,7 +37,7 @@ public class Message implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(messageId);
-        dest.writeInt(messageChatId);
+        dest.writeString(messageChatId);
         dest.writeString(messageSenderId);
         dest.writeString(messageText);
         dest.writeString(messageCreated);
@@ -69,11 +69,11 @@ public class Message implements Parcelable {
         this.messageId = messageId;
     }
 
-    public int getMessageChatId() {
+    public String getMessageChatId() {
         return messageChatId;
     }
 
-    public void setMessageChatId(int messageChatId) {
+    public void setMessageChatId(String messageChatId) {
         this.messageChatId = messageChatId;
     }
 
