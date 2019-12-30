@@ -124,7 +124,6 @@ public class ChatDatabaseLayer {
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 Chat chat = new Chat();
-                // if (getAllMessagesForChatWithId(context, cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID))).size() > 0){
                 chat.setChatId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID)));
                 chat.setChatName(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_NAME)));
                 chat.setMatchedUserId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_MATCHED_USER_ID)));

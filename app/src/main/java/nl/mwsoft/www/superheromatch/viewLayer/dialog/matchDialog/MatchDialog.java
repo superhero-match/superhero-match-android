@@ -180,8 +180,8 @@ public class MatchDialog extends DialogFragment {
         @Override
         public void onClick(View v) {
             mainActivity.closeMatchDialog();
-
-            Toast.makeText(mainActivity, "Chat with my match!", Toast.LENGTH_LONG).show();
+            mainActivity.loadNextSuggestion();
+            mainActivity.openChatsFragment();
         }
     };
 
@@ -189,8 +189,7 @@ public class MatchDialog extends DialogFragment {
         @Override
         public void onClick(View v) {
             mainActivity.closeMatchDialog();
-
-            Toast.makeText(mainActivity, "Chat with my match later!", Toast.LENGTH_LONG).show();
+            mainActivity.loadNextSuggestion();
         }
     };
 }

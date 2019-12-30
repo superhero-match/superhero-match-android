@@ -93,10 +93,10 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
-import nl.mwsoft.www.superheromatch.modelLayer.network.suggestions.Suggestions;
 import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.matchDialog.MatchDialog;
+import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.MatchesChatsAdapter;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.MatchesChatsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfilePictureSettingsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.NoSuggestionsFragment;
@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
     private Disposable subscribeUpdateProfile;
     private Disposable subscribeUploadChoice;
     private Disposable subscribeUploadMatch;
+    private Disposable subscribeDeleteMatch;
     private LoadingDialogFragment loadingDialogFragment;
     private MatchDialog matchDialog;
     private FusedLocationProviderClient fusedLocationClient;
@@ -391,7 +392,8 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_matches:
                     currFragmentPosition = 3;
 
-                    fragment = MatchesChatsFragment.newInstance(mainPresenter.getAllChats(MainActivity.this));
+                    ArrayList<Chat> chats = mainPresenter.getAllChats(MainActivity.this);
+                    fragment = MatchesChatsFragment.newInstance(chats);
                     loadFragment(fragment);
 
                     return true;
@@ -751,8 +753,10 @@ public class MainActivity extends AppCompatActivity {
         if (matchDialog != null) {
             matchDialog.dismiss();
         }
+    }
 
-        loadNextSuggestion();
+    public void openChatsFragment() {
+        navigation.setSelectedItemId(R.id.navigation_matches);
     }
 
     private void getSuggestions(HashMap<String, Object> reqBody, boolean isInitialRequest) {
@@ -844,6 +848,42 @@ public class MainActivity extends AppCompatActivity {
         disposable.add(subscribeUploadChoice);
     }
 
+    public void showDialogDeleteMatch(final String chatId, final int position, final ArrayList<Chat> chats,
+                                      final MatchesChatsAdapter matchesChatsAdapter){
+
+        DialogInterface.OnClickListener dialogClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int button) {
+                        handleDeleteChatDialogButtonClick(button, mainPresenter, chatId, chats, position, matchesChatsAdapter);
+                    }
+                };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("Delete match?")
+                .setPositiveButton("Delete", dialogClickListener)
+                .setNegativeButton("Cancel", dialogClickListener)
+                .show();
+    }
+
+    private void handleDeleteChatDialogButtonClick(
+            int button,
+            MainPresenter mainPresenter,
+            String chatId,
+            ArrayList<Chat> chats,
+            int position,
+            MatchesChatsAdapter matchesChatsAdapter
+    ) {
+        if (button == DialogInterface.BUTTON_NEGATIVE) {
+            return;
+        }
+
+        mainPresenter.deleteChatById(chatId, MainActivity.this);
+        deleteMatch(chats.get(position).getChatId());
+        chats.remove(position);
+        matchesChatsAdapter.notifyDataSetChanged();
+    }
+
     private void handleMatch(MainPresenter mainPresenter, Superhero suggestion, String matchId) {
         mainPresenter.insertChat(
                 matchId,
@@ -866,6 +906,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void uploadMatch(HashMap<String, Object> reqBody) {
         subscribeUploadMatch = mainPresenter.uploadMatch(reqBody).subscribeOn(Schedulers.io())
+                .subscribe((Integer res) -> {
+                    if (res == 500) {
+                        Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
+                    }
+                }, throwable -> handleErrorInBackground());
+
+        disposable.add(subscribeUploadMatch);
+    }
+
+    public void deleteMatch(String matchId) {
+        HashMap<String, Object> reqBody = new HashMap<>();
+        reqBody.put("id", matchId);
+
+        subscribeUploadMatch = mainPresenter.deleteMatch(reqBody).subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
                     if (res == 500) {
                         Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
@@ -901,8 +955,6 @@ public class MainActivity extends AppCompatActivity {
 
                         return;
                     }
-
-                    Toast.makeText(MainActivity.this, res.toString(), Toast.LENGTH_LONG).show();
                 }, throwable -> handleError());
 
         disposable.add(subscribeUpdateProfile);
