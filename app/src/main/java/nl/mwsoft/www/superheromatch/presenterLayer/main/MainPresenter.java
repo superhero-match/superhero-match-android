@@ -348,6 +348,14 @@ public class MainPresenter {
 
     // endregion
 
+    // region Delete Match
+
+    public Observable<Integer> deleteMatch(HashMap<String, Object> body){
+        return this.modelLayerManager.deleteMatch(body);
+    }
+
+    // endregion
+
     // region Get Suggestion Profile
 
     public Observable<ProfileResponse> getSuggestionProfile(HashMap<String, Object> body){

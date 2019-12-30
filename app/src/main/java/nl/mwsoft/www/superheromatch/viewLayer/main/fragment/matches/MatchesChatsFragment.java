@@ -18,6 +18,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
+import nl.mwsoft.www.superheromatch.modelLayer.helper.recyclerView.RecyclerTouchListener;
+import nl.mwsoft.www.superheromatch.modelLayer.helper.recyclerView.RecyclerViewClickListener;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.MatchesChatsAdapter;
@@ -35,7 +37,7 @@ public class MatchesChatsFragment extends Fragment {
     public static MatchesChatsFragment newInstance(ArrayList<Chat> matchChats) {
 
         Bundle args = new Bundle();
-        args.putParcelableArrayList(MATCHES_CHATS,matchChats);
+        args.putParcelableArrayList(MATCHES_CHATS, matchChats);
         MatchesChatsFragment fragment = new MatchesChatsFragment();
         fragment.setArguments(args);
         return fragment;
@@ -52,12 +54,12 @@ public class MatchesChatsFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Bundle arguments = getArguments();
-        if(arguments != null){
+        if (arguments != null) {
             matchChats = arguments.getParcelableArrayList(MATCHES_CHATS);
-            if(matchChats == null){
+            if (matchChats == null) {
                 matchChats = new ArrayList<>();
             }
-        }else{
+        } else {
             matchChats = new ArrayList<>();
         }
 
@@ -66,6 +68,23 @@ public class MatchesChatsFragment extends Fragment {
         rvMatchesChats.setLayoutManager(mLayoutManager);
         rvMatchesChats.setItemAnimator(new DefaultItemAnimator());
         rvMatchesChats.setAdapter(matchesChatsAdapter);
+        rvMatchesChats.addOnItemTouchListener(new RecyclerTouchListener(view.getContext(),
+                rvMatchesChats, new RecyclerViewClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+                mainActivity.showDialogDeleteMatch(
+                        matchChats.get(position).getChatId(),
+                        position,
+                        matchChats,
+                        matchesChatsAdapter
+                );
+            }
+        }));
     }
 
 
