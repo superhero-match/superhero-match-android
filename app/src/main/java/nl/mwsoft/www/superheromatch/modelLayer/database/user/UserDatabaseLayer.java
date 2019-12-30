@@ -494,11 +494,11 @@ public class UserDatabaseLayer {
         context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
     }
 
-    public void updateUserLongitudeAndLatitude(String userID, double lon, double lat, Context context) {
+    public void updateUserLongitudeAndLatitude(String userID, double lat, double lon, Context context) {
         String selection = DBOpenHelper.U_ID + "='" + userID + "'";
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBOpenHelper.USER_LATEST_LONGITUDE, lon);
         contentValues.put(DBOpenHelper.USER_LATEST_LATITUDE, lat);
+        contentValues.put(DBOpenHelper.USER_LATEST_LONGITUDE, lon);
 
         context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
     }

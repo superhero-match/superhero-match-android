@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/colorWhite">
+
+    <ImageView
+        android:id="@+id/ivItIsAMatchProfilePic"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:contentDescription="@string/user_profile_image"
+        android:elevation="5dp"
+        android:focusable="true"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/tvItIsAMatch"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="100dp"
+        android:elevation="10dp"
+        android:shadowColor="@color/colorWhite"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="2"
+        android:text="@string/it_s_a_match"
+        android:textColor="@color/colorWhite"
+        android:textSize="42sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/ivItIsAMatchMessage"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/tvItIsAMatchDelimiter"
+        android:clickable="true"
+        android:contentDescription="@string/send_message"
+        android:elevation="5dp"
+        android:focusable="true"
+        android:src="@drawable/chat_match_512" />
+
+    <TextView
+        android:id="@+id/tvItIsAMatchDelimiter"
+        android:layout_width="1dp"
+        android:layout_height="5dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:elevation="10dp"
+     />
+
+    <ImageView
+        android:id="@+id/ivItIsAMatchOk"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/tvItIsAMatchDelimiter"
+        android:clickable="true"
+        android:contentDescription="@string/send_message"
+        android:elevation="5dp"
+        android:focusable="true"
+        android:src="@drawable/match_ok_512" />
+
+</RelativeLayout>

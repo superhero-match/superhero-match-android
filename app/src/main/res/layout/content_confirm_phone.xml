@@ -12,7 +12,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:id="@+id/ivConfirmLogo"
-        android:src="@drawable/dating_256"
+        android:src="@drawable/mask_512"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:contentDescription="@string/logo_description" />

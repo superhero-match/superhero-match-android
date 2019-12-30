@@ -18,6 +18,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.helper.util.imageProcessing.Image
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.internet.InternetConnectionUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.uuid.UUIDUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
@@ -169,8 +170,8 @@ public class ModelLayerManager {
         this.userDatabaseLayer.saveUserToDB(user, context);
     }
 
-    public void updateUserLongitudeAndLatitude(String userId, double lon, double lat, Context context) {
-        this.userDatabaseLayer.updateUserLongitudeAndLatitude(userId, lon, lat, context);
+    public void updateUserLongitudeAndLatitude(String userId, double lat, double lon, Context context) {
+        this.userDatabaseLayer.updateUserLongitudeAndLatitude(userId, lat, lon, context);
     }
 
     public void updateUserLookingForAgeRange(String userID, int ageMin, int ageMax, Context context) {
@@ -390,6 +391,22 @@ public class ModelLayerManager {
 
     public Observable<SuggestionsResponse> getSuggestions(HashMap<String, Object> body){
         return this.networkLayer.getSuggestions(body);
+    }
+
+    // endregion
+
+    // region Upload Choice
+
+    public Observable<ChoiceResponse> uploadChoice(HashMap<String, Object> body){
+        return this.networkLayer.uploadChoice(body);
+    }
+
+    // endregion
+
+    // region Upload Match
+
+    public Observable<Integer> uploadMatch(HashMap<String, Object> body){
+        return this.networkLayer.uploadMatch(body);
     }
 
     // endregion

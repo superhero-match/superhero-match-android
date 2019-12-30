@@ -9,12 +9,15 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.network.checkEmail.CheckEmailImpl;
+import nl.mwsoft.www.superheromatch.modelLayer.network.choice.ChoiceImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteAccount.DeleteAccountImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.inviteUser.InviteSuperheroImpl;
+import nl.mwsoft.www.superheromatch.modelLayer.network.match.MatchImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.register.RegisterImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.suggestions.SuggestionsImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.update.UpdateImpl;
@@ -52,7 +55,7 @@ public class NetworkLayer {
             public void subscribe(ObservableEmitter<String> emitter) throws Exception {
                 try {
 //                    ChoiceImpl choice = new ChoiceImpl();
-//                    String response = choice.saveChoice(userId, chosenUserId, choiceType);
+//                    String response = choice.uploadChoice(userId, chosenUserId, choiceType);
 //                    emitter.onNext(response);
 //                    emitter.onComplete();
                 } catch (Exception e) {
@@ -113,6 +116,48 @@ public class NetworkLayer {
                 try {
                     SuggestionsImpl suggestions = new SuggestionsImpl();
                     SuggestionsResponse response = suggestions.getSuggestions(body);
+                    emitter.onNext(response);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    Log.d("tShoot", "Exception: " + e.getMessage());
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    // endregion
+
+    // region Upload Choice
+
+    public Observable<ChoiceResponse> uploadChoice(HashMap<String, Object> body){
+        return Observable.create(new ObservableOnSubscribe<ChoiceResponse>() {
+            @Override
+            public void subscribe(ObservableEmitter<ChoiceResponse> emitter) throws Exception {
+                try {
+                    ChoiceImpl choice = new ChoiceImpl();
+                    ChoiceResponse response = choice.uploadChoice(body);
+                    emitter.onNext(response);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    Log.d("tShoot", "Exception: " + e.getMessage());
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    // endregion
+
+    // region Upload Match
+
+    public Observable<Integer> uploadMatch(HashMap<String, Object> body){
+        return Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+                try {
+                    MatchImpl match = new MatchImpl();
+                    Integer response = match.uploadMatch(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {

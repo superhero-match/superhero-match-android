@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
+import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegistrationUser;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
@@ -136,8 +137,8 @@ public class MainPresenter {
         this.modelLayerManager.updateInitiallyRegisteredUser(registrationUser, context);
     }
 
-    public void updateUserLongitudeAndLatitude(String userId, double lon, double lat, Context context) {
-        this.modelLayerManager.updateUserLongitudeAndLatitude(userId, lon, lat, context);
+    public void updateUserLongitudeAndLatitude(String userId, double lat, double lon, Context context) {
+        this.modelLayerManager.updateUserLongitudeAndLatitude(userId, lat, lon, context);
     }
 
     public void updateUserLookingForAgeRange(String userID, int ageMin, int ageMax, Context context) {
@@ -324,6 +325,22 @@ public class MainPresenter {
 
     public Observable<SuggestionsResponse> getSuggestions(HashMap<String, Object> body){
         return this.modelLayerManager.getSuggestions(body);
+    }
+
+    // endregion
+
+    // region Upload Choice
+
+    public Observable<ChoiceResponse> uploadChoice(HashMap<String, Object> body){
+        return this.modelLayerManager.uploadChoice(body);
+    }
+
+    // endregion
+
+    // region Upload Match
+
+    public Observable<Integer> uploadMatch(HashMap<String, Object> body){
+        return this.modelLayerManager.uploadMatch(body);
     }
 
     // endregion

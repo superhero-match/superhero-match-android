@@ -65,7 +65,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -86,18 +85,18 @@ import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic1SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic2SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic3SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic4SettingsEvent;
-import nl.mwsoft.www.superheromatch.modelLayer.event.SuperheroProfilePicEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
+import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
-import nl.mwsoft.www.superheromatch.modelLayer.model.ProfilePicture;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
+import nl.mwsoft.www.superheromatch.modelLayer.network.suggestions.Suggestions;
 import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.ImageDetailFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.dialog.matchDialog.MatchDialog;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.MatchesChatsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfilePictureSettingsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.NoSuggestionsFragment;
@@ -130,7 +129,10 @@ public class MainActivity extends AppCompatActivity {
     private CompositeDisposable disposable;
     private Disposable subscribeSuggestions;
     private Disposable subscribeUpdateProfile;
+    private Disposable subscribeUploadChoice;
+    private Disposable subscribeUploadMatch;
     private LoadingDialogFragment loadingDialogFragment;
+    private MatchDialog matchDialog;
     private FusedLocationProviderClient fusedLocationClient;
     private SettingsClient settingsClient;
     private LocationRequest locationRequest;
@@ -140,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean loadingDialogIsActive;
     @BindView(R.id.frame_superhero_details)
     FrameLayout suggestionFrameLayout;
+    FrameLayout mainFrameLayout;
     public int currentProfileImageView = 1;
     private ArrayList<String> superheroIds;
     private ArrayList<String> retrievedSuperheroIds;
@@ -163,11 +166,32 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
+
         if (checkLocationPermission()) {
             showLoadingDialog();
             initLocationUpdateService();
             startLocationUpdates();
         }
+    }
+
+    private HashMap<String, Object> configureMatchRequestBody(MainPresenter mainPresenter, Superhero suggestion) {
+        HashMap<String, Object> reqBodyChoice = new HashMap<>();
+
+        reqBodyChoice.put("superheroId", mainPresenter.getUserId(this));
+        reqBodyChoice.put("matchedSuperheroId", suggestion.getId());
+
+        return reqBodyChoice;
+    }
+
+    private HashMap<String, Object> configureChoiceRequestBody(MainPresenter mainPresenter, Superhero suggestion, int choice) {
+        HashMap<String, Object> reqBodyChoice = new HashMap<>();
+
+        reqBodyChoice.put("superheroID", mainPresenter.getUserId(this));
+        reqBodyChoice.put("chosenSuperheroID", suggestion.getId());
+        reqBodyChoice.put("choice", choice);
+
+        return reqBodyChoice;
     }
 
     private HashMap<String, Object> configureSuggestionsRequestBody(MainPresenter mainPresenter) {
@@ -384,14 +408,22 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
 
         if (currFragmentPosition != 1) {
-            ivSuggestionDislike.setVisibility(View.GONE);
-            ivSuggestionLike.setVisibility(View.GONE);
-            ivSuperPowerIconSuggestion.setVisibility(View.GONE);
+            hideChoiceButtons();
         } else {
-            ivSuggestionDislike.setVisibility(View.VISIBLE);
-            ivSuggestionLike.setVisibility(View.VISIBLE);
-            ivSuperPowerIconSuggestion.setVisibility(View.VISIBLE);
+            showChoiceButtons();
         }
+    }
+
+    public void showChoiceButtons() {
+        ivSuggestionDislike.setVisibility(View.VISIBLE);
+        ivSuggestionLike.setVisibility(View.VISIBLE);
+        ivSuperPowerIconSuggestion.setVisibility(View.VISIBLE);
+    }
+
+    public void hideChoiceButtons() {
+        ivSuggestionDislike.setVisibility(View.GONE);
+        ivSuggestionLike.setVisibility(View.GONE);
+        ivSuperPowerIconSuggestion.setVisibility(View.GONE);
     }
 
     public void loadNextSuggestion(Fragment fragment) {
@@ -746,6 +778,33 @@ public class MainActivity extends AppCompatActivity {
         loadingDialogIsActive = true;
     }
 
+    public void showMatchDialog(Superhero suggestion) {
+        matchDialog = MatchDialog.newInstance(suggestion);
+        matchDialog.setCancelable(true);
+        matchDialog.show(getSupportFragmentManager(), ConstantRegistry.MATCH);
+    }
+
+    public void closeMatchDialog() {
+        if (matchDialog != null) {
+            matchDialog.dismiss();
+        }
+
+        if ((this.suggestions.size() - 1) > this.currentSuggestion) {
+            this.currentSuggestion++;
+
+            loadNextSuggestion(
+                    SuggestionFragment.newInstance(
+                            this.suggestions.get(this.currentSuggestion)
+                    )
+            );
+
+            return;
+        }
+
+        // No more suggestions left, fetch next batch of suggestions.
+        getSuggestions(configureSuggestionsRequestBody(this.mainPresenter), false);
+    }
+
     private void getSuggestions(HashMap<String, Object> reqBody, boolean isInitialRequest) {
         if (!loadingDialogIsActive) {
             showLoadingDialog();
@@ -788,7 +847,6 @@ public class MainActivity extends AppCompatActivity {
                     // This is the first batch of suggestions, so no need to open the
                     // Suggestions fragment until the suggestions are fetched from the server.
                     if (isInitialRequest) {
-                        navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
                         navigation.setSelectedItemId(R.id.navigation_suggestions);
 
                         return;
@@ -811,6 +869,59 @@ public class MainActivity extends AppCompatActivity {
 
         disposable.add(subscribeSuggestions);
     }
+
+    private void uploadChoice(MainPresenter mainPresenter, Superhero suggestion, int choice) {
+        subscribeUploadChoice = mainPresenter.uploadChoice(configureChoiceRequestBody(
+                mainPresenter,
+                suggestion,
+                choice
+        )).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe((ChoiceResponse res) -> {
+                    if (res.getStatus() == 500) {
+                        Toast.makeText(
+                                MainActivity.this,
+                                R.string.smth_went_wrong,
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        return;
+                    }
+
+                    // If it's a match, show dialog.
+                    if (res.isMatch()) {
+                        Toast.makeText(
+                                MainActivity.this,
+                                "uploadChoice --> It's a match!!!",
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        handleMatch(mainPresenter, suggestion);
+                    }
+                }, throwable -> handleError());
+
+        disposable.add(subscribeUploadChoice);
+    }
+
+    private void handleMatch(MainPresenter mainPresenter, Superhero suggestion) {
+        showMatchDialog(suggestion);
+        uploadMatch(mainPresenter, suggestion);
+    }
+
+    private void uploadMatch(MainPresenter mainPresenter, Superhero suggestion) {
+        subscribeUploadMatch = mainPresenter.uploadMatch(configureMatchRequestBody(
+                mainPresenter,
+                suggestion
+        )).subscribeOn(Schedulers.io())
+                .subscribe((Integer res) -> {
+                    if (res == 500) {
+                        Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
+                    }
+                }, throwable -> handleErrorInBackground());
+
+        disposable.add(subscribeUploadMatch);
+    }
+
 
     public void updateUserProfile() {
         updateProfile(configureUpdateProfileRequestBody(mainPresenter));
@@ -848,6 +959,10 @@ public class MainActivity extends AppCompatActivity {
         closeLoadingDialog();
         stopLocationUpdates();
         Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+    }
+
+    private void handleErrorInBackground() {
+        Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
     }
 
     public void setLatAndLon(String userID, double lat, double lon, Context context) {
@@ -1075,9 +1190,29 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.ivSuggestionLike)
     public void onSuggestionLike() {
-        // Make background call to server to save the choice made by the user.
-        // Don't show no loading dialogs, just make background call that's it.
 
+        // Check if it is a match.
+        if (this.suggestions.get(this.currentSuggestion).isHasLikedMe()) {
+            Toast.makeText(MainActivity.this, "onSuggestionLike --> It's a match!!!", Toast.LENGTH_LONG).show();
+            handleMatch(this.mainPresenter, this.suggestions.get(this.currentSuggestion));
+            // Show user it's a match dialog.
+            // Show 3 choices - chat, chat later and un-match.
+            // If user chooses chat, create match and chat in local DB and send match to the server
+            // and open chat fragment.
+            // If user chooses chat later, create match and chat in local DB, close dialog and
+            // load next suggestion.
+
+            return;
+        }
+
+        // It wasn't match, send the choice to the server.
+        uploadChoice(
+                this.mainPresenter,
+                this.suggestions.get(this.currentSuggestion),
+                ConstantRegistry.LIKE
+        );
+
+        // If there are still suggestions left, display next suggestion.
         if ((this.suggestions.size() - 1) > this.currentSuggestion) {
             this.currentSuggestion++;
 
@@ -1090,13 +1225,18 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        // No more suggestions left, fetch next batch of suggestions.
         getSuggestions(configureSuggestionsRequestBody(this.mainPresenter), false);
     }
 
     @OnClick(R.id.ivSuggestionDislike)
     public void onSuggestionDislike() {
-        // Make background call to server to save the choice made by the user.
-        // Don't show no loading dialogs, just make background call that's it.
+        // Send the choice to the server.
+        uploadChoice(
+                this.mainPresenter,
+                this.suggestions.get(this.currentSuggestion),
+                ConstantRegistry.DISLIKE
+        );
 
         if ((this.suggestions.size() - 1) > this.currentSuggestion) {
             this.currentSuggestion++;
