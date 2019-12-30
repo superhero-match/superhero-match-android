@@ -1,9 +1,12 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network.choice;
 
+import java.util.HashMap;
+
+import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
-import retrofit2.http.Query;
 
 public interface Choice {
     @Headers({
@@ -11,10 +14,6 @@ public interface Choice {
             "User-Agent: SuperheroMatch",
             "X-Platform: Android"
     })
-    @POST("/choice")
-    Call<String> saveChoice(
-            @Query("userID") String userID,
-            @Query("chosenUserID") String chosenUserID,
-            @Query("choice") int choice
-    );
+    @POST("/api/v1/choice/choice")
+    Call<ChoiceResponse> uploadChoice(@Body HashMap<String, Object> body);
 }

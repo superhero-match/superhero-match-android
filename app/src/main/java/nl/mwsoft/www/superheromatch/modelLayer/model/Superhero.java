@@ -23,11 +23,13 @@ public class Superhero implements Parcelable {
     private String city;
     private String superpower;
     private String accountType;
+    private boolean hasLikedMe;
+    private String createdAt;
 
     public Superhero() {
     }
 
-    public Superhero(String id, String superheroName, String mainProfilePicUrl, @Nullable ArrayList<ProfilePicture> profilePictures, int gender, int age, double lat, double lon, String country, String city, String superpower, String accountType) {
+    public Superhero(String id, String superheroName, String mainProfilePicUrl, @Nullable ArrayList<ProfilePicture> profilePictures, int gender, int age, double lat, double lon, String country, String city, String superpower, String accountType, boolean hasLikedMe, String createdAt) {
         this.id = id;
         this.superheroName = superheroName;
         this.mainProfilePicUrl = mainProfilePicUrl;
@@ -40,6 +42,8 @@ public class Superhero implements Parcelable {
         this.city = city;
         this.superpower = superpower;
         this.accountType = accountType;
+        this.hasLikedMe = hasLikedMe;
+        this.createdAt = createdAt;
     }
 
     protected Superhero(Parcel in) {
@@ -55,6 +59,8 @@ public class Superhero implements Parcelable {
         city = in.readString();
         superpower = in.readString();
         accountType = in.readString();
+        hasLikedMe = in.readByte() != 0;
+        createdAt = in.readString();
     }
 
     @Override
@@ -71,6 +77,8 @@ public class Superhero implements Parcelable {
         dest.writeString(city);
         dest.writeString(superpower);
         dest.writeString(accountType);
+        dest.writeByte((byte) (hasLikedMe ? 1 : 0));
+        dest.writeString(createdAt);
     }
 
     @Override
@@ -185,5 +193,41 @@ public class Superhero implements Parcelable {
 
     public void setAccountType(String accountType) {
         this.accountType = accountType;
+    }
+
+    public boolean isHasLikedMe() {
+        return hasLikedMe;
+    }
+
+    public void setHasLikedMe(boolean hasLikedMe) {
+        this.hasLikedMe = hasLikedMe;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Superhero{" +
+                "id='" + id + '\'' +
+                ", superheroName='" + superheroName + '\'' +
+                ", mainProfilePicUrl='" + mainProfilePicUrl + '\'' +
+                ", profilePictures=" + profilePictures +
+                ", gender=" + gender +
+                ", age=" + age +
+                ", lat=" + lat +
+                ", lon=" + lon +
+                ", country='" + country + '\'' +
+                ", city='" + city + '\'' +
+                ", superpower='" + superpower + '\'' +
+                ", accountType='" + accountType + '\'' +
+                ", hasLikedMe=" + hasLikedMe +
+                ", createdAt='" + createdAt + '\'' +
+                '}';
     }
 }

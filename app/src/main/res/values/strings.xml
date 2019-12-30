@@ -820,6 +820,9 @@
     <string name="distance_unit">Distance Unit</string>
     <string name="close_window">Close Window</string>
     <string name="upload_images">Upload Images</string>
-    <string name="no_suggestions_found">Unfortunatelly we couldn\'t find any suggestions based on your profile settings. Try changing settings or come back later.</string>
+    <string name="no_suggestions_found">Unfortunately we couldn\'t find any suggestions based on your profile settings. Try changing settings or come back later.</string>
+    <string name="upload_match_error_msg">Error while uploading match</string>
+    <string name="it_s_a_match">It\'s a match!</string>
+    <string name="send_message">Send message</string>
 
 </resources>
