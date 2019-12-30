@@ -9,7 +9,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
     // Constants for db name and version
     private static final String DATABASE_NAME = "superheromatch.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     //=======================================================================================================================
     // Constants for identifying tables and columns
@@ -86,86 +86,24 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     public static final String TABLE_USER_PROFILE_PICTURE = "user_profile_picture";
     public static final String USER_PROFILE_PICTURE_ID = "_id";
     public static final String USER_ID = "user_id";
-    public static final String USER_PROFILE_PIC_URI = "profile_pic_uri";
     public static final String USER_PROFILE_PIC_URL = "profile_pic_url";
+    public static final String PROFILE_PIC_POSITION = "profile_pic_position";
 
 
     public static final String[] ALL_COLUMNS_USER_PROFILE_PICTURE = {USER_PROFILE_PICTURE_ID,
-            USER_ID, USER_PROFILE_PIC_URI, USER_PROFILE_PIC_URL};
+            USER_ID, PROFILE_PIC_POSITION, USER_PROFILE_PIC_URL};
 
     // SQL to create table user
     private static final String TABLE_CREATE_USER_PROFILE_PICTURE =
             "CREATE TABLE " + TABLE_USER_PROFILE_PICTURE + " (" +
                     USER_PROFILE_PICTURE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     USER_ID + " TEXT NOT NULL," +
-                    USER_PROFILE_PIC_URI + " TEXT NOT NULL, " +
                     USER_PROFILE_PIC_URL + " TEXT NOT NULL, " +
+                    PROFILE_PIC_POSITION + " INTEGER NOT NULL, " +
                     " FOREIGN KEY(" + USER_ID + ") REFERENCES " + TABLE_USER + "(" + U_ID + ")" +
                     ")";
 
     // endregion
-
-
-    // region Matched From Suggestions User
-
-    //=======================================================================================================================
-    // matched user table
-    //=======================================================================================================================
-    public static final String TABLE_MATCHED_USER = "matched_user";
-    public static final String MATCHED_USER_ID = "_id";
-    public static final String MATCHED_USER_NAME = "matched_user_name";
-    public static final String MATCHED_USER_MAIN_PROFILE_PIC_URL = "matched_user_main_profile_pic_url";
-    public static final String MATCHED_USER_GENDER = "matched_user_gender";
-    public static final String MATCHED_USER_AGE = "matched_user_age";
-    public static final String MATCHED_USER_COUNTRY = "matched_user_country";
-    public static final String MATCHED_USER_CITY = "matched_user_city";
-    public static final String MATCHED_USER_SUPER_POWER = "matched_user_super_power";
-    public static final String MATCHED_USER_ACCOUNT_TYPE = "matched_user_account_type";
-    public static final String MATCHED_WITH_USER_ID = "matched_with_user_id";
-    public static final String MATCH_CREATED = "match_created";
-
-
-    public static final String[] ALL_COLUMNS_MATCHED_USER = {MATCHED_USER_ID, MATCHED_USER_NAME, MATCHED_USER_MAIN_PROFILE_PIC_URL,
-            MATCHED_USER_GENDER, MATCHED_USER_AGE, MATCHED_USER_COUNTRY, MATCHED_USER_CITY,
-            MATCHED_USER_SUPER_POWER, MATCHED_USER_ACCOUNT_TYPE, MATCHED_WITH_USER_ID, MATCH_CREATED};
-
-
-    // SQL to create table date_match
-    private static final String TABLE_CREATE_MATCHED_USER =
-            "CREATE TABLE " + TABLE_MATCHED_USER + " (" +
-                    MATCHED_USER_ID + " TEXT PRIMARY KEY, " +
-                    MATCHED_USER_NAME + " TEXT NOT NULL," +
-                    MATCHED_USER_MAIN_PROFILE_PIC_URL + " TEXT NOT NULL," +
-                    MATCHED_USER_GENDER + " TEXT NOT NULL," +
-                    MATCHED_USER_AGE + " INTEGER NOT NULL," +
-                    MATCHED_USER_COUNTRY + " TEXT NOT NULL," +
-                    MATCHED_USER_CITY + " TEXT NOT NULL," +
-                    MATCHED_USER_SUPER_POWER + " TEXT NOT NULL, " +
-                    MATCHED_USER_ACCOUNT_TYPE + " TEXT NOT NULL," +
-                    MATCHED_WITH_USER_ID + " TEXT NOT NULL," +
-                    MATCH_CREATED + " TEXT default CURRENT_TIMESTAMP)";
-
-    //=======================================================================================================================
-    // match profile picture table
-    //=======================================================================================================================
-    public static final String TABLE_MATCH_PROFILE_PICTURE = "match_profile_picture";
-    public static final String MATCH_PROFILE_PICTURE_ID = "_id";
-    public static final String PICTURE_MATCH_ID = "match_id";
-    public static final String MATCH_PROFILE_PIC_URL = "profile_pic_url";
-
-
-    public static final String[] ALL_COLUMNS_MATCH_PROFILE_PICTURE = {MATCH_PROFILE_PICTURE_ID,
-            PICTURE_MATCH_ID, MATCH_PROFILE_PIC_URL};
-
-    // SQL to create table user
-    private static final String TABLE_CREATE_MATCH_PROFILE_PICTURE =
-            "CREATE TABLE " + TABLE_MATCH_PROFILE_PICTURE + " (" +
-                    MATCH_PROFILE_PICTURE_ID + "  INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    PICTURE_MATCH_ID + " TEXT NOT NULL," +
-                    MATCH_PROFILE_PIC_URL + " TEXT NOT NULL, " +
-                    " FOREIGN KEY(" + PICTURE_MATCH_ID + ") REFERENCES " + TABLE_MATCHED_USER + "(" + MATCHED_USER_ID + ")" +
-                    ")";
-
 
     //=======================================================================================================================
     // chat table
@@ -173,20 +111,22 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     public static final String TABLE_CHAT = "chat";
     public static final String CHAT_ID = "_id";
     public static final String CHAT_NAME = "chat_name";
-    public static final String MATCH_NAME = "match_name";
+    public static final String CHAT_MATCHED_USER_ID = "chat_matched_user_id";
+    public static final String CHAT_MATCHED_USER_MAIN_PROFILE_PIC = "chat_matched_user_main_profile_pic";
     public static final String CHAT_CREATED = "chat_created";
 
 
-    public static final String[] ALL_COLUMNS_CHAT = {CHAT_ID, CHAT_NAME, MATCH_NAME, CHAT_CREATED};
+    public static final String[] ALL_COLUMNS_CHAT = {CHAT_ID, CHAT_NAME, CHAT_MATCHED_USER_ID,
+            CHAT_MATCHED_USER_MAIN_PROFILE_PIC, CHAT_CREATED};
 
     // SQL to create table chat
     private static final String TABLE_CREATE_MATCH_CHAT =
             "CREATE TABLE " + TABLE_CHAT + " (" +
-                    CHAT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    CHAT_ID + " TEXT PRIMARY KEY, " +
                     CHAT_NAME + " TEXT NOT NULL," +
-                    MATCH_NAME + " TEXT NOT NULL," +
-                    CHAT_CREATED + " TEXT default CURRENT_TIMESTAMP , " +
-                    " FOREIGN KEY(" + MATCH_NAME + ") REFERENCES " + TABLE_MATCHED_USER + "(" + MATCHED_USER_ID + ") " +
+                    CHAT_MATCHED_USER_ID + " TEXT NOT NULL," +
+                    CHAT_MATCHED_USER_MAIN_PROFILE_PIC + " TEXT NOT NULL," +
+                    CHAT_CREATED + " TEXT default CURRENT_TIMESTAMP " +
                     ")";
 
     //=======================================================================================================================
@@ -209,7 +149,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     private static final String TABLE_CREATE_CHAT_MESSAGE =
             "CREATE TABLE " + TABLE_MESSAGE + " (" +
                     MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    MESSAGE_CHAT_ID + " INTEGER," +
+                    MESSAGE_CHAT_ID + " TEXT NOT NULL," +
                     MESSAGE_SENDER_ID + " TEXT NOT NULL," +
                     TEXT_MESSAGE + " TEXT," +
                     MESSAGE_HAS_BEEN_READ + " INTEGER default 0," +
@@ -292,24 +232,20 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(TABLE_CREATE_MATCHED_USER);
         db.execSQL(TABLE_CREATE_MATCH_CHAT);
         db.execSQL(TABLE_CREATE_CHAT_MESSAGE);
         db.execSQL(TABLE_CREATE_MESSAGE_QUEUE);
         db.execSQL(TABLE_CREATE_USER);
         db.execSQL(INSERT_DEFAULT_USER);
         db.execSQL(TABLE_CREATE_USER_PROFILE_PICTURE);
-        db.execSQL(TABLE_CREATE_MATCH_PROFILE_PICTURE);
         db.execSQL(TABLE_CREATE_RETRIEVED_OFFLINE_MESSAGE_UUID);
         db.execSQL(TABLE_CREATE_RECEIVED_ONLINE_MESSAGE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MATCHED_USER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGE);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MATCH_PROFILE_PICTURE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_PROFILE_PICTURE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RETRIEVED_OFFLINE_MESSAGE_UUID);

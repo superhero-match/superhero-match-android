@@ -12,11 +12,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
+import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegistrationUser;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
-import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.modelLayer.modelLayerManager.ModelLayerManager;
 
 public class MainPresenter {
@@ -171,63 +173,64 @@ public class MainPresenter {
 
     // endregion
 
-    // region Matched User Database Layer
+    // region Chat Database Layer
 
-    public User getMatchedUserById(Context context, String matchedUserId) {
-        return this.modelLayerManager.getMatchedUserById(context, matchedUserId);
+    public void updateMessageHasBeenReadByMessageId(int messageId, Context context){
+        this.modelLayerManager.updateMessageHasBeenReadByMessageId(messageId, context);
     }
 
-    public ArrayList<User> getAllMatchedUsers(String matchedUserID, Context context) {
-        return this.modelLayerManager.getAllMatchedUsers(matchedUserID, context);
+    public int getUnreadMessageCountByChatId(Context context, String chatId) {
+        return this.modelLayerManager.getUnreadMessageCountByChatId(context, chatId);
     }
 
-    public String getMatchedUserNameById(Context context, String matchedUserId) {
-        return this.modelLayerManager.getMatchedUserNameById(context, matchedUserId);
+    public Message getLastChatMessageByChatId(Context context, String chatId) {
+        return this.modelLayerManager.getLastChatMessageByChatId(context, chatId);
     }
 
-    public String getMatchedUserMainProfilePicUrlById(Context context, String matchedUserId) {
-        return this.modelLayerManager.getMatchedUserMainProfilePicUrlById(context, matchedUserId);
+    public ArrayList<Message> getAllMessagesForChatWithId(Context context, String chatId) {
+        return this.modelLayerManager.getAllMessagesForChatWithId(context, chatId);
     }
 
-    public ArrayList<String> getMatchedUserProfilePicUrlsById(Context context, String matchedUserId) {
-        return this.modelLayerManager.getMatchedUserProfilePicUrlsById(context, matchedUserId);
+    public String getChatIdByChatName(Context context, String chatName) {
+        return this.modelLayerManager.getChatIdByChatName(context, chatName);
     }
 
-    public int getMatchedUserGenderById(Context context, String matchedUserId) {
-        return this.modelLayerManager.getMatchedUserGenderById(context, matchedUserId);
+    public ArrayList<Chat> getAllChats(Context context) {
+        return this.modelLayerManager.getAllChats(context);
     }
 
-    public int getMatchedUserAge(Context context, String matchedUserId) {
-        return this.modelLayerManager.getMatchedUserAge(context, matchedUserId);
+    public Chat getChatByContactId(Context context, String matchName) {
+        return this.modelLayerManager.getChatByContactId(context, matchName);
     }
 
-    public String getMatchedUserCountry(Context context, String matchedUserId) {
-        return this.modelLayerManager.getMatchedUserCountry(context, matchedUserId);
+    public Chat getChatById(Context context, String chatId) {
+        return this.modelLayerManager.getChatById(context, chatId);
     }
 
-    public String getMatchedUserCity(Context context, String matchedUserId) {
-        return this.modelLayerManager.getMatchedUserCity(context, matchedUserId);
+    public void deleteChatMessageById(int messageId, Context context){
+        this.modelLayerManager.deleteChatMessageById(messageId, context);
     }
 
-    public String getMatchedUserAbout(Context context, String matchedUserId) {
-        return this.modelLayerManager.getMatchedUserSuperPower(context, matchedUserId);
+    public void deleteChatMessageBySenderId(String senderId, Context context){
+        this.modelLayerManager.deleteChatMessageBySenderId(senderId, context);
     }
 
-    public void insertMatchedUser(User user, Context context) {
-        this.modelLayerManager.insertMatchedUser(user, context);
+    public void insertChat(String chatId, String matchName, String matchedUserId, String chatProfilePic, Context context) {
+        this.modelLayerManager.insertChat(chatId, matchName, matchedUserId, chatProfilePic, context);
     }
 
-    public void insertMatchedUserProfilePic(String userId, String profilePicUrl, Context context) {
-        this.modelLayerManager.insertMatchedUserProfilePic(userId, profilePicUrl, context);
+    public Message getChatMessageByUUID(Context context, String uuid) {
+        return this.modelLayerManager.getChatMessageByUUID(context, uuid);
     }
 
-    public void insertMatchChat(String matchedUserId, String chatName, Context context) {
-        this.modelLayerManager.insertMatchChat(matchedUserId, chatName, context);
+    public void insertChatMessage(Message chatMessage, Context context) {
+        this.modelLayerManager.insertChatMessage(chatMessage, context);
     }
 
-    public void insertMatchChatMessage(String chatName, String senderId, String message, String messageUUID, Context context) {
-        this.modelLayerManager.insertMatchChatMessage(chatName, senderId, message, messageUUID, context);
+    public void deleteChatById(String chatId, Context context){
+        this.modelLayerManager.deleteChatById(chatId, context);
     }
+
 
     // endregion
 
@@ -341,6 +344,14 @@ public class MainPresenter {
 
     public Observable<Integer> uploadMatch(HashMap<String, Object> body){
         return this.modelLayerManager.uploadMatch(body);
+    }
+
+    // endregion
+
+    // region Get Suggestion Profile
+
+    public Observable<ProfileResponse> getSuggestionProfile(HashMap<String, Object> body){
+        return this.modelLayerManager.getSuggestionProfile(body);
     }
 
     // endregion

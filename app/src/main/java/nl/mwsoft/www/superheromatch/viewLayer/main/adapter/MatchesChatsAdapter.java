@@ -67,7 +67,7 @@ public class MatchesChatsAdapter extends RecyclerView.Adapter<MatchesChatsAdapte
     @Override
     public void onBindViewHolder(MatchesChatsAdapter.MyViewHolder holder, int position) {
         Chat matchChat = matchChats.get(position);
-        holder.tvUserNameMatchesChats.setText(matchChat.getUserName());
+        holder.tvUserNameMatchesChats.setText(matchChat.getChatName());
         holder.tvLastActivityDateMatchesChats.setText(matchChat.getLastActivityDate());
         holder.tvLastActivityMessageMatchesChats.setText(matchChat.getLastActivityMessage());
         if(matchChat.getUnreadMessageCount() > 0){

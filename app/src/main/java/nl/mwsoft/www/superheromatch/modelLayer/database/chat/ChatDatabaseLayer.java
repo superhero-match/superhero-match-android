@@ -26,7 +26,7 @@ public class ChatDatabaseLayer {
         this.dateTimeUtil = dateTimeUtil;
     }
 
-    public void updateMessageHasBeenReadByMessageId(int messageId, Context context){
+    public void updateMessageHasBeenReadByMessageId(int messageId, Context context) {
         ContentValues messageValues = new ContentValues();
         String selection = DBOpenHelper.MESSAGE_ID + "=" + messageId;
         messageValues.put(DBOpenHelper.MESSAGE_HAS_BEEN_READ, 1);
@@ -34,13 +34,13 @@ public class ChatDatabaseLayer {
         context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_MESSAGE, messageValues, selection, null);
     }
 
-    public int getUnreadMessageCountByChatId(Context context, int chatId) {
+    public int getUnreadMessageCountByChatId(Context context, String chatId) {
         int count = 0;
         Cursor cursor = null;
         SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
         cursor = db.rawQuery("SELECT COUNT (*) AS c FROM " + DBOpenHelper.TABLE_MESSAGE +
                 " WHERE " + DBOpenHelper.MESSAGE_HAS_BEEN_READ + "=0 AND " +
-                DBOpenHelper.MESSAGE_CHAT_ID + "=" + chatId, null);
+                DBOpenHelper.MESSAGE_CHAT_ID + "='" + chatId + "'", null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 count = Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow("c")));
@@ -53,12 +53,12 @@ public class ChatDatabaseLayer {
         return count;
     }
 
-    public Message getLastChatMessageByChatId(Context context, int chatId) {
+    public Message getLastChatMessageByChatId(Context context, String chatId) {
         Message lastMessage = new Message();
         Cursor cursor = null;
         SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
         cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_MESSAGE + " WHERE " + DBOpenHelper.MESSAGE_CHAT_ID
-                + "=" + chatId + " ORDER BY " + DBOpenHelper.MESSAGE_ID + " DESC LIMIT 1", null);
+                + "='" + chatId + "' ORDER BY " + DBOpenHelper.MESSAGE_ID + " DESC LIMIT 1", null);
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 lastMessage.setMessageId(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_ID))));
@@ -72,16 +72,17 @@ public class ChatDatabaseLayer {
         return lastMessage;
     }
 
-    public ArrayList<Message> getAllMessagesForChatWithId(Context context, int chatId) {
+    public ArrayList<Message> getAllMessagesForChatWithId(Context context, String chatId) {
         ArrayList<Message> messages = new ArrayList<>();
         Cursor cursor = null;
         SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
-        cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_MESSAGE + " WHERE " + DBOpenHelper.MESSAGE_CHAT_ID + "=" + chatId, null);
+        cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_MESSAGE +
+                " WHERE " + DBOpenHelper.MESSAGE_CHAT_ID + "='" + chatId + "'", null);
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 Message message = new Message();
                 message.setMessageId(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_ID))));
-                message.setMessageChatId(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_CHAT_ID))));
+                message.setMessageChatId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_CHAT_ID)));
                 message.setMessageSenderId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_SENDER_ID)));
                 message.setMessageCreated(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_CREATED)));
                 message.setMessageUUID(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_UUID)));
@@ -97,15 +98,15 @@ public class ChatDatabaseLayer {
         return messages;
     }
 
-    public int getChatIdByChatName(Context context, String chatName) {
-        int id = 0;
+    public String getChatIdByChatName(Context context, String chatName) {
+        String id = "";
         Cursor cursor = null;
         SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
         cursor = db.rawQuery("SELECT " + DBOpenHelper.CHAT_ID + " FROM " + DBOpenHelper.TABLE_CHAT +
-                " WHERE " + DBOpenHelper.CHAT_NAME + "= '" + chatName + "'", null);
+                " WHERE " + DBOpenHelper.CHAT_NAME + "='" + chatName + "'", null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                id = Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID)));
+                id = cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID));
             }
         }
 
@@ -123,16 +124,16 @@ public class ChatDatabaseLayer {
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 Chat chat = new Chat();
-                if (getAllMessagesForChatWithId(context, Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID)))).size() > 0){
-                    chat.setChatId(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID))));
-                    chat.setUserName(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCH_NAME)));
-                    chat.setChatName(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_NAME)));
-                    if (getLastChatMessageByChatId(context, chat.getChatId()) != null) {
-                        chat.setLastActivityMessage(getLastChatMessageByChatId(context, chat.getChatId()).getMessageText());
-                    }
-                    chat.setLastActivityDate(getLastChatMessageByChatId(context, chat.getChatId()).getMessageCreated());
-                    chats.add(chat);
+                // if (getAllMessagesForChatWithId(context, cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID))).size() > 0){
+                chat.setChatId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID)));
+                chat.setChatName(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_NAME)));
+                chat.setMatchedUserId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_MATCHED_USER_ID)));
+                chat.setMatchedUserMainProfilePic(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_MATCHED_USER_MAIN_PROFILE_PIC)));
+                if (getLastChatMessageByChatId(context, chat.getChatId()) != null) {
+                    chat.setLastActivityMessage(getLastChatMessageByChatId(context, chat.getChatId()).getMessageText());
                 }
+                chat.setLastActivityDate(getLastChatMessageByChatId(context, chat.getChatId()).getMessageCreated());
+                chats.add(chat);
             }
         }
         cursor.close();
@@ -146,13 +147,18 @@ public class ChatDatabaseLayer {
         Cursor cursor = null;
         SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
         cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_CHAT +
-                " WHERE " + DBOpenHelper.MATCH_NAME + "='" + matchName + "'", null);
+                " WHERE " + DBOpenHelper.CHAT_MATCHED_USER_ID + "='" + matchName + "'", null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 chat = new Chat();
-                chat.setChatId(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID))));
-                chat.setUserName(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCH_NAME)));
+                chat.setChatId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID)));
                 chat.setChatName(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_NAME)));
+                chat.setMatchedUserId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_MATCHED_USER_ID)));
+                chat.setMatchedUserMainProfilePic(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_MATCHED_USER_MAIN_PROFILE_PIC)));
+                if (getLastChatMessageByChatId(context, chat.getChatId()) != null) {
+                    chat.setLastActivityMessage(getLastChatMessageByChatId(context, chat.getChatId()).getMessageText());
+                }
+                chat.setLastActivityDate(getLastChatMessageByChatId(context, chat.getChatId()).getMessageCreated());
             }
         }
         cursor.close();
@@ -161,16 +167,22 @@ public class ChatDatabaseLayer {
         return chat;
     }
 
-    public Chat getChatById(Context context, int id) {
+    public Chat getChatById(Context context, String chatId) {
         Chat chat = new Chat();
         Cursor cursor = null;
         SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
-        cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_CHAT + " WHERE " + DBOpenHelper.CHAT_ID + "=" + id, null);
+        cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_CHAT +
+                " WHERE " + DBOpenHelper.CHAT_ID + "='" + chatId + "'", null);
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                chat.setChatId(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID))));
+                chat.setChatId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_ID)));
                 chat.setChatName(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_NAME)));
-                chat.setUserName(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MATCH_NAME)));
+                chat.setMatchedUserId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_MATCHED_USER_ID)));
+                chat.setMatchedUserMainProfilePic(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHAT_MATCHED_USER_MAIN_PROFILE_PIC)));
+                if (getLastChatMessageByChatId(context, chat.getChatId()) != null) {
+                    chat.setLastActivityMessage(getLastChatMessageByChatId(context, chat.getChatId()).getMessageText());
+                }
+                chat.setLastActivityDate(getLastChatMessageByChatId(context, chat.getChatId()).getMessageCreated());
             }
         }
         cursor.close();
@@ -179,20 +191,22 @@ public class ChatDatabaseLayer {
         return chat;
     }
 
-    public void deleteChatMessageById(int messageId, Context context){
+    public void deleteChatMessageById(int messageId, Context context) {
         String msgSelectionUpdate = DBOpenHelper.MESSAGE_ID + "=" + messageId;
         context.getContentResolver().delete(SuperHeroMatchProvider.CONTENT_URI_MESSAGE, msgSelectionUpdate, null);
     }
 
-    public void deleteChatMessageBySenderId(long senderId, Context context){
-        String msgSelectionUpdate = DBOpenHelper.MESSAGE_SENDER_ID + "=" + senderId;
+    public void deleteChatMessageBySenderId(String senderId, Context context) {
+        String msgSelectionUpdate = DBOpenHelper.MESSAGE_SENDER_ID + "='" + senderId + "'";
         context.getContentResolver().delete(SuperHeroMatchProvider.CONTENT_URI_MESSAGE, msgSelectionUpdate, null);
     }
 
-    public void insertChat(String matchName, String chatName, Context context) {
+    public void insertChat(String chatId, String matchName, String matchedUserId, String chatProfilePic, Context context) {
         ContentValues setValues = new ContentValues();
-        setValues.put(DBOpenHelper.MATCH_NAME, matchName);
-        setValues.put(DBOpenHelper.CHAT_NAME, chatName);
+        setValues.put(DBOpenHelper.CHAT_ID, chatId);
+        setValues.put(DBOpenHelper.CHAT_NAME, matchName);
+        setValues.put(DBOpenHelper.CHAT_MATCHED_USER_ID, matchedUserId);
+        setValues.put(DBOpenHelper.CHAT_MATCHED_USER_MAIN_PROFILE_PIC, chatProfilePic);
 
         Uri setUri = context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_CHAT, setValues);
     }
@@ -205,13 +219,13 @@ public class ChatDatabaseLayer {
         Uri setUri = context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_MESSAGE_QUEUE, setValues);
     }
 
-    public MessageQueueItem getMessageQueueItemChat(Context context){
+    public MessageQueueItem getMessageQueueItemChat(Context context) {
         MessageQueueItem messageQueueItem = null;
         Cursor cursor = null;
         SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
         cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_MESSAGE_QUEUE, null);
         if (cursor != null) {
-            while(cursor.moveToNext()) {
+            while (cursor.moveToNext()) {
                 messageQueueItem = new MessageQueueItem();
                 messageQueueItem.set_id(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_QUEUE_ITEM_ID))));
                 messageQueueItem.setMessageUUID(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_QUEUE_MESSAGE_UUID)));
@@ -234,7 +248,7 @@ public class ChatDatabaseLayer {
             while (cursor.moveToNext()) {
                 message = new Message();
                 message.setMessageId(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_ID))));
-                message.setMessageChatId(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_CHAT_ID))));
+                message.setMessageChatId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_CHAT_ID)));
                 message.setMessageSenderId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_SENDER_ID)));
                 message.setMessageCreated(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_CREATED)));
                 message.setMessageText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.TEXT_MESSAGE)));
@@ -247,7 +261,7 @@ public class ChatDatabaseLayer {
         return message;
     }
 
-    public void deleteChatMessageQueueItemByUUID(String uuid, Context context){
+    public void deleteChatMessageQueueItemByUUID(String uuid, Context context) {
         String msgSelectionUpdate = DBOpenHelper.MESSAGE_QUEUE_MESSAGE_UUID + "='" + uuid + "'";
         context.getContentResolver().delete(SuperHeroMatchProvider.CONTENT_URI_MESSAGE_QUEUE, msgSelectionUpdate, null);
     }
@@ -264,8 +278,8 @@ public class ChatDatabaseLayer {
         Uri setUri = context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_MESSAGE, setValues);
     }
 
-    public void deleteChatById(int chatId, Context context){
-        String chatSelectionUpdate = DBOpenHelper.CHAT_ID + "=" + chatId;
+    public void deleteChatById(String chatId, Context context) {
+        String chatSelectionUpdate = DBOpenHelper.CHAT_ID + "='" + chatId + "'";
         context.getContentResolver().delete(SuperHeroMatchProvider.CONTENT_URI_CHAT, chatSelectionUpdate, null);
     }
 
@@ -276,7 +290,7 @@ public class ChatDatabaseLayer {
         Uri setUri = context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_RECEIVED_ONLINE_MESSAGE, setValues);
     }
 
-    public void deleteReceivedOnlineMessageByUUID(String uuid, Context context){
+    public void deleteReceivedOnlineMessageByUUID(String uuid, Context context) {
         String chatSelectionUpdate = DBOpenHelper.RECEIVED_ONLINE_MESSAGE_UUID + " LIKE ? ";
         context.getContentResolver().delete(SuperHeroMatchProvider.CONTENT_URI_RECEIVED_ONLINE_MESSAGE,
                 chatSelectionUpdate, new String[]{uuid});
@@ -305,7 +319,7 @@ public class ChatDatabaseLayer {
         int size = 0;
         Cursor cursor = null;
         SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
-        cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_RECEIVED_ONLINE_MESSAGE , null);
+        cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_RECEIVED_ONLINE_MESSAGE, null);
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 String receivedOnlineMessageUUID = cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.RECEIVED_ONLINE_MESSAGE_UUID));

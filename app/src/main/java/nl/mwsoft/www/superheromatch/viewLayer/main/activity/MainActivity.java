@@ -175,9 +175,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private HashMap<String, Object> configureMatchRequestBody(MainPresenter mainPresenter, Superhero suggestion) {
+    private HashMap<String, Object> configureMatchRequestBody(
+            MainPresenter mainPresenter,
+            Superhero suggestion,
+            String matchId
+    ) {
         HashMap<String, Object> reqBodyChoice = new HashMap<>();
 
+        reqBodyChoice.put("matchId", matchId);
         reqBodyChoice.put("superheroId", mainPresenter.getUserId(this));
         reqBodyChoice.put("matchedSuperheroId", suggestion.getId());
 
@@ -380,11 +385,13 @@ public class MainActivity extends AppCompatActivity {
 
                     loadFragment(NoSuggestionsFragment.newInstance());
 
+                    getSuggestions(configureSuggestionsRequestBody(mainPresenter), true);
+
                     return true;
                 case R.id.navigation_matches:
                     currFragmentPosition = 3;
 
-                    fragment = MatchesChatsFragment.newInstance(createMockMatchChats());
+                    fragment = MatchesChatsFragment.newInstance(mainPresenter.getAllChats(MainActivity.this));
                     loadFragment(fragment);
 
                     return true;
@@ -480,30 +487,6 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-//    public Superhero createMockSuperhero() {
-//        ArrayList<String> profilePicUrls = new ArrayList<>();
-//        profilePicUrls.add(0, "test");// add main profile pic first always
-//        profilePicUrls.add("test5");
-//        profilePicUrls.add("test2");
-//        profilePicUrls.add("test3");
-//        profilePicUrls.add("test7");
-//
-//        return new Superhero(
-//                "id",
-//                "SuperheroName",
-//                "test",
-//                profilePicUrls,
-//                1,
-//                34,
-//                10.00,
-//                10.00,
-//                "Country",
-//                "City",
-//                "My Super Power described here but really long to check how it looks on the screen needs to be around 126 characters.",
-//                "FREE"
-//        );
-//    }
-
     public User createMockUser() {
         ArrayList<String> profilePicUrls = new ArrayList<>();
         profilePicUrls.add(0, "test");// add main profile pic first always
@@ -529,32 +512,11 @@ public class MainActivity extends AppCompatActivity {
         return user;
     }
 
-    public ArrayList<Chat> createMockMatchChats() {
-        ArrayList<Chat> matchChats = new ArrayList<>();
-        for (int i = 1; i <= 10; i++) {
-            Chat matchChat = new Chat();
-            matchChat.setChatId(1);
-            matchChat.setChatName("Test " + i);
-            matchChat.setUserName("Super Hero " + i);
-            matchChat.setLastActivityMessage("Test last message " + i);
-            matchChat.setLastActivityDate("14-04-2018");
-            if (i % 3 == 0) {
-                matchChat.setUnreadMessageCount(5);
-            } else {
-                matchChat.setUnreadMessageCount(0);
-            }
-
-            matchChats.add(matchChat);
-        }
-
-        return matchChats;
-    }
-
     public ArrayList<Message> createMockMessages() {
         ArrayList<Message> msgs = new ArrayList<>();
         for (int i = 0; i < 9; i++) {
             Message message = new Message();
-            message.setMessageChatId(1);
+            message.setMessageChatId("testuuid");
             message.setMessageCreated("22-04-2018 16:51:00");
             message.setMessageId(i);
             message.setMessageText("Just testing.");
@@ -577,7 +539,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendMessageClickListener(String message) {
         Message msg = new Message();
-        msg.setMessageChatId(1);
+        msg.setMessageChatId("testuuid");
         msg.setMessageCreated("22-04-2018 16:51:00");
         msg.setMessageId(1);
         msg.setMessageText(message);
@@ -757,7 +719,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == ConstantRegistry.PICK_PROFILE_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+        if (requestCode == ConstantRegistry.PICK_PROFILE_IMAGE_REQUEST &&
+                resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
             processUpdateProfilePic(uri);
         }
@@ -789,20 +752,7 @@ public class MainActivity extends AppCompatActivity {
             matchDialog.dismiss();
         }
 
-        if ((this.suggestions.size() - 1) > this.currentSuggestion) {
-            this.currentSuggestion++;
-
-            loadNextSuggestion(
-                    SuggestionFragment.newInstance(
-                            this.suggestions.get(this.currentSuggestion)
-                    )
-            );
-
-            return;
-        }
-
-        // No more suggestions left, fetch next batch of suggestions.
-        getSuggestions(configureSuggestionsRequestBody(this.mainPresenter), false);
+        loadNextSuggestion();
     }
 
     private void getSuggestions(HashMap<String, Object> reqBody, boolean isInitialRequest) {
@@ -819,11 +769,13 @@ public class MainActivity extends AppCompatActivity {
                     closeLoadingDialog();
 
                     if (res.getStatus() == 500) {
-                        Toast.makeText(
-                                MainActivity.this,
-                                R.string.smth_went_wrong,
-                                Toast.LENGTH_LONG
-                        ).show();
+                        handleError();
+
+                        return;
+                    }
+
+                    if (res.getSuggestions().size() == 0) {
+                        loadFragment(NoSuggestionsFragment.newInstance());
 
                         return;
                     }
@@ -852,12 +804,7 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
 
-                    if (res.getSuggestions().size() == 0) {
-                        loadFragment(NoSuggestionsFragment.newInstance());
-
-                        return;
-                    }
-
+                    // This is not initial request, that means that the next suggestion needs to be loaded.
                     this.currentSuggestion++;
 
                     loadNextSuggestion(
@@ -890,29 +837,35 @@ public class MainActivity extends AppCompatActivity {
 
                     // If it's a match, show dialog.
                     if (res.isMatch()) {
-                        Toast.makeText(
-                                MainActivity.this,
-                                "uploadChoice --> It's a match!!!",
-                                Toast.LENGTH_LONG
-                        ).show();
-
-                        handleMatch(mainPresenter, suggestion);
+                        handleMatch(mainPresenter, suggestion, mainPresenter.createUUID());
                     }
                 }, throwable -> handleError());
 
         disposable.add(subscribeUploadChoice);
     }
 
-    private void handleMatch(MainPresenter mainPresenter, Superhero suggestion) {
+    private void handleMatch(MainPresenter mainPresenter, Superhero suggestion, String matchId) {
+        mainPresenter.insertChat(
+                matchId,
+                suggestion.getSuperheroName(),
+                suggestion.getId(),
+                suggestion.getMainProfilePicUrl(),
+                MainActivity.this
+        );
+
         showMatchDialog(suggestion);
-        uploadMatch(mainPresenter, suggestion);
+
+        HashMap<String, Object> reqBody = configureMatchRequestBody(
+                mainPresenter,
+                suggestion,
+                matchId
+        );
+
+        uploadMatch(reqBody);
     }
 
-    private void uploadMatch(MainPresenter mainPresenter, Superhero suggestion) {
-        subscribeUploadMatch = mainPresenter.uploadMatch(configureMatchRequestBody(
-                mainPresenter,
-                suggestion
-        )).subscribeOn(Schedulers.io())
+    private void uploadMatch(HashMap<String, Object> reqBody) {
+        subscribeUploadMatch = mainPresenter.uploadMatch(reqBody).subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
                     if (res == 500) {
                         Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
@@ -958,6 +911,7 @@ public class MainActivity extends AppCompatActivity {
     private void handleError() {
         closeLoadingDialog();
         stopLocationUpdates();
+        loadFragment(NoSuggestionsFragment.newInstance());
         Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
     }
 
@@ -1190,17 +1144,17 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.ivSuggestionLike)
     public void onSuggestionLike() {
+        if (this.suggestions.size() == 0) {
+            return;
+        }
 
         // Check if it is a match.
         if (this.suggestions.get(this.currentSuggestion).isHasLikedMe()) {
-            Toast.makeText(MainActivity.this, "onSuggestionLike --> It's a match!!!", Toast.LENGTH_LONG).show();
-            handleMatch(this.mainPresenter, this.suggestions.get(this.currentSuggestion));
-            // Show user it's a match dialog.
-            // Show 3 choices - chat, chat later and un-match.
-            // If user chooses chat, create match and chat in local DB and send match to the server
-            // and open chat fragment.
-            // If user chooses chat later, create match and chat in local DB, close dialog and
-            // load next suggestion.
+            handleMatch(
+                    this.mainPresenter,
+                    this.suggestions.get(this.currentSuggestion),
+                    this.mainPresenter.createUUID()
+            );
 
             return;
         }
@@ -1212,25 +1166,15 @@ public class MainActivity extends AppCompatActivity {
                 ConstantRegistry.LIKE
         );
 
-        // If there are still suggestions left, display next suggestion.
-        if ((this.suggestions.size() - 1) > this.currentSuggestion) {
-            this.currentSuggestion++;
-
-            loadNextSuggestion(
-                    SuggestionFragment.newInstance(
-                            this.suggestions.get(this.currentSuggestion)
-                    )
-            );
-
-            return;
-        }
-
-        // No more suggestions left, fetch next batch of suggestions.
-        getSuggestions(configureSuggestionsRequestBody(this.mainPresenter), false);
+        loadNextSuggestion();
     }
 
     @OnClick(R.id.ivSuggestionDislike)
     public void onSuggestionDislike() {
+        if (this.suggestions.size() == 0) {
+            return;
+        }
+
         // Send the choice to the server.
         uploadChoice(
                 this.mainPresenter,
@@ -1238,7 +1182,12 @@ public class MainActivity extends AppCompatActivity {
                 ConstantRegistry.DISLIKE
         );
 
-        if ((this.suggestions.size() - 1) > this.currentSuggestion) {
+        loadNextSuggestion();
+    }
+
+    public void loadNextSuggestion() {
+        // If there are still suggestions left, display next suggestion.
+        if ((this.suggestions.size() > 0) && ((this.suggestions.size() - 1) > this.currentSuggestion)) {
             this.currentSuggestion++;
 
             loadNextSuggestion(
@@ -1250,16 +1199,21 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        // If not, fetch more suggestions.
         getSuggestions(configureSuggestionsRequestBody(this.mainPresenter), false);
     }
 
     @OnClick(R.id.ivSuperPowerIconSuggestion)
     public void onSuggestionSuperpowerIcon() {
-        openSuggestionDescriptionWindow();
-        loadSuggestionDescriptionFragment(
-                SuggestionDescriptionFragment.newInstance(
-                        this.suggestions.get(this.currentSuggestion)
-                )
-        );
+
+        if ((this.suggestions.size() > 0) && ((this.suggestions.size() - 1) >= this.currentSuggestion)) {
+            openSuggestionDescriptionWindow();
+
+            loadSuggestionDescriptionFragment(
+                    SuggestionDescriptionFragment.newInstance(
+                            this.suggestions.get(this.currentSuggestion)
+                    )
+            );
+        }
     }
 }

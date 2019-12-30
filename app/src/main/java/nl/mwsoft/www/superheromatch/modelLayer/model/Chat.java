@@ -5,9 +5,10 @@ import android.os.Parcelable;
 
 public class Chat implements Parcelable{
 
-    private int chatId;
+    private String chatId;
     private String chatName;
-    private String userName;
+    private String matchedUserId;
+    private String matchedUserMainProfilePic;
     private String lastActivityMessage;
     private String lastActivityDate;
     private int unreadMessageCount;
@@ -15,37 +16,24 @@ public class Chat implements Parcelable{
     public Chat() {
     }
 
-    public Chat(int chatId, String chatName, String userName, String lastActivityMessage, String lastActivityDate, int unreadMessageCount) {
+    public Chat(String chatId, String chatName, String matchedUserId, String matchedUserMainProfilePic, String lastActivityMessage, String lastActivityDate, int unreadMessageCount) {
         this.chatId = chatId;
         this.chatName = chatName;
-        this.userName = userName;
+        this.matchedUserId = matchedUserId;
+        this.matchedUserMainProfilePic = matchedUserMainProfilePic;
         this.lastActivityMessage = lastActivityMessage;
         this.lastActivityDate = lastActivityDate;
         this.unreadMessageCount = unreadMessageCount;
     }
 
     protected Chat(Parcel in) {
-        chatId = in.readInt();
+        chatId = in.readString();
         chatName = in.readString();
-        userName = in.readString();
+        matchedUserId = in.readString();
+        matchedUserMainProfilePic = in.readString();
         lastActivityMessage = in.readString();
         lastActivityDate = in.readString();
         unreadMessageCount = in.readInt();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(chatId);
-        dest.writeString(chatName);
-        dest.writeString(userName);
-        dest.writeString(lastActivityMessage);
-        dest.writeString(lastActivityDate);
-        dest.writeInt(unreadMessageCount);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     public static final Creator<Chat> CREATOR = new Creator<Chat>() {
@@ -60,11 +48,11 @@ public class Chat implements Parcelable{
         }
     };
 
-    public int getChatId() {
+    public String getChatId() {
         return chatId;
     }
 
-    public void setChatId(int chatId) {
+    public void setChatId(String chatId) {
         this.chatId = chatId;
     }
 
@@ -76,12 +64,20 @@ public class Chat implements Parcelable{
         this.chatName = chatName;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getMatchedUserId() {
+        return matchedUserId;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setMatchedUserId(String matchedUserId) {
+        this.matchedUserId = matchedUserId;
+    }
+
+    public String getMatchedUserMainProfilePic() {
+        return matchedUserMainProfilePic;
+    }
+
+    public void setMatchedUserMainProfilePic(String matchedUserMainProfilePic) {
+        this.matchedUserMainProfilePic = matchedUserMainProfilePic;
     }
 
     public String getLastActivityMessage() {
@@ -106,5 +102,21 @@ public class Chat implements Parcelable{
 
     public void setUnreadMessageCount(int unreadMessageCount) {
         this.unreadMessageCount = unreadMessageCount;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(chatId);
+        dest.writeString(chatName);
+        dest.writeString(matchedUserId);
+        dest.writeString(matchedUserMainProfilePic);
+        dest.writeString(lastActivityMessage);
+        dest.writeString(lastActivityDate);
+        dest.writeInt(unreadMessageCount);
     }
 }

@@ -10,6 +10,7 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
@@ -18,6 +19,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.network.choice.ChoiceImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteAccount.DeleteAccountImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.inviteUser.InviteSuperheroImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.match.MatchImpl;
+import nl.mwsoft.www.superheromatch.modelLayer.network.profile.ProfileImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.register.RegisterImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.suggestions.SuggestionsImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.update.UpdateImpl;
@@ -158,6 +160,27 @@ public class NetworkLayer {
                 try {
                     MatchImpl match = new MatchImpl();
                     Integer response = match.uploadMatch(body);
+                    emitter.onNext(response);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    Log.d("tShoot", "Exception: " + e.getMessage());
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    // endregion
+
+    // region Get Suggestion Profile
+
+    public Observable<ProfileResponse> getSuggestionProfile(HashMap<String, Object> body){
+        return Observable.create(new ObservableOnSubscribe<ProfileResponse>() {
+            @Override
+            public void subscribe(ObservableEmitter<ProfileResponse> emitter) throws Exception {
+                try {
+                    ProfileImpl profile = new ProfileImpl();
+                    ProfileResponse response = profile.getSuggestionProfile(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {

@@ -19,8 +19,6 @@ public class SuperHeroMatchProvider extends ContentProvider {
     private static final String MESSAGE_QUEUE_PATH = "message_queue";
     private static final String USER_PATH = "user";
     private static final String USER_PROFILE_PICTURE_PATH = "user_profile_picture";
-    private static final String MATCHED_USER_PATH = "matched_user";
-    private static final String MATCH_PROFILE_PICTURE_PATH = "match_profile_picture";
     private static final String MATCH_CHAT_PATH = "match_chat";
     private static final String MATCH_CHAT_MESSAGE_PATH = "match_chat_message";
     private static final String RETRIEVED_OFFLINE_MESSAGE_UUID_PATH = "retrieved_offline_message_uuid";
@@ -30,9 +28,7 @@ public class SuperHeroMatchProvider extends ContentProvider {
     public static final Uri CONTENT_URI_MESSAGE_QUEUE = Uri.parse("content://" + AUTHORITY + "/" + MESSAGE_QUEUE_PATH);
     public static final Uri CONTENT_URI_USER = Uri.parse("content://" + AUTHORITY + "/" + USER_PATH);
     public static final Uri CONTENT_URI_USER_PROFILE_PICTURE = Uri.parse("content://" + AUTHORITY + "/" + USER_PROFILE_PICTURE_PATH);
-    public static final Uri CONTENT_URI_MATCHED_USER = Uri.parse("content://" + AUTHORITY + "/" + MATCHED_USER_PATH);
-    public static final Uri CONTENT_URI_MATCH_PROFILE_PICTURE = Uri.parse("content://" + AUTHORITY + "/" + MATCH_PROFILE_PICTURE_PATH);
-    public static final Uri CONTENT_URI_CHAT = Uri.parse("content://" + AUTHORITY + "/" + MATCH_CHAT_PATH);
+   public static final Uri CONTENT_URI_CHAT = Uri.parse("content://" + AUTHORITY + "/" + MATCH_CHAT_PATH);
     public static final Uri CONTENT_URI_MESSAGE = Uri.parse("content://" + AUTHORITY + "/" + MATCH_CHAT_MESSAGE_PATH);
     public static final Uri CONTENT_URI_RETRIEVED_OFFLINE_MESSAGE_UUID = Uri.parse("content://" + AUTHORITY + "/" + RETRIEVED_OFFLINE_MESSAGE_UUID_PATH);
     public static final Uri CONTENT_URI_RECEIVED_ONLINE_MESSAGE = Uri.parse("content://" + AUTHORITY + "/" + RECEIVED_ONLINE_MESSAGE_PATH);
@@ -55,12 +51,6 @@ public class SuperHeroMatchProvider extends ContentProvider {
     private static final int USER_PROFILE_PICTURES = 9;
     private static final int USER_PROFILE_PICTURE_ID = 10;
 
-    private static final int MATCHED_USERS = 11;
-    private static final int MATCHED_USER_ID = 12;
-
-    private static final int MATCH_PROFILE_PICTURES = 13;
-    private static final int MATCH_PROFILE_PICTURE_ID = 14;
-
     private static final int MATCH_CHATS = 15;
     private static final int MATCH_CHAT_ID = 16;
 
@@ -73,8 +63,6 @@ public class SuperHeroMatchProvider extends ContentProvider {
     private static final String CONTENT_ITEM_MESSAGE_QUEUE = "message_queue";
     private static final String CONTENT_ITEM_USER = "user";
     private static final String CONTENT_ITEM_USER_PROFILE_PICTURE = "user_profile_picture";
-    private static final String CONTENT_ITEM_MATCHED_USER = "matched_user";
-    private static final String CONTENT_ITEM_MATCH_PROFILE_PICTURE = "match_profile_picture";
     private static final String CONTENT_ITEM_MATCH_CHAT = "match_chat";
     private static final String CONTENT_ITEM_MATCH_CHAT_MESSAGE = "match_chat_message";
     private static final String CONTENT_ITEM_RETRIEVED_OFFLINE_MESSAGE_UUID = "retrieved_offline_message_uuid";
@@ -97,12 +85,6 @@ public class SuperHeroMatchProvider extends ContentProvider {
 
         uriMatcher.addURI(AUTHORITY, USER_PROFILE_PICTURE_PATH, USER_PROFILE_PICTURES);
         uriMatcher.addURI(AUTHORITY, USER_PROFILE_PICTURE_PATH + "/#", USER_PROFILE_PICTURE_ID);
-
-        uriMatcher.addURI(AUTHORITY, MATCHED_USER_PATH, MATCHED_USERS);
-        uriMatcher.addURI(AUTHORITY, MATCHED_USER_PATH + "/#", MATCHED_USER_ID);
-
-        uriMatcher.addURI(AUTHORITY, MATCH_PROFILE_PICTURE_PATH, MATCH_PROFILE_PICTURES);
-        uriMatcher.addURI(AUTHORITY, MATCH_PROFILE_PICTURE_PATH + "/#", MATCH_PROFILE_PICTURE_ID);
 
         uriMatcher.addURI(AUTHORITY, MATCH_CHAT_PATH, MATCH_CHATS);
         uriMatcher.addURI(AUTHORITY, MATCH_CHAT_PATH + "/#", MATCH_CHAT_ID);
@@ -136,10 +118,6 @@ public class SuperHeroMatchProvider extends ContentProvider {
             selection = DBOpenHelper.RECEIVED_ONLINE_MESSAGE_ID + "=" + uri.getLastPathSegment();
         } else if(uriMatcher.match(uri) == USER_PROFILE_PICTURE_ID){
             selection = DBOpenHelper.USER_PROFILE_PICTURE_ID + "=" + uri.getLastPathSegment();
-        } else if(uriMatcher.match(uri) == MATCHED_USER_ID){
-            selection = DBOpenHelper.MATCHED_USER_ID + "=" + uri.getLastPathSegment();
-        } else if(uriMatcher.match(uri) == MATCH_PROFILE_PICTURE_ID){
-            selection = DBOpenHelper.MATCH_PROFILE_PICTURE_ID + "=" + uri.getLastPathSegment();
         } else if(uriMatcher.match(uri) == MATCH_CHAT_ID){
             selection = DBOpenHelper.CHAT_ID + "=" + uri.getLastPathSegment();
         }  else if(uriMatcher.match(uri) == MATCH_CHAT_MESSAGE_ID){
@@ -167,14 +145,6 @@ public class SuperHeroMatchProvider extends ContentProvider {
                 break;
             case USER_PROFILE_PICTURES:
                 _cursor = database.query(DBOpenHelper.TABLE_USER_PROFILE_PICTURE, DBOpenHelper.ALL_COLUMNS_USER_PROFILE_PICTURE,
-                        selection, null, null, null, null);
-                break;
-            case MATCHED_USERS:
-                _cursor = database.query(DBOpenHelper.TABLE_MATCHED_USER, DBOpenHelper.ALL_COLUMNS_MATCHED_USER,
-                        selection, null, null, null, null);
-                break;
-            case MATCH_PROFILE_PICTURES:
-                _cursor = database.query(DBOpenHelper.TABLE_MATCH_PROFILE_PICTURE, DBOpenHelper.ALL_COLUMNS_MATCH_PROFILE_PICTURE,
                         selection, null, null, null, null);
                 break;
             case MATCH_CHATS:
@@ -250,26 +220,6 @@ public class SuperHeroMatchProvider extends ContentProvider {
                 //---if added successfully---
                 if (upp > 0) {
                     _uri = ContentUris.withAppendedId(CONTENT_URI_USER_PROFILE_PICTURE, upp);
-                    getContext().getContentResolver().notifyChange(_uri, null);
-                }
-
-                break;
-            case MATCHED_USERS:
-                long mu = database.insert(DBOpenHelper.TABLE_MATCHED_USER, null, values);
-
-                //---if added successfully---
-                if (mu > 0) {
-                    _uri = ContentUris.withAppendedId(CONTENT_URI_MATCHED_USER, mu);
-                    getContext().getContentResolver().notifyChange(_uri, null);
-                }
-
-                break;
-            case MATCH_PROFILE_PICTURES:
-                long mpp = database.insert(DBOpenHelper.TABLE_MATCH_PROFILE_PICTURE, null, values);
-
-                //---if added successfully---
-                if (mpp > 0) {
-                    _uri = ContentUris.withAppendedId(CONTENT_URI_MATCH_PROFILE_PICTURE, mpp);
                     getContext().getContentResolver().notifyChange(_uri, null);
                 }
 
@@ -363,28 +313,6 @@ public class SuperHeroMatchProvider extends ContentProvider {
 
                 result = (int)upp;
                 break;
-            case MATCHED_USERS:
-                long mu = database.delete(DBOpenHelper.TABLE_MATCHED_USER, selection, selectionArgs);
-
-                //---if added successfully---
-                if (mu > 0) {
-                    _uri = ContentUris.withAppendedId(CONTENT_URI_MATCHED_USER, mu);
-                    getContext().getContentResolver().notifyChange(_uri, null);
-                }
-
-                result = (int)mu;
-                break;
-            case MATCH_PROFILE_PICTURES:
-                long mpp = database.delete(DBOpenHelper.TABLE_MATCH_PROFILE_PICTURE, selection, selectionArgs);
-
-                //---if added successfully---
-                if (mpp > 0) {
-                    _uri = ContentUris.withAppendedId(CONTENT_URI_MATCH_PROFILE_PICTURE, mpp);
-                    getContext().getContentResolver().notifyChange(_uri, null);
-                }
-
-                result = (int)mpp;
-                break;
             case MATCH_CHATS:
                 long mc = database.delete(DBOpenHelper.TABLE_CHAT, selection, selectionArgs);
 
@@ -474,28 +402,6 @@ public class SuperHeroMatchProvider extends ContentProvider {
                 }
 
                 result = (int)upp;
-                break;
-            case MATCHED_USERS:
-                long mu = database.update(DBOpenHelper.TABLE_MATCHED_USER, values, selection, selectionArgs);
-
-                //---if added successfully---
-                if (mu > 0) {
-                    _uri = ContentUris.withAppendedId(CONTENT_URI_MATCHED_USER, mu);
-                    getContext().getContentResolver().notifyChange(_uri, null);
-                }
-
-                result = (int)mu;
-                break;
-            case MATCH_PROFILE_PICTURES:
-                long mpp = database.update(DBOpenHelper.TABLE_MATCH_PROFILE_PICTURE, values, selection, selectionArgs);
-
-                //---if added successfully---
-                if (mpp > 0) {
-                    _uri = ContentUris.withAppendedId(CONTENT_URI_MATCH_PROFILE_PICTURE, mpp);
-                    getContext().getContentResolver().notifyChange(_uri, null);
-                }
-
-                result = (int)mpp;
                 break;
             case MATCH_CHATS:
                 long mc = database.update(DBOpenHelper.TABLE_CHAT, values, selection, selectionArgs);
