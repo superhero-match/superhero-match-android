@@ -70,14 +70,20 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity
-            android:name=".viewLayer.confirmPhone.ConfirmPhoneActivity"
-            android:label="@string/title_activity_confirm_phone"
-            android:theme="@style/AppTheme.NoActionBar" />
-
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="9b079cc9ffc3ccb9342814622e913bec151bdb9f" />
+
+        <service android:name=".modelLayer.firebase.notificationService.NotificationService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service android:name=".modelLayer.firebase.instanceIdService.MyFirebaseInstanceIdService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

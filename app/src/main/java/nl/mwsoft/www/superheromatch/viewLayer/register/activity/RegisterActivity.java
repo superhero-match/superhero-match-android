@@ -64,6 +64,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.presenterLayer.register.RegisterPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 import nl.mwsoft.www.superheromatch.viewLayer.register.fragment.RegistrationVPFragment;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -78,8 +79,12 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -671,7 +676,25 @@ public class RegisterActivity extends AppCompatActivity {
         loadingDialogFragment.show(getSupportFragmentManager(), ConstantRegistry.LOADING);
     }
 
-    public HashMap<String, Object> convertToJSON(User user) {
+    public void registerUser() {
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(MainActivity.class.getName(), "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        register(convertToJSON(getUser(), token));
+                    }
+                });
+    }
+
+    public HashMap<String, Object> convertToJSON(User user, String token) {
         HashMap<String, Object> userJson = new HashMap();
         userJson.put("id", user.getId());
         userJson.put("email", user.getEmail());
@@ -692,6 +715,7 @@ public class RegisterActivity extends AppCompatActivity {
         userJson.put("city", user.getCity());
         userJson.put("superpower", user.getSuperPower());
         userJson.put("accountType", user.getAccountType());
+        userJson.put("firebaseToken", token);
 
         return userJson;
     }

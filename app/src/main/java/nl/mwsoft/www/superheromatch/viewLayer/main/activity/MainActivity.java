@@ -51,9 +51,13 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -107,7 +111,6 @@ import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileF
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileSettingsSuggestionsFragment;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-
 public class MainActivity extends AppCompatActivity {
 
     private int currFragmentPosition;
@@ -132,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
     private Disposable subscribeUploadChoice;
     private Disposable subscribeUploadMatch;
     private Disposable subscribeDeleteMatch;
+    Disposable subscribeUpdateUserToken;
     private LoadingDialogFragment loadingDialogFragment;
     private MatchDialog matchDialog;
     private FusedLocationProviderClient fusedLocationClient;
@@ -167,6 +171,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        updateToken(mainPresenter.getUserId(this));
+
         navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
 
         if (checkLocationPermission()) {
@@ -174,6 +180,38 @@ public class MainActivity extends AppCompatActivity {
             initLocationUpdateService();
             startLocationUpdates();
         }
+    }
+
+    private HashMap<String, Object> configureUpdateFirebaseTokenRequestBody(
+            String userId,
+            String token
+    ) {
+        HashMap<String, Object> reqBody = new HashMap<>();
+
+        reqBody.put("userId", userId);
+        reqBody.put("token", token);
+
+        return reqBody;
+    }
+
+    private void updateToken(String userId) {
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(MainActivity.class.getName(), "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        reqBody = configureUpdateFirebaseTokenRequestBody(userId, token);
+                        updateFirebaseToken(reqBody);
+                    }
+                });
     }
 
     private HashMap<String, Object> configureMatchRequestBody(
@@ -849,7 +887,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showDialogDeleteMatch(final String chatId, final int position, final ArrayList<Chat> chats,
-                                      final MatchesChatsAdapter matchesChatsAdapter){
+                                      final MatchesChatsAdapter matchesChatsAdapter) {
 
         DialogInterface.OnClickListener dialogClickListener =
                 new DialogInterface.OnClickListener() {
@@ -915,18 +953,29 @@ public class MainActivity extends AppCompatActivity {
         disposable.add(subscribeUploadMatch);
     }
 
+    private void updateFirebaseToken(HashMap<String, Object> reqBody) {
+        subscribeUpdateUserToken = mainPresenter.updateFirebaseToken(reqBody).subscribeOn(Schedulers.io())
+                .subscribe((Integer res) -> {
+                    if (res == 500) {
+                        Log.e(MainActivity.class.getName(), "Error while updating Firebase messaging token");
+                    }
+                }, throwable -> handleErrorInBackground());
+
+        disposable.add(subscribeUpdateUserToken);
+    }
+
     public void deleteMatch(String matchId) {
         HashMap<String, Object> reqBody = new HashMap<>();
         reqBody.put("id", matchId);
 
-        subscribeUploadMatch = mainPresenter.deleteMatch(reqBody).subscribeOn(Schedulers.io())
+        subscribeDeleteMatch = mainPresenter.deleteMatch(reqBody).subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
                     if (res == 500) {
                         Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
                     }
                 }, throwable -> handleErrorInBackground());
 
-        disposable.add(subscribeUploadMatch);
+        disposable.add(subscribeDeleteMatch);
     }
 
 
