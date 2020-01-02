@@ -13,7 +13,8 @@
         android:contentDescription="@string/user_profile_image"
         android:elevation="5dp"
         android:focusable="true"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/test"/>
 
     <TextView
         android:id="@+id/tvItIsAMatch"

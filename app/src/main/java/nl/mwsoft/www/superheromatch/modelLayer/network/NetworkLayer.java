@@ -24,6 +24,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.network.profile.ProfileImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.register.RegisterImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.suggestions.SuggestionsImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.update.UpdateImpl;
+import nl.mwsoft.www.superheromatch.modelLayer.network.updateToken.UpdateTokenImpl;
 
 public class NetworkLayer {
 
@@ -161,6 +162,27 @@ public class NetworkLayer {
                 try {
                     MatchImpl match = new MatchImpl();
                     Integer response = match.uploadMatch(body);
+                    emitter.onNext(response);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    Log.d("tShoot", "Exception: " + e.getMessage());
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    // endregion
+
+    // region Update Firebase Messaging Token
+
+    public Observable<Integer> updateFirebaseToken(HashMap<String, Object> body){
+        return Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+                try {
+                    UpdateTokenImpl updateToken = new UpdateTokenImpl();
+                    Integer response = updateToken.updateFirebaseToken(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {

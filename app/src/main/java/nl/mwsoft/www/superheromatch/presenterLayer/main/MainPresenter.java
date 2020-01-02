@@ -350,8 +350,16 @@ public class MainPresenter {
 
     // region Delete Match
 
-    public Observable<Integer> deleteMatch(HashMap<String, Object> body){
+    public Observable<Integer> deleteMatch(HashMap<String, Object> body) {
         return this.modelLayerManager.deleteMatch(body);
+    }
+
+    // endregion
+
+    // region Update Firebase Messaging Token
+
+    public Observable<Integer> updateFirebaseToken(HashMap<String, Object> body) {
+        return this.modelLayerManager.updateFirebaseToken(body);
     }
 
     // endregion

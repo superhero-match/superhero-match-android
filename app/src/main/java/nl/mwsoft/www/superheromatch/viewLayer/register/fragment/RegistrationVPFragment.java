@@ -178,7 +178,7 @@ public class RegistrationVPFragment extends Fragment {
              }
         }else if(currentPosition == 6){
             if(registerActivity.processProfilePicContinue()){
-                registerActivity.register(registerActivity.convertToJSON(registerActivity.getUser()));
+               registerActivity.registerUser();
             }
         }
     }

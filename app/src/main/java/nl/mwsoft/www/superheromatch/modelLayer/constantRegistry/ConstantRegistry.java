@@ -46,6 +46,7 @@ public class ConstantRegistry {
     public static final String SUPERHERO_MATCH_PORT = ":4200";
     public static final String SUPERHERO_DELETE_MATCH_PORT = ":4300";
     public static final String SUPERHERO_CHAT_PORT = ":5000";
+    public static final String SUPERHERO_FIREBASE_MESSAGING_TOKEN_PORT = ":6000";
 
     public static final String DATE_TIME_FORMAT = "yyyyMMdd_HHmmss";
     public static final String JPG_EXTENSION = ".jpg";

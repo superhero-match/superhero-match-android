@@ -434,6 +434,14 @@ public class ModelLayerManager {
 
     // endregion
 
+    // region Update Firebase Messaging Token
+
+    public Observable<Integer> updateFirebaseToken(HashMap<String, Object> body){
+        return this.networkLayer.updateFirebaseToken(body);
+    }
+
+    // endregion
+
     // region Get Suggestion Profile
 
     public Observable<ProfileResponse> getSuggestionProfile(HashMap<String, Object> body){

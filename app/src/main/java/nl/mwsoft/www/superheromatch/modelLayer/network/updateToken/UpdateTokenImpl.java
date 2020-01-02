@@ -1,6 +1,9 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network.updateToken;
 
+import android.util.Log;
+
 import java.io.IOException;
+import java.util.HashMap;
 
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
@@ -10,25 +13,23 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class UpdateTokenImpl {
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_REGISTER_PORT))
+            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_FIREBASE_MESSAGING_TOKEN_PORT))
             .client(OkHttpClientManager.setUpSecureClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build();
     UpdateToken service = retrofit.create(UpdateToken.class);
 
     public UpdateTokenImpl() {
-
     }
 
-    public String getUpdateUserTokenResponse(String userId, String messagingToken) {
-        Call<String> call = service.updateUserMessagingToken(userId, messagingToken);
+    public Integer updateFirebaseToken(HashMap<String, Object> body) {
+        Call<Integer> call = service.updateFirebaseToken(body);
         try {
-            String response = call.execute().body();
-
-            return response;
+            return call.execute().body();
         } catch (IOException e) {
-            // handle errors
+            Log.e(UpdateTokenImpl.class.getName(), "updateFirebaseToken error --> " + e.getMessage());
         }
-        return ConstantRegistry.ERROR;
+
+        return ConstantRegistry.SERVER_RESPONSE_ERROR;
     }
 }

@@ -1,9 +1,11 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network.updateToken;
 
+import java.util.HashMap;
+
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
-import retrofit2.http.Query;
 
 public interface UpdateToken {
     @Headers({
@@ -11,9 +13,6 @@ public interface UpdateToken {
             "User-Agent: SuperheroMatch",
             "X-Platform: Android"
     })
-    @POST("/api/v1/firebase_token/update_user_messaging_token")
-    Call<String> updateUserMessagingToken(
-            @Query("userID") String userID,
-            @Query("messagingToken") String messagingToken
-    );
+    @POST("/api/v1/firebase_token/update_messaging_token")
+    Call<Integer> updateFirebaseToken(@Body HashMap<String, Object> body);
 }
