@@ -2,6 +2,7 @@ package nl.mwsoft.www.superheromatch.viewLayer.main.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -93,6 +94,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
+import nl.mwsoft.www.superheromatch.modelLayer.model.ProfilePicture;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
@@ -174,6 +176,8 @@ public class MainActivity extends AppCompatActivity {
         updateToken(mainPresenter.getUserId(this));
 
         navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
+
+        handleNotificationAction();
 
         if (checkLocationPermission()) {
             showLoadingDialog();
@@ -422,6 +426,9 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     }
 
+//                    fragment = SuggestionFragment.newInstance(createMockSuperhero());
+//                    loadFragment(fragment);
+
                     loadFragment(NoSuggestionsFragment.newInstance());
 
                     getSuggestions(configureSuggestionsRequestBody(mainPresenter), true);
@@ -456,9 +463,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (currFragmentPosition != 1) {
             hideChoiceButtons();
-        } else {
-            showChoiceButtons();
+
+            return;
         }
+
+        showChoiceButtons();
     }
 
     public void showChoiceButtons() {
@@ -525,6 +534,35 @@ public class MainActivity extends AppCompatActivity {
                         user.getProfilePicsUrls()
                 )
         );
+    }
+
+    public Superhero createMockSuperhero() {
+        Superhero superhero = new Superhero();
+        superhero.setId("id");
+        superhero.setSuperheroName("Amazingwoman"); // Superwoman Wonderwoman Magicwoman Amazingwoman
+        superhero.setMainProfilePicUrl("pdp_4");
+        ArrayList<ProfilePicture> profilePictures = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            ProfilePicture profilePicture = new ProfilePicture();
+            profilePicture.setId(i + 1);
+            profilePicture.setPosition(i + 1);
+            profilePicture.setProfilePicUrl("pdp_" + (i + 2));
+            profilePicture.setSuperheroId("id");
+            profilePictures.add(profilePicture);
+        }
+        superhero.setProfilePictures(profilePictures);
+        superhero.setGender(2);
+        superhero.setAge(25);
+        superhero.setLat(5.0);
+        superhero.setLon(5.0);
+        superhero.setCountry("USA");
+        superhero.setCity("L.A.");
+        superhero.setSuperpower("I always dance like nobody is watching");
+        superhero.setAccountType("PAID");
+        superhero.setHasLikedMe(true);
+        superhero.setCreatedAt("2020-01-11");
+
+        return superhero;
     }
 
     public User createMockUser() {
@@ -1001,8 +1039,6 @@ public class MainActivity extends AppCompatActivity {
                                 R.string.smth_went_wrong,
                                 Toast.LENGTH_LONG
                         ).show();
-
-                        return;
                     }
                 }, throwable -> handleError());
 
@@ -1306,7 +1342,6 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.ivSuperPowerIconSuggestion)
     public void onSuggestionSuperpowerIcon() {
-
         if ((this.suggestions.size() > 0) && ((this.suggestions.size() - 1) >= this.currentSuggestion)) {
             openSuggestionDescriptionWindow();
 
@@ -1316,5 +1351,19 @@ public class MainActivity extends AppCompatActivity {
                     )
             );
         }
+    }
+
+    private void handleNotificationAction() {
+        if (getIntent().getExtras() != null && getIntent().getAction() != null) {
+            if (ConstantRegistry.NEW_MATCH_REQUEST.equals(getIntent().getAction())) {
+                removeNotifications();
+                navigation.setSelectedItemId(R.id.navigation_matches);
+            }
+        }
+    }
+
+    private void removeNotifications() {
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancelAll();
     }
 }

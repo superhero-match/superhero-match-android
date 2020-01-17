@@ -10,6 +10,7 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.GetMatchResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
@@ -18,6 +19,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.network.checkEmail.CheckEmailImpl
 import nl.mwsoft.www.superheromatch.modelLayer.network.choice.ChoiceImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteAccount.DeleteAccountImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteMatch.DeleteMatchImpl;
+import nl.mwsoft.www.superheromatch.modelLayer.network.getMatch.GetMatchImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.inviteUser.InviteSuperheroImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.match.MatchImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.profile.ProfileImpl;
@@ -229,6 +231,26 @@ public class NetworkLayer {
                     emitter.onComplete();
                 } catch (Exception e) {
                     Log.d("tShoot", "Exception: " + e.getMessage());
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    // endregion
+
+    // region Get Match
+
+    public Observable<GetMatchResponse> getMatch(HashMap<String, Object> body){
+        return Observable.create(new ObservableOnSubscribe<GetMatchResponse>() {
+            @Override
+            public void subscribe(ObservableEmitter<GetMatchResponse> emitter) throws Exception {
+                try {
+                    GetMatchImpl getMatch = new GetMatchImpl();
+                    GetMatchResponse response = getMatch.getMatch(body);
+                    emitter.onNext(response);
+                    emitter.onComplete();
+                } catch (Exception e) {
                     emitter.onError(e);
                 }
             }

@@ -68,6 +68,8 @@ public class ConstantRegistry {
     public static final String CLOSE_SQUARE_BRACKETS = "]";
     public static final String OPEN_ROUND_BRACKETS = "(";
     public static final String CLOSE_ROUND_BRACKETS = ")";
+    public static final String OPEN_CURLY_BRACES = "{";
+    public static final String CLOSE_CURLY_BRACES = "}";
     public static final String FORWARD_SLASH = "/";
     public static final String LETTER_N = "N";
     public static final String COMMA = ",";
@@ -120,4 +122,14 @@ public class ConstantRegistry {
 
     public static final int LIKE = 1;
     public static final int DISLIKE = 2;
+
+    public static final String NEW_MATCH = "{data_type=new_match";
+    public static final String DELETE_MATCH = "{data_type=delete_match";
+    public static final String NEW_LIKE = "{data_type=new_like";
+    public static final String NEW_MESSAGE = "{data_type=new_message";
+
+    public static final String NEW_MATCH_INTENT = "NEW_MATCH_INTENT";
+    public static final String NEW_MATCH_REQUEST = "NEW_MATCH_REQUEST";
+
+    public static final int NEW_MATCH_PENDING_INTENT_REQUEST = 1000;
 }
