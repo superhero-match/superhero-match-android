@@ -105,6 +105,11 @@
 
     <string name="superhero_name">Superhero name…</string>
 
+    <string name="channel_new_match_id">channelNewMatchId</string>
+    <string name="channel_new_match_name">channelNewMatch</string>
+
+    <string name="send_message">Send message</string>
+
     <string-array name="i_am_genders">
         <item>Select</item>
         <item>Male</item>
@@ -823,6 +828,6 @@
     <string name="no_suggestions_found">Unfortunately we couldn\'t find any suggestions based on your profile settings. Try changing settings or come back later.</string>
     <string name="upload_match_error_msg">Error while uploading match</string>
     <string name="it_s_a_match">It\'s a match!</string>
-    <string name="send_message">Send message</string>
+    <string name="new_match">New match!</string>
 
 </resources>

@@ -13,6 +13,6 @@ public interface Match {
             "User-Agent: SuperheroMatch",
             "X-Platform: Android"
     })
-    @POST("/api/v1/match/match")
+    @POST("/api/v1/match/store_match")
     Call<Integer> uploadMatch(@Body HashMap<String, Object> body);
 }

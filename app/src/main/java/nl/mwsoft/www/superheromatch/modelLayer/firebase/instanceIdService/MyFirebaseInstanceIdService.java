@@ -13,19 +13,18 @@ import nl.mwsoft.www.superheromatch.modelLayer.network.NetworkLayer;
 
 public class MyFirebaseInstanceIdService extends FirebaseMessagingService {
 
+    UserDatabaseLayer userDatabaseLayer = new UserDatabaseLayer();
+    Disposable subscribeUpdateUserToken;
+    NetworkLayer networkLayer = new NetworkLayer();
+
     @Override
     public void onNewToken(String s) {
         sendRegistrationToServer(s);
     }
 
     private void sendRegistrationToServer(String token) {
-        UserDatabaseLayer userDatabaseLayer = new UserDatabaseLayer();
-        Disposable subscribeUpdateUserToken;
-        NetworkLayer networkLayer = new NetworkLayer();
         if (userDatabaseLayer.getUserId(MyFirebaseInstanceIdService.this).length() > 0) {
-            HashMap<String, Object> reqBody = new HashMap<>();
-
-            reqBody = configureUpdateFirebaseTokenRequestBody(
+            HashMap<String, Object> reqBody = configureUpdateFirebaseTokenRequestBody(
                     userDatabaseLayer.getUserId(MyFirebaseInstanceIdService.this),
                     token
             );

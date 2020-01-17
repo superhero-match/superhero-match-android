@@ -62,6 +62,7 @@ public class SuggestionProfileImageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_suggestion_profile_image, container, false);
         unbinder = ButterKnife.bind(this, view);
+
         return view;
     }
 
@@ -70,22 +71,44 @@ public class SuggestionProfileImageFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Bundle arguments = getArguments();
-        if (arguments != null) {
-            picUrl = arguments.getString(PIC_URL);
-            name = arguments.getString(NAME);
-            age = arguments.getInt(AGE);
-            city = arguments.getString(CITY);
-            superpower = arguments.getString(SUPERPOWER);
-            if (picUrl == null) {
-                picUrl = "";
-            }
-        } else {
+        if (arguments == null) {
+            Toast.makeText(mainActivity, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+
             return;
+        }
+
+        picUrl = arguments.getString(PIC_URL);
+        name = arguments.getString(NAME);
+        age = arguments.getInt(AGE);
+        city = arguments.getString(CITY);
+        superpower = arguments.getString(SUPERPOWER);
+        if (picUrl == null) {
+            picUrl = "";
         }
 
         ivSuggestionProfilePic.setClipToOutline(true);
 
         switch (picUrl) {
+//            case "pdp_1":
+//                Glide.with(mainActivity)
+//                        .load(R.drawable.pdp_1)
+//                        .into(ivSuggestionProfilePic);
+//                break;
+//            case "pdp_2":
+//                Glide.with(mainActivity)
+//                        .load(R.drawable.pdp_2)
+//                        .into(ivSuggestionProfilePic);
+//                break;
+//            case "pdp_3":
+//                Glide.with(mainActivity)
+//                        .load(R.drawable.pdp_3)
+//                        .into(ivSuggestionProfilePic);
+//                break;
+//            case "pdp_4":
+//                Glide.with(mainActivity)
+//                        .load(R.drawable.pdp_4)
+//                        .into(ivSuggestionProfilePic);
+//                break;
             case "test":
                 Glide.with(mainActivity)
                         .load(R.drawable.test)
@@ -180,5 +203,4 @@ public class SuggestionProfileImageFragment extends Fragment {
         super.onAttach(context);
         mainActivity = (MainActivity) context;
     }
-
 }
