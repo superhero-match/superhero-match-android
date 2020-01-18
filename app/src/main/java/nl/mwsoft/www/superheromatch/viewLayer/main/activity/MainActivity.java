@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
     ) {
         HashMap<String, Object> reqBody = new HashMap<>();
 
-        reqBody.put("userId", userId);
+        reqBody.put("superheroID", userId);
         reqBody.put("token", token);
 
         return reqBody;
