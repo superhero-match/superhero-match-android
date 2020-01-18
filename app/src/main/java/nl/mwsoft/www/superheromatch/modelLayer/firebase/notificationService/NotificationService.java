@@ -38,6 +38,8 @@ public class NotificationService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         String notificationData = remoteMessage.getData().toString();
 
+        Log.d(NotificationService.class.getName(), "remoteMessage: " + notificationData);
+
         String[] notification = notificationData.split(ConstantRegistry.COMMA);
 
         switch (notification[0]) {
