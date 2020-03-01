@@ -70,10 +70,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="YOUR_VALUE_HERE" />
-
         <service android:name=".modelLayer.firebase.notificationService.NotificationService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
