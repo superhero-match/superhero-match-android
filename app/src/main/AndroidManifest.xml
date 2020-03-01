@@ -72,7 +72,7 @@
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="9b079cc9ffc3ccb9342814622e913bec151bdb9f" />
+            android:value="YOUR_VALUE_HERE" />
 
         <service android:name=".modelLayer.firebase.notificationService.NotificationService">
             <intent-filter>

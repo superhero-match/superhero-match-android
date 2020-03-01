@@ -1,3 +1,16 @@
+/*
+  Copyright (C) 2019 - 2020 MWSOFT
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package nl.mwsoft.www.superheromatch.viewLayer.main.activity;
 
 import android.Manifest;
@@ -61,8 +74,11 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -91,9 +107,11 @@ import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic2SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic3SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic4SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
+import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
+import nl.mwsoft.www.superheromatch.modelLayer.model.OutgoingMessage;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfilePicture;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
@@ -111,6 +129,12 @@ import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.Suggesti
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileEditFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileSettingsSuggestionsFragment;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity {
@@ -155,6 +179,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> retrievedSuperheroIds;
     private ArrayList<Superhero> suggestions;
     private int currentSuggestion = 0;
+    private OkHttpClient client;
+    public static WebSocket webSocket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +192,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(tlMain);
 
         init();
+
+        start();
+
         // || mainPresenter.getUserIsLoggedIn(this) == 0
         if (mainPresenter.getUserId(this).equals("default")) {
             navigateToVerifyIdentity(this);
@@ -173,23 +202,93 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        updateToken(mainPresenter.getUserId(this));
+        // updateToken(mainPresenter.getUserId(this));
 
         navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
 
-        handleNotificationAction();
+        // handleNotificationAction();
 
-        if (checkLocationPermission()) {
-            showLoadingDialog();
-            initLocationUpdateService();
-            startLocationUpdates();
+//        if (checkLocationPermission()) {
+//            showLoadingDialog();
+//            initLocationUpdateService();
+//            startLocationUpdates();
+//        }
+    }
+
+    // region OkHttpWebSocket
+
+    private void start() {
+        Request request = new Request.Builder().url("https://192.168.0.101:5000/ws").build();
+        EchoWebSocketListener listener = new EchoWebSocketListener();
+        WebSocket ws = client.newWebSocket(request, listener);
+        client.dispatcher().executorService().shutdown();
+    }
+
+    private void output(final String txt) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("tShoot", "WebSocket says: " + txt);
+            }
+        });
+    }
+
+    private final class EchoWebSocketListener extends WebSocketListener {
+        private static final int NORMAL_CLOSURE_STATUS = 1000;
+
+//        MessageType string `json:"messageType"`
+//        SenderID    string `json:"senderId"`
+//        ReceiverID  string `json:"receiverId"`
+//        Message     string `json:"message"`
+
+        @Override
+        public void onOpen(WebSocket webSocket, Response response) {
+            MainActivity.webSocket = webSocket;
+
+            HashMap<String, Object> message = new HashMap<>();
+
+            message.put(ConstantRegistry.MESSAGE_TYPE, ConstantRegistry.ON_OPEN);
+            message.put(ConstantRegistry.SENDER_ID, mainPresenter.getUserId(MainActivity.this));
+            message.put(ConstantRegistry.RECEIVER_ID, ConstantRegistry.RECEIVER_ID);
+            message.put(ConstantRegistry.MESSAGE, ConstantRegistry.MESSAGE);
+
+            OutgoingMessage outgoingMessage = new OutgoingMessage(
+                    ConstantRegistry.ON_OPEN,
+                    mainPresenter.getUserId(MainActivity.this),
+                    ConstantRegistry.RECEIVER_ID,
+                    ConstantRegistry.MESSAGE
+            );
+
+            Log.d("tShoot", outgoingMessage.toString());
+
+            webSocket.send(outgoingMessage.toString());
+        }
+
+        @Override
+        public void onMessage(WebSocket webSocket, String text) {
+            output("Receiving : " + text);
+        }
+
+        @Override
+        public void onMessage(WebSocket webSocket, ByteString bytes) {
+            output("Receiving bytes : " + bytes.hex());
+        }
+
+        @Override
+        public void onClosing(WebSocket webSocket, int code, String reason) {
+            webSocket.close(NORMAL_CLOSURE_STATUS, null);
+            output("Closing : " + code + " / " + reason);
+        }
+
+        @Override
+        public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+            output("Error : " + t.getMessage());
         }
     }
 
-    private HashMap<String, Object> configureUpdateFirebaseTokenRequestBody(
-            String userId,
-            String token
-    ) {
+    // endregion
+
+    private HashMap<String, Object> configureUpdateFirebaseTokenRequestBody(String userId, String token) {
         HashMap<String, Object> reqBody = new HashMap<>();
 
         reqBody.put("superheroID", userId);
@@ -341,6 +440,7 @@ public class MainActivity extends AppCompatActivity {
         superheroIds = new ArrayList<>();
         retrievedSuperheroIds = new ArrayList<>();
         suggestions = new ArrayList<>();
+        client = OkHttpClientManager.setUpSecureClient();
     }
 
     public void configureWith(RootCoordinator rootCoordinator, MainPresenter mainPresenter) {
