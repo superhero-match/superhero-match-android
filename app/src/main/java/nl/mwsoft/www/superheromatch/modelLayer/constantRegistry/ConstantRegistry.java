@@ -49,6 +49,7 @@ public class ConstantRegistry {
 
     public static final String BASE_SERVER_URL = "https://192.168.0.101";
     public static final String IMAGE_URL_PREFIX = "https:";
+    public static final String CHAT_ENDPOINT = "/ws";
 
     public static final String SUPERHERO_REGISTER_PORT = ":3000";
     public static final String SUPERHERO_UPDATE_PORT = ":3100";
@@ -148,7 +149,7 @@ public class ConstantRegistry {
 
     public static final String ON_OPEN = "onOpen";
     public static final String MESSAGE_TYPE = "messageType";
-    public static final String HANDLE_CHAT_MESSAGE = "message";
+    public static final String CHAT_MESSAGE = "message";
 
     public static final String SENDER_ID = "senderId";
     public static final String RECEIVER_ID = "receiverId";

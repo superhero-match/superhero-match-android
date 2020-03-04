@@ -53,7 +53,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -92,11 +91,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import io.fabric.sdk.android.Fabric;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.coordinator.RootCoordinator;
 import nl.mwsoft.www.superheromatch.dependencyRegistry.DependencyRegistry;
@@ -180,12 +181,12 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Superhero> suggestions;
     private int currentSuggestion = 0;
     private OkHttpClient client;
-    public static WebSocket webSocket;
+    private WebSocket webSocket;
+    private Socket socket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         unbinder = ButterKnife.bind(this);
         DependencyRegistry.shared.inject(this);
@@ -193,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
 
         init();
 
-        start();
+        setUpConnectionToServer();
 
         // || mainPresenter.getUserIsLoggedIn(this) == 0
         if (mainPresenter.getUserId(this).equals("default")) {
@@ -202,89 +203,74 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // updateToken(mainPresenter.getUserId(this));
+        updateToken(mainPresenter.getUserId(this));
 
         navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
 
-        // handleNotificationAction();
+        handleNotificationAction();
 
-//        if (checkLocationPermission()) {
-//            showLoadingDialog();
-//            initLocationUpdateService();
-//            startLocationUpdates();
-//        }
+        if (checkLocationPermission()) {
+            showLoadingDialog();
+            initLocationUpdateService();
+            startLocationUpdates();
+        }
     }
 
-    // region OkHttpWebSocket
+    // region Socket.IO
 
-    private void start() {
-        Request request = new Request.Builder().url("https://192.168.0.101:5000/ws").build();
-        EchoWebSocketListener listener = new EchoWebSocketListener();
-        WebSocket ws = client.newWebSocket(request, listener);
-        client.dispatcher().executorService().shutdown();
-    }
+    private void setUpConnectionToServer() {
+        // default settings for all sockets
+        IO.setDefaultOkHttpWebSocketFactory(OkHttpClientManager.setUpSecureClient());
+        IO.setDefaultOkHttpCallFactory(OkHttpClientManager.setUpSecureClient());
 
-    private void output(final String txt) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("tShoot", "WebSocket says: " + txt);
-            }
-        });
-    }
-
-    private final class EchoWebSocketListener extends WebSocketListener {
-        private static final int NORMAL_CLOSURE_STATUS = 1000;
-
-//        MessageType string `json:"messageType"`
-//        SenderID    string `json:"senderId"`
-//        ReceiverID  string `json:"receiverId"`
-//        Message     string `json:"message"`
-
-        @Override
-        public void onOpen(WebSocket webSocket, Response response) {
-            MainActivity.webSocket = webSocket;
-
-            HashMap<String, Object> message = new HashMap<>();
-
-            message.put(ConstantRegistry.MESSAGE_TYPE, ConstantRegistry.ON_OPEN);
-            message.put(ConstantRegistry.SENDER_ID, mainPresenter.getUserId(MainActivity.this));
-            message.put(ConstantRegistry.RECEIVER_ID, ConstantRegistry.RECEIVER_ID);
-            message.put(ConstantRegistry.MESSAGE, ConstantRegistry.MESSAGE);
-
-            OutgoingMessage outgoingMessage = new OutgoingMessage(
-                    ConstantRegistry.ON_OPEN,
-                    mainPresenter.getUserId(MainActivity.this),
-                    ConstantRegistry.RECEIVER_ID,
-                    ConstantRegistry.MESSAGE
+        // set as an option
+        IO.Options opts = new IO.Options();
+        opts.transports = new String[]{io.socket.engineio.client.transports.WebSocket.NAME};
+        opts.callFactory = OkHttpClientManager.setUpSecureClient();
+        opts.webSocketFactory = OkHttpClientManager.setUpSecureClient();
+        try {
+            socket = IO.socket(
+                    ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_CHAT_PORT),
+                    opts
             );
 
-            Log.d("tShoot", outgoingMessage.toString());
-
-            webSocket.send(outgoingMessage.toString());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         }
 
-        @Override
-        public void onMessage(WebSocket webSocket, String text) {
-            output("Receiving : " + text);
-        }
+        socket.connect();
 
-        @Override
-        public void onMessage(WebSocket webSocket, ByteString bytes) {
-            output("Receiving bytes : " + bytes.hex());
-        }
-
-        @Override
-        public void onClosing(WebSocket webSocket, int code, String reason) {
-            webSocket.close(NORMAL_CLOSURE_STATUS, null);
-            output("Closing : " + code + " / " + reason);
-        }
-
-        @Override
-        public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-            output("Error : " + t.getMessage());
-        }
+        socket.on(ConstantRegistry.CHAT_MESSAGE, handleIncomingMessages);
     }
+
+    private Emitter.Listener handleIncomingMessages = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    long senderId = 0;
+                    String chatName = "";
+                    String messageText = "";
+                    String messageCreated = "";
+                    String uuid = "";
+                    int chatId = 0;
+
+                    try {
+                        senderId = data.getLong(ConstantRegistry.SENDER_ID);
+//                        chatName = data.getString(ConstantRegistry.CHATSTER_MESSAGE_CHAT_NAME);
+//                        messageText = data.getString(ConstantRegistry.CHATSTER_MESSAGE_TEXT);
+//                        messageCreated = data.getString(ConstantRegistry.CHATSTER_MESSAGE_CREATED);
+//                        uuid = data.getString(ConstantRegistry.CHATSTER_MESSAGE_UUID);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+    };
 
     // endregion
 
@@ -715,7 +701,7 @@ public class MainActivity extends AppCompatActivity {
         return messages;
     }
 
-    public void sendMessageClickListener(String message) {
+    public void sendMessageClickListener(String message, String receiverId) {
         Message msg = new Message();
         msg.setMessageChatId("testuuid");
         msg.setMessageCreated("22-04-2018 16:51:00");
@@ -726,6 +712,18 @@ public class MainActivity extends AppCompatActivity {
 
         messages.add(msg);
         EventBus.getDefault().post(new TextMessageEvent(messages));
+
+        OutgoingMessage outgoingMessage = new OutgoingMessage(
+                ConstantRegistry.CHAT_MESSAGE,
+                mainPresenter.getUserId(MainActivity.this),
+                receiverId,
+                message
+        );
+
+        Log.d("tShoot", "sendMessageClickListener --> message: ");
+        Log.d("tShoot", outgoingMessage.toString());
+
+        webSocket.send(outgoingMessage.toString());
     }
 
     public String getUserId() {

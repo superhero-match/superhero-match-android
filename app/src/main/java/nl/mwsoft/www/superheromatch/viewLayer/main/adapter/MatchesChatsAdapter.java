@@ -47,7 +47,7 @@ public class MatchesChatsAdapter extends RecyclerView.Adapter<MatchesChatsAdapte
         public MyViewHolder(View view) {
             super(view);
             context = view.getContext();
-            mainActivity = (MainActivity)context;
+            mainActivity = (MainActivity) context;
             rlMatchesChats = (RelativeLayout) view.findViewById(R.id.rlMatchesChats);
             ivProfileMatchesChats = (ImageView) view.findViewById(R.id.ivProfileMatchesChats);
             tvUserNameMatchesChats = (TextView) view.findViewById(R.id.tvUserNameMatchesChats);
@@ -58,7 +58,12 @@ public class MatchesChatsAdapter extends RecyclerView.Adapter<MatchesChatsAdapte
             rlMatchesChats.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mainActivity.loadBackStackFragment(ChatFragment.newInstance(mainActivity.getMessages()));
+                    mainActivity.loadBackStackFragment(
+                            ChatFragment.newInstance(
+                                    matchChats.get(getAdapterPosition()),
+                                    mainActivity.getMessages()
+                            )
+                    );
                 }
             });
         }
@@ -83,13 +88,13 @@ public class MatchesChatsAdapter extends RecyclerView.Adapter<MatchesChatsAdapte
         holder.tvUserNameMatchesChats.setText(matchChat.getChatName());
         holder.tvLastActivityDateMatchesChats.setText(matchChat.getLastActivityDate());
         holder.tvLastActivityMessageMatchesChats.setText(matchChat.getLastActivityMessage());
-        if(matchChat.getUnreadMessageCount() > 0){
-            if(holder.tvUnreadMsgMatchesChat.getVisibility() == View.GONE){
+        if (matchChat.getUnreadMessageCount() > 0) {
+            if (holder.tvUnreadMsgMatchesChat.getVisibility() == View.GONE) {
                 holder.tvUnreadMsgMatchesChat.setVisibility(View.VISIBLE);
             }
             holder.tvUnreadMsgMatchesChat.setText(String.valueOf(matchChat.getUnreadMessageCount()));
-        }else{
-            if(holder.tvUnreadMsgMatchesChat.getVisibility() == View.VISIBLE){
+        } else {
+            if (holder.tvUnreadMsgMatchesChat.getVisibility() == View.VISIBLE) {
                 holder.tvUnreadMsgMatchesChat.setVisibility(View.GONE);
             }
         }

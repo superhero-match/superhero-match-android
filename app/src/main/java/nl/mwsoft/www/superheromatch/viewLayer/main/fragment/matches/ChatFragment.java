@@ -41,6 +41,7 @@ import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ImageMessageEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.ChatMessageAdapter;
@@ -55,14 +56,17 @@ public class ChatFragment extends Fragment {
     @BindView(R.id.ivSendMessage)
     ImageView ivSendMessage;
     private Unbinder unbinder;
+    private Chat chat;
     private ArrayList<Message> messages;
     private ChatMessageAdapter chatMessageAdapter;
+    public static final String CHAT = "chat";
     public static final String MESSAGES = "messages";
 
 
-    public static ChatFragment newInstance(ArrayList<Message> messages) {
+    public static ChatFragment newInstance(Chat chat, ArrayList<Message> messages) {
 
         Bundle args = new Bundle();
+        args.putParcelable(CHAT, chat);
         args.putParcelableArrayList(MESSAGES, messages);
         ChatFragment fragment = new ChatFragment();
         fragment.setArguments(args);
@@ -95,11 +99,13 @@ public class ChatFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mainActivity.hideBottomNavigation();
         Bundle arguments = getArguments();
-        if(arguments != null){
-            messages = arguments.getParcelableArrayList(MESSAGES);
-        }else{
-            messages = new ArrayList<>();
+
+        if (arguments == null) {
+            return;
         }
+
+        chat = arguments.getParcelable(CHAT);
+        messages = arguments.getParcelableArrayList(MESSAGES);
 
         chatMessageAdapter = new ChatMessageAdapter(messages, mainActivity);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(view.getContext());
@@ -107,7 +113,7 @@ public class ChatFragment extends Fragment {
         rvChat.setItemAnimator(new DefaultItemAnimator());
         rvChat.setAdapter(chatMessageAdapter);
 
-        if(messages.size() > 0){
+        if (messages.size() > 0) {
             scrollToBottom();
         }
     }
@@ -123,10 +129,10 @@ public class ChatFragment extends Fragment {
     }
 
     @OnClick(R.id.ivSendMessage)
-    public void sendMessageClickListener(){
+    public void sendMessageClickListener() {
         String message = etMessage.getText().toString().trim();
         etMessage.setText("");
-        mainActivity.sendMessageClickListener(message);
+        mainActivity.sendMessageClickListener(message, chat.getMatchedUserId());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
