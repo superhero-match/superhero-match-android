@@ -130,12 +130,6 @@ import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.Suggesti
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileEditFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileSettingsSuggestionsFragment;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
-import okio.ByteString;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity {
@@ -180,8 +174,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> retrievedSuperheroIds;
     private ArrayList<Superhero> suggestions;
     private int currentSuggestion = 0;
-    private OkHttpClient client;
-    private WebSocket webSocket;
     private Socket socket;
 
     @Override
@@ -203,17 +195,17 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        updateToken(mainPresenter.getUserId(this));
+//        updateToken(mainPresenter.getUserId(this));
 
         navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
 
-        handleNotificationAction();
-
-        if (checkLocationPermission()) {
-            showLoadingDialog();
-            initLocationUpdateService();
-            startLocationUpdates();
-        }
+//        handleNotificationAction();
+//
+//        if (checkLocationPermission()) {
+//            showLoadingDialog();
+//            initLocationUpdateService();
+//            startLocationUpdates();
+//        }
     }
 
     // region Socket.IO
@@ -240,7 +232,19 @@ public class MainActivity extends AppCompatActivity {
 
         socket.connect();
 
-        socket.on(ConstantRegistry.CHAT_MESSAGE, handleIncomingMessages);
+        socket.on(ConstantRegistry.ON_MESSAGE, handleIncomingMessages);
+
+        OutgoingMessage outgoingMessage = new OutgoingMessage(
+                ConstantRegistry.ON_OPEN,
+                mainPresenter.getUserId(MainActivity.this),
+                ConstantRegistry.RECEIVER_ID,
+                ConstantRegistry.MESSAGE
+        );
+
+        Log.d("tShoot", "sendMessageClickListener --> message: ");
+        Log.d("tShoot", outgoingMessage.toString());
+
+        socket.emit(ConstantRegistry.ON_OPEN, outgoingMessage.toString());
     }
 
     private Emitter.Listener handleIncomingMessages = new Emitter.Listener() {
@@ -256,6 +260,8 @@ public class MainActivity extends AppCompatActivity {
                     String messageCreated = "";
                     String uuid = "";
                     int chatId = 0;
+
+                    Toast.makeText(MainActivity.this, data.toString(), Toast.LENGTH_LONG).show();
 
                     try {
                         senderId = data.getLong(ConstantRegistry.SENDER_ID);
@@ -426,7 +432,6 @@ public class MainActivity extends AppCompatActivity {
         superheroIds = new ArrayList<>();
         retrievedSuperheroIds = new ArrayList<>();
         suggestions = new ArrayList<>();
-        client = OkHttpClientManager.setUpSecureClient();
     }
 
     public void configureWith(RootCoordinator rootCoordinator, MainPresenter mainPresenter) {
@@ -454,6 +459,13 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         unbindButterKnife();
         stopLocationUpdates();
+        socketDisconnect();
+    }
+
+    private void socketDisconnect() {
+        if (socket != null && socket.connected()) {
+            socket.disconnect();
+        }
     }
 
     private void stopLocationUpdates() {
@@ -714,7 +726,7 @@ public class MainActivity extends AppCompatActivity {
         EventBus.getDefault().post(new TextMessageEvent(messages));
 
         OutgoingMessage outgoingMessage = new OutgoingMessage(
-                ConstantRegistry.CHAT_MESSAGE,
+                ConstantRegistry.ON_MESSAGE,
                 mainPresenter.getUserId(MainActivity.this),
                 receiverId,
                 message
@@ -723,7 +735,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("tShoot", "sendMessageClickListener --> message: ");
         Log.d("tShoot", outgoingMessage.toString());
 
-        webSocket.send(outgoingMessage.toString());
+        socket.emit(ConstantRegistry.ON_MESSAGE, outgoingMessage);
     }
 
     public String getUserId() {
