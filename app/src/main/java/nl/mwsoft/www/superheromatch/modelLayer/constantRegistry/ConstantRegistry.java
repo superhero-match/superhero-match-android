@@ -149,7 +149,7 @@ public class ConstantRegistry {
 
     public static final String ON_OPEN = "onOpen";
     public static final String MESSAGE_TYPE = "messageType";
-    public static final String CHAT_MESSAGE = "message";
+    public static final String ON_MESSAGE = "message";
 
     public static final String SENDER_ID = "senderId";
     public static final String RECEIVER_ID = "receiverId";
