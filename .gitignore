@@ -9,4 +9,8 @@
 /captures
 .externalNativeBuild
 *.pem
+*.crt
 *.cert
+*.der
+/app/src/main/res/raw/certificate.pem
+app/src/main/res/raw/certificate.pem
