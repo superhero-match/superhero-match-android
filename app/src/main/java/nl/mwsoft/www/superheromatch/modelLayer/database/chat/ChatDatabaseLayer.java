@@ -99,7 +99,6 @@ public class ChatDatabaseLayer {
                 message.setMessageChatId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_CHAT_ID)));
                 message.setMessageSenderId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_SENDER_ID)));
                 message.setMessageCreated(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_CREATED)));
-                message.setMessageUUID(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_UUID)));
                 message.setMessageText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.TEXT_MESSAGE)));
 
                 messages.add(message);
@@ -157,12 +156,12 @@ public class ChatDatabaseLayer {
         return chats;
     }
 
-    public Chat getChatByContactId(Context context, String matchName) {
+    public Chat getChatByMatchId(Context context, String matchId) {
         Chat chat = null;
         Cursor cursor = null;
         SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
         cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_CHAT +
-                " WHERE " + DBOpenHelper.CHAT_MATCHED_USER_ID + "='" + matchName + "'", null);
+                " WHERE " + DBOpenHelper.CHAT_MATCHED_USER_ID + "='" + matchId + "'", null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 chat = new Chat();
@@ -267,7 +266,6 @@ public class ChatDatabaseLayer {
                 message.setMessageSenderId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_SENDER_ID)));
                 message.setMessageCreated(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_CREATED)));
                 message.setMessageText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.TEXT_MESSAGE)));
-                message.setMessageUUID(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_UUID)));
             }
         }
         cursor.close();
@@ -286,8 +284,6 @@ public class ChatDatabaseLayer {
         setValues.put(DBOpenHelper.MESSAGE_SENDER_ID, chatMessage.getMessageSenderId());
         setValues.put(DBOpenHelper.MESSAGE_CHAT_ID, chatMessage.getMessageChatId());
         setValues.put(DBOpenHelper.MESSAGE_HAS_BEEN_READ, 1);
-        setValues.put(DBOpenHelper.MESSAGE_UUID, chatMessage.getMessageUUID());
-        setValues.put(DBOpenHelper.MESSAGE_CREATED, chatMessage.getMessageCreated());
         setValues.put(DBOpenHelper.TEXT_MESSAGE, chatMessage.getMessageText());
 
         Uri setUri = context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_MESSAGE, setValues);

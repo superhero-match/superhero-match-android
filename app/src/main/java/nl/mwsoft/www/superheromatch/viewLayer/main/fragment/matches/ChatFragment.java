@@ -113,6 +113,8 @@ public class ChatFragment extends Fragment {
         rvChat.setItemAnimator(new DefaultItemAnimator());
         rvChat.setAdapter(chatMessageAdapter);
 
+        mainActivity.setCurrentChat(chat);
+
         if (messages.size() > 0) {
             scrollToBottom();
         }

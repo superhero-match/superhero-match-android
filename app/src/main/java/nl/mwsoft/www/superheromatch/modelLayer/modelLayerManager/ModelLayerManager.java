@@ -264,8 +264,8 @@ public class ModelLayerManager {
         return this.chatDatabaseLayer.getAllChats(context);
     }
 
-    public Chat getChatByContactId(Context context, String matchName) {
-        return this.chatDatabaseLayer.getChatByContactId(context, matchName);
+    public Chat getChatByMatchId(Context context, String matchId) {
+        return this.chatDatabaseLayer.getChatByMatchId(context, matchId);
     }
 
     public Chat getChatById(Context context, String chatId) {
