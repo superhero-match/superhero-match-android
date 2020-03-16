@@ -85,7 +85,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -175,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Superhero> suggestions;
     private int currentSuggestion = 0;
     private Socket socket;
+    private Chat currentChat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,22 +254,26 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     JSONObject data = (JSONObject) args[0];
-                    long senderId = 0;
-                    String chatName = "";
+                    String senderId = "";
                     String messageText = "";
-                    String messageCreated = "";
-                    String uuid = "";
-                    int chatId = 0;
-
-                    Toast.makeText(MainActivity.this, data.toString(), Toast.LENGTH_LONG).show();
 
                     try {
-                        senderId = data.getLong(ConstantRegistry.SENDER_ID);
-//                        chatName = data.getString(ConstantRegistry.CHATSTER_MESSAGE_CHAT_NAME);
-//                        messageText = data.getString(ConstantRegistry.CHATSTER_MESSAGE_TEXT);
-//                        messageCreated = data.getString(ConstantRegistry.CHATSTER_MESSAGE_CREATED);
-//                        uuid = data.getString(ConstantRegistry.CHATSTER_MESSAGE_UUID);
+                        senderId = data.getString(ConstantRegistry.SENDER_ID);
+                        messageText = data.getString(ConstantRegistry.MESSAGE);
 
+                        if (getCurrentChat() == null){
+                            saveMessageForNotCurrentChat(senderId, messageText);
+
+                            return;
+                        }
+
+                        if (!getCurrentChat().getMatchedUserId().equals(senderId)) {
+                            saveMessageForNotCurrentChat(senderId, messageText);
+
+                            return;
+                        }
+
+                        saveMessageForCurrentChat(senderId, messageText);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -277,6 +281,29 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     };
+
+    private void saveMessageForCurrentChat(String senderId, String messageText) {
+        Message chatMessage = createMessage(senderId, messageText, currentChat);
+        mainPresenter.insertChatMessage(chatMessage, MainActivity.this);
+
+        // Update Chat UI to display new message.
+        messages.add(chatMessage);
+        EventBus.getDefault().post(new TextMessageEvent(messages));
+    }
+
+    private void saveMessageForNotCurrentChat(String senderId, String messageText) {
+        Chat tempChat = mainPresenter.getChatByMatchId(MainActivity.this, senderId);
+        Message chatMessage = createMessage(senderId, messageText, tempChat);
+        mainPresenter.insertChatMessage(chatMessage, MainActivity.this);
+    }
+
+    private Message createMessage(String senderId, String messageText, Chat chat) {
+        Message chatMessage = new Message();
+        chatMessage.setMessageChatId(chat.getChatId());
+        chatMessage.setMessageSenderId(senderId);
+        chatMessage.setMessageText(messageText);
+        return chatMessage;
+    }
 
     // endregion
 
@@ -524,9 +551,6 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     }
 
-//                    fragment = SuggestionFragment.newInstance(createMockSuperhero());
-//                    loadFragment(fragment);
-
                     loadFragment(NoSuggestionsFragment.newInstance());
 
                     getSuggestions(configureSuggestionsRequestBody(mainPresenter), true);
@@ -696,7 +720,6 @@ public class MainActivity extends AppCompatActivity {
             message.setMessageCreated("22-04-2018 16:51:00");
             message.setMessageId(i);
             message.setMessageText("Just testing.");
-            message.setMessageUUID(UUID.randomUUID().toString().replace("-", ""));
             if (i % 3 == 0) {
                 message.setMessageSenderId("312345678900L");
             } else {
@@ -719,7 +742,6 @@ public class MainActivity extends AppCompatActivity {
         msg.setMessageCreated("22-04-2018 16:51:00");
         msg.setMessageId(1);
         msg.setMessageText(message);
-        msg.setMessageUUID(UUID.randomUUID().toString().replace("-", ""));
         msg.setMessageSenderId("311234567890L");
 
         messages.add(msg);
@@ -1475,5 +1497,13 @@ public class MainActivity extends AppCompatActivity {
     private void removeNotifications() {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancelAll();
+    }
+
+    public void setCurrentChat(Chat chat){
+        this.currentChat = chat;
+    }
+
+    public Chat getCurrentChat() {
+        return this.currentChat;
     }
 }

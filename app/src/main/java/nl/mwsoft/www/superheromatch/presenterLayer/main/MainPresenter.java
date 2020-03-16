@@ -212,8 +212,8 @@ public class MainPresenter {
         return this.modelLayerManager.getAllChats(context);
     }
 
-    public Chat getChatByContactId(Context context, String matchName) {
-        return this.modelLayerManager.getChatByContactId(context, matchName);
+    public Chat getChatByMatchId(Context context, String matchId) {
+        return this.modelLayerManager.getChatByMatchId(context, matchId);
     }
 
     public Chat getChatById(Context context, String chatId) {

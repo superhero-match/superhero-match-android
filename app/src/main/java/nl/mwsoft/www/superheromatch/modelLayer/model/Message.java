@@ -16,6 +16,8 @@ package nl.mwsoft.www.superheromatch.modelLayer.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 
 public class Message implements Parcelable {
 
@@ -24,18 +26,16 @@ public class Message implements Parcelable {
     private String messageSenderId;
     private String messageText;
     private String messageCreated;
-    private String messageUUID;
 
     public Message() {
     }
 
-    public Message(int messageId, String messageChatId, String messageSenderId, String messageText, String messageCreated, String messageUUID) {
+    public Message(int messageId, String messageChatId, String messageSenderId, String messageText, String messageCreated) {
         this.messageId = messageId;
         this.messageChatId = messageChatId;
         this.messageSenderId = messageSenderId;
         this.messageText = messageText;
         this.messageCreated = messageCreated;
-        this.messageUUID = messageUUID;
     }
 
     protected Message(Parcel in) {
@@ -44,7 +44,6 @@ public class Message implements Parcelable {
         messageSenderId = in.readString();
         messageText = in.readString();
         messageCreated = in.readString();
-        messageUUID = in.readString();
     }
 
     @Override
@@ -54,7 +53,6 @@ public class Message implements Parcelable {
         dest.writeString(messageSenderId);
         dest.writeString(messageText);
         dest.writeString(messageCreated);
-        dest.writeString(messageUUID);
     }
 
     @Override
@@ -112,14 +110,6 @@ public class Message implements Parcelable {
 
     public void setMessageCreated(String messageCreated) {
         this.messageCreated = messageCreated;
-    }
-
-    public String getMessageUUID() {
-        return messageUUID;
-    }
-
-    public void setMessageUUID(String messageUUID) {
-        this.messageUUID = messageUUID;
     }
 }
 
