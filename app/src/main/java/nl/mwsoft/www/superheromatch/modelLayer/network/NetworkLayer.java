@@ -24,6 +24,7 @@ import io.reactivex.ObservableOnSubscribe;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.GetMatchResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
@@ -33,6 +34,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.network.choice.ChoiceImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteAccount.DeleteAccountImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteMatch.DeleteMatchImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.getMatch.GetMatchImpl;
+import nl.mwsoft.www.superheromatch.modelLayer.network.getOfflineMessages.GetOfflineMessagesImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.inviteUser.InviteSuperheroImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.match.MatchImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.profile.ProfileImpl;
@@ -341,6 +343,26 @@ public class NetworkLayer {
                 try {
                     InviteSuperheroImpl inviteRequest = new InviteSuperheroImpl();
                     String response = inviteRequest.getInviteUserResponse(userName, inviteeName, inviteeEmail);
+                    emitter.onNext(response);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    // endregion
+
+    // region Get Offline Messages
+
+    public Observable<OfflineMessagesResponse> getOfflineMessages(HashMap<String, Object> body){
+        return Observable.create(new ObservableOnSubscribe<OfflineMessagesResponse>() {
+            @Override
+            public void subscribe(ObservableEmitter<OfflineMessagesResponse> emitter) throws Exception {
+                try {
+                    GetOfflineMessagesImpl getOfflineMessages = new GetOfflineMessagesImpl();
+                    OfflineMessagesResponse response = getOfflineMessages.getOfflineMessages(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {

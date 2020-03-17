@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import nl.mwsoft.www.superheromatch.modelLayer.database.chat.ChatDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.database.user.UserDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.dateTimeUtil.DateTimeUtil;
@@ -34,12 +36,14 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
+import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.modelLayer.network.NetworkLayer;
+import nl.mwsoft.www.superheromatch.modelLayer.network.getOfflineMessages.GetOfflineMessagesImpl;
 
 public class ModelLayerManager {
 
@@ -483,6 +487,14 @@ public class ModelLayerManager {
 
     public Observable<String> upgradeAccount(String userId, String upgradedAccountType) {
         return this.networkLayer.upgradeAccount(userId, upgradedAccountType);
+    }
+
+    // endregion
+
+    // region Get Offline Messages
+
+    public Observable<OfflineMessagesResponse> getOfflineMessages(HashMap<String, Object> body){
+        return this.networkLayer.getOfflineMessages(body);
     }
 
     // endregion

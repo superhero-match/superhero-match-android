@@ -121,6 +121,7 @@ import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.matchDialog.MatchDialog;
 import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.MatchesChatsAdapter;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.ChatFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.MatchesChatsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfilePictureSettingsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.NoSuggestionsFragment;
@@ -199,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
 
         navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
 
-//        handleNotificationAction();
+        handleNotificationAction();
 //
 //        if (checkLocationPermission()) {
 //            showLoadingDialog();
@@ -1487,9 +1488,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleNotificationAction() {
         if (getIntent().getExtras() != null && getIntent().getAction() != null) {
-            if (ConstantRegistry.NEW_MATCH_REQUEST.equals(getIntent().getAction())) {
-                removeNotifications();
-                navigation.setSelectedItemId(R.id.navigation_matches);
+            switch (getIntent().getAction()) {
+                case ConstantRegistry.NEW_MATCH_REQUEST :
+                    removeNotifications();
+                    navigation.setSelectedItemId(R.id.navigation_matches);
+                    break;
+                case ConstantRegistry.NEW_OFFLINE_MESSAGE_REQUEST :
+                    removeNotifications();
+                    Chat chat = getIntent().getExtras().getParcelable(ConstantRegistry.NEW_OFFLINE_MESSAGE_REQUEST);
+                    loadBackStackFragment(
+                            ChatFragment.newInstance(
+                                    chat,
+                                    getMessages() // TO-DO: call maniPresenter method to get actual messages
+                            )
+                    );
+                    hideChoiceButtons();
+                    break;
             }
         }
     }

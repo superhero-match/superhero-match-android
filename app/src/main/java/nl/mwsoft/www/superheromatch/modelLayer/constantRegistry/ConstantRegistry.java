@@ -60,6 +60,7 @@ public class ConstantRegistry {
     public static final String SUPERHERO_MATCH_PORT = ":4200";
     public static final String SUPERHERO_DELETE_MATCH_PORT = ":4300";
     public static final String SUPERHERO_CHAT_PORT = ":5000";
+    public static final String SUPERHERO_OFFLINE_MESSAGE_PORT = ":5100";
     public static final String SUPERHERO_FIREBASE_MESSAGING_TOKEN_PORT = ":6000";
 
     public static final String DATE_TIME_FORMAT = "yyyyMMdd_HHmmss";
@@ -78,26 +79,10 @@ public class ConstantRegistry {
     public static final String EMPTY_STRING = "";
     public static final String SPACE_STRING = " ";
     public static final String EQUALS = "=";
-    public static final String OPEN_SQUARE_BRACKETS = "[";
-    public static final String CLOSE_SQUARE_BRACKETS = "]";
-    public static final String OPEN_ROUND_BRACKETS = "(";
-    public static final String CLOSE_ROUND_BRACKETS = ")";
     public static final String OPEN_CURLY_BRACES = "{";
     public static final String CLOSE_CURLY_BRACES = "}";
-    public static final String FORWARD_SLASH = "/";
-    public static final String LETTER_N = "N";
     public static final String COMMA = ",";
-    public static final String POINT = ".";
-    public static final String STAR = "*";
-    public static final String SEMICOLON = ";";
-    public static final String HASH_TAG = "#";
-    public static final String MINUS = "-";
     public static final String DASH = "-";
-    public static final String AT = "@";
-    public static final String QUESTION_MARK = "?";
-    public static final String PLUS = "+";
-    public static final String ZERO = "0";
-    public static final String DOUBLE_ZERO = "00";
 
     public static final String FRAGMENT_TAG = "fragment_tag";
 
@@ -145,7 +130,11 @@ public class ConstantRegistry {
     public static final String NEW_MATCH_INTENT = "NEW_MATCH_INTENT";
     public static final String NEW_MATCH_REQUEST = "NEW_MATCH_REQUEST";
 
+    public static final String NEW_OFFLINE_MESSAGE_INTENT = "NEW_OFFLINE_MESSAGE_INTENT";
+    public static final String NEW_OFFLINE_MESSAGE_REQUEST = "NEW_OFFLINE_MESSAGE_REQUEST";
+
     public static final int NEW_MATCH_PENDING_INTENT_REQUEST = 1000;
+    public static final int NEW_OFFLINE_MESSAGE_PENDING_INTENT_REQUEST = 1001;
 
     public static final String ON_OPEN = "onOpen";
     public static final String MESSAGE_TYPE = "messageType";

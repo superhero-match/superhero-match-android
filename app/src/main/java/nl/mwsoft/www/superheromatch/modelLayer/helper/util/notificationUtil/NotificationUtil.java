@@ -80,4 +80,53 @@ public class NotificationUtil {
         notificationManager.notify(notificationId, builder.build());
     }
 
+    public static void sendNewOfflineMessageNotification(Context context, Chat chat) {
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        int notificationId = 1;
+        String channelId = context.getString(R.string.channel_new_match_id);
+        String channelName = context.getString(R.string.channel_new_match_name);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+
+            NotificationChannel mChannel = new NotificationChannel(
+                    channelId,
+                    channelName,
+                    importance
+            );
+
+            notificationManager.createNotificationChannel(mChannel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
+
+        Intent newMatchIntent = new Intent(context, MainActivity.class);
+        newMatchIntent.putExtra(ConstantRegistry.NEW_OFFLINE_MESSAGE_INTENT, chat);
+        newMatchIntent.setAction(ConstantRegistry.NEW_OFFLINE_MESSAGE_REQUEST);
+        newMatchIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        PendingIntent replyNewOfflineMessagePendingIntent = PendingIntent.getActivity(
+                context,
+                ConstantRegistry.NEW_OFFLINE_MESSAGE_PENDING_INTENT_REQUEST,
+                newMatchIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        builder.setSmallIcon(R.drawable.mask_512);
+        builder.setContentTitle(chat.getChatName());
+        builder.setContentText(context.getString(R.string.new_message, chat.getChatName()));
+        builder.setPriority(Notification.PRIORITY_MAX);
+        builder.setAutoCancel(true);
+        builder.setOnlyAlertOnce(true);
+        builder.setVibrate(new long[]{0, 200, 200, 200});
+        builder.setLights(Color.MAGENTA, 500, 500);
+        builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        builder.addAction(R.drawable.chat_match_64, context.getString(R.string.send_message), replyNewOfflineMessagePendingIntent);
+
+        notificationManager.notify(notificationId, builder.build());
+    }
+
 }
