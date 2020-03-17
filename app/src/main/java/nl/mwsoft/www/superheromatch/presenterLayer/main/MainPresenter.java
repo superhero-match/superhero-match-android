@@ -28,6 +28,7 @@ import io.reactivex.Observable;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
+import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegistrationUser;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
@@ -405,6 +406,14 @@ public class MainPresenter {
 
     public Observable<String> upgradeAccount(String userId, String upgradedAccountType) {
         return this.modelLayerManager.upgradeAccount(userId, upgradedAccountType);
+    }
+
+    // endregion
+
+    // region Get Offline Messages
+
+    public Observable<OfflineMessagesResponse> getOfflineMessages(HashMap<String, Object> body){
+        return this.modelLayerManager.getOfflineMessages(body);
     }
 
     // endregion

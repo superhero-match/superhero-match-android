@@ -30,6 +30,9 @@ import nl.mwsoft.www.superheromatch.modelLayer.helper.util.dateTimeUtil.DateTime
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.internet.InternetConnectionUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.notificationUtil.NotificationUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.uuid.UUIDUtil;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
+import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessage;
 import nl.mwsoft.www.superheromatch.modelLayer.network.NetworkLayer;
 
 public class NotificationService extends FirebaseMessagingService {
@@ -88,6 +91,8 @@ public class NotificationService extends FirebaseMessagingService {
                 break;
             case ConstantRegistry.NEW_MESSAGE:
                 // Fetch the message and show user notification.
+                handleNewOfflineMessages(userDatabaseLayer.getUserId(NotificationService.this));
+
                 break;
         }
     }
@@ -128,5 +133,61 @@ public class NotificationService extends FirebaseMessagingService {
         reqBodyChoice.put("matchedSuperheroId", matchedSuperheroId);
 
         return reqBodyChoice;
+    }
+
+    private HashMap<String, Object> configureGetOfflineMessagesRequestBody(String userId) {
+        HashMap<String, Object> reqBody = new HashMap<>();
+
+        reqBody.put("superheroId", userId);
+
+        return reqBody;
+    }
+
+    private Message createMessage(String senderId, String messageText, String chatId) {
+        Message chatMessage = new Message();
+        chatMessage.setMessageChatId(chatId);
+        chatMessage.setMessageSenderId(senderId);
+        chatMessage.setMessageText(messageText);
+
+        return chatMessage;
+    }
+
+    private void handleNewOfflineMessages(String superheroId) {
+        Disposable subscribeGetMatch = networkLayer.
+                getOfflineMessages(configureGetOfflineMessagesRequestBody(superheroId)).
+                subscribeOn(Schedulers.io()).
+                subscribe(res -> {
+                    if (res.getStatus() != 200) {
+                        Log.e(
+                                NotificationService.class.getName(),
+                                "Error while fetching new offline messages"
+                        );
+
+                        return;
+                    }
+
+                    for (OfflineMessage offlineMessage : res.getMessages()) {
+                        Chat chat = chatDatabaseLayer.getChatByMatchId(
+                                NotificationService.this,
+                                offlineMessage.getSenderId()
+                        );
+
+                        Message msg = createMessage(
+                                offlineMessage.getSenderId(),
+                                offlineMessage.getMessage(),
+                                chat.getChatId()
+                        );
+
+                        chatDatabaseLayer.insertChatMessage(msg, NotificationService.this);
+
+                        NotificationUtil.sendNewOfflineMessageNotification(
+                                NotificationService.this,
+                                chat
+                        );
+                    }
+
+                }, Log::getStackTraceString);
+
+        disposable.add(subscribeGetMatch);
     }
 }
