@@ -233,10 +233,6 @@ public class MainPresenter {
         this.modelLayerManager.insertChat(chatId, matchName, matchedUserId, chatProfilePic, context);
     }
 
-    public Message getChatMessageByUUID(Context context, String uuid) {
-        return this.modelLayerManager.getChatMessageByUUID(context, uuid);
-    }
-
     public void insertChatMessage(Message chatMessage, Context context) {
         this.modelLayerManager.insertChatMessage(chatMessage, context);
     }

@@ -252,28 +252,6 @@ public class ChatDatabaseLayer {
         return messageQueueItem;
     }
 
-    public Message getChatMessageByUUID(Context context, String uuid) {
-        Message message = null;
-        Cursor cursor = null;
-        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
-        cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_MESSAGE + " WHERE " + DBOpenHelper.MESSAGE_UUID
-                + " LIKE '" + uuid + "'", null);
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                message = new Message();
-                message.setMessageId(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_ID))));
-                message.setMessageChatId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_CHAT_ID)));
-                message.setMessageSenderId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_SENDER_ID)));
-                message.setMessageCreated(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.MESSAGE_CREATED)));
-                message.setMessageText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.TEXT_MESSAGE)));
-            }
-        }
-        cursor.close();
-        db.close();
-
-        return message;
-    }
-
     public void deleteChatMessageQueueItemByUUID(String uuid, Context context) {
         String msgSelectionUpdate = DBOpenHelper.MESSAGE_QUEUE_MESSAGE_UUID + "='" + uuid + "'";
         context.getContentResolver().delete(SuperHeroMatchProvider.CONTENT_URI_MESSAGE_QUEUE, msgSelectionUpdate, null);

@@ -121,8 +121,6 @@ public class VerifyIdentityActivity extends AppCompatActivity {
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
-                Toast.makeText(VerifyIdentityActivity.this, e.getMessage(), LENGTH_SHORT).show();
-                // ...
             }
         }
     }
@@ -132,7 +130,6 @@ public class VerifyIdentityActivity extends AppCompatActivity {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        // updateUI(currentUser);
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
@@ -156,7 +153,6 @@ public class VerifyIdentityActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(VerifyIdentityActivity.this, "Authentication Failed.", LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -252,8 +248,6 @@ public class VerifyIdentityActivity extends AppCompatActivity {
                     }
 
                     navigateToMain();
-
-                    Toast.makeText(VerifyIdentityActivity.this, res.toString(), Toast.LENGTH_LONG).show();
                 }, throwable -> handleError());
 
         disposable.add(subscribe);

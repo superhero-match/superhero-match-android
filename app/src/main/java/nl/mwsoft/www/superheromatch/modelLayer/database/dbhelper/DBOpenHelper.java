@@ -22,7 +22,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
     // Constants for db name and version
     private static final String DATABASE_NAME = "superheromatch.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     //=======================================================================================================================
     // Constants for identifying tables and columns
@@ -151,12 +151,11 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     public static final String MESSAGE_SENDER_ID = "message_sender_id";
     public static final String TEXT_MESSAGE = "text_message";
     public static final String MESSAGE_HAS_BEEN_READ = "message_has_been_read";
-    public static final String MESSAGE_UUID = "message_uuid";
     public static final String MESSAGE_CREATED = "match_message_created";
 
 
     public static final String[] ALL_COLUMNS_MATCH_CHAT_MESSAGE = {MESSAGE_ID, MESSAGE_CHAT_ID,
-            MESSAGE_SENDER_ID, TEXT_MESSAGE, MESSAGE_HAS_BEEN_READ, MESSAGE_UUID, MESSAGE_CREATED};
+            MESSAGE_SENDER_ID, TEXT_MESSAGE, MESSAGE_HAS_BEEN_READ, MESSAGE_CREATED};
 
     // SQL to create table message
     private static final String TABLE_CREATE_CHAT_MESSAGE =
@@ -166,7 +165,6 @@ public class DBOpenHelper extends SQLiteOpenHelper {
                     MESSAGE_SENDER_ID + " TEXT NOT NULL," +
                     TEXT_MESSAGE + " TEXT," +
                     MESSAGE_HAS_BEEN_READ + " INTEGER default 0," +
-                    MESSAGE_UUID + " TEXT NOT NULL UNIQUE," +
                     MESSAGE_CREATED + " TEXT default CURRENT_TIMESTAMP , " +
                     " FOREIGN KEY(" + MESSAGE_CHAT_ID + ") REFERENCES " + TABLE_CHAT + "(" + CHAT_ID + ") " +
                     ")";
@@ -192,8 +190,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + TABLE_MESSAGE_QUEUE + " (" +
                     MESSAGE_QUEUE_ITEM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     MESSAGE_QUEUE_MESSAGE_UUID + " TEXT NOT NULL UNIQUE," +
-                    MESSAGE_QUEUE_MESSAGE_RECEIVER_ID + " INTEGER NOT NULL," +
-                    " FOREIGN KEY(" + MESSAGE_QUEUE_MESSAGE_UUID + ") REFERENCES " + TABLE_MESSAGE + "(" + MESSAGE_UUID + ") " +
+                    MESSAGE_QUEUE_MESSAGE_RECEIVER_ID + " INTEGER NOT NULL" +
                     ")";
 
 
@@ -212,8 +209,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     private static final String TABLE_CREATE_RETRIEVED_OFFLINE_MESSAGE_UUID =
             "CREATE TABLE " + TABLE_RETRIEVED_OFFLINE_MESSAGE_UUID + " (" +
                     RETRIEVED_OFFLINE_MESSAGE_UUID_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    RETRIEVED_OFFLINE_MESSAGE_UUID + " TEXT NOT NULL UNIQUE," +
-                    " FOREIGN KEY(" + RETRIEVED_OFFLINE_MESSAGE_UUID + ") REFERENCES " + TABLE_MESSAGE + "(" + MESSAGE_UUID + ")" +
+                    RETRIEVED_OFFLINE_MESSAGE_UUID + " TEXT NOT NULL UNIQUE" +
                     ")";
 
     //=======================================================================================================================
@@ -231,8 +227,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     private static final String TABLE_CREATE_RECEIVED_ONLINE_MESSAGE =
             "CREATE TABLE " + TABLE_RECEIVED_ONLINE_MESSAGE + " (" +
                     RECEIVED_ONLINE_MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    RECEIVED_ONLINE_MESSAGE_UUID + " TEXT NOT NULL UNIQUE," +
-                    " FOREIGN KEY(" + RECEIVED_ONLINE_MESSAGE_UUID + ") REFERENCES " + TABLE_MESSAGE + "(" + MESSAGE_UUID + ")" +
+                    RECEIVED_ONLINE_MESSAGE_UUID + " TEXT NOT NULL UNIQUE" +
                     ")";
 
     //=======================================================================================================================
