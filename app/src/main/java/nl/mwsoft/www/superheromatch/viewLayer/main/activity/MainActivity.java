@@ -196,17 +196,17 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-//        updateToken(mainPresenter.getUserId(this));
+        updateToken(mainPresenter.getUserId(this));
 
         navigation.setOnNavigationItemSelectedListener(myOnNavigationItemSelectedListener);
 
         handleNotificationAction();
-//
-//        if (checkLocationPermission()) {
-//            showLoadingDialog();
-//            initLocationUpdateService();
-//            startLocationUpdates();
-//        }
+
+        if (checkLocationPermission()) {
+            showLoadingDialog();
+            initLocationUpdateService();
+            startLocationUpdates();
+        }
     }
 
     // region Socket.IO
@@ -241,9 +241,6 @@ public class MainActivity extends AppCompatActivity {
                 ConstantRegistry.RECEIVER_ID,
                 ConstantRegistry.MESSAGE
         );
-
-        Log.d("tShoot", "sendMessageClickListener --> message: ");
-        Log.d("tShoot", outgoingMessage.toString());
 
         socket.emit(ConstantRegistry.ON_OPEN, outgoingMessage.toString());
     }
@@ -407,6 +404,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         reqBodySuggestions.put("superheroIds", superherosToBeFetched);
+
+        // Add existing matched user ids to retrievedSuperheroIds in order to
+        // prevent the matched users to be returned as suggestions.
+        ArrayList<Chat> chats = mainPresenter.getAllChats(MainActivity.this);
+        for (Chat chat : chats) {
+            this.retrievedSuperheroIds.add(chat.getMatchedUserId());
+        }
+
         reqBodySuggestions.put("retrievedSuperheroIds", this.retrievedSuperheroIds);
 
         return reqBodySuggestions;
@@ -455,7 +460,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         messages = new ArrayList<>();
-        messages.addAll(createMockMessages());
         disposable = new CompositeDisposable();
         superheroIds = new ArrayList<>();
         retrievedSuperheroIds = new ArrayList<>();
@@ -733,20 +737,27 @@ public class MainActivity extends AppCompatActivity {
         return msgs;
     }
 
-    public ArrayList<Message> getMessages() {
+    public ArrayList<Message> getMessages(String chatId) {
+        for(Message msg : mainPresenter.getAllMessagesForChatWithId(MainActivity.this, chatId)) {
+            Log.d("tShoot", msg.toString());
+            messages.add(msg);
+        }
+
         return messages;
     }
 
     public void sendMessageClickListener(String message, String receiverId) {
+        Chat tempChat = mainPresenter.getChatByMatchId(MainActivity.this, receiverId);
+
         Message msg = new Message();
-        msg.setMessageChatId("testuuid");
-        msg.setMessageCreated("22-04-2018 16:51:00");
-        msg.setMessageId(1);
+        msg.setMessageChatId(tempChat.getChatId());
         msg.setMessageText(message);
-        msg.setMessageSenderId("311234567890L");
+        msg.setMessageSenderId(mainPresenter.getUserId(MainActivity.this));
 
         messages.add(msg);
         EventBus.getDefault().post(new TextMessageEvent(messages));
+
+        mainPresenter.insertChatMessage(msg, MainActivity.this);
 
         OutgoingMessage outgoingMessage = new OutgoingMessage(
                 ConstantRegistry.ON_MESSAGE,
@@ -754,9 +765,6 @@ public class MainActivity extends AppCompatActivity {
                 receiverId,
                 message
         );
-
-        Log.d("tShoot", "sendMessageClickListener --> message: ");
-        Log.d("tShoot", outgoingMessage.toString());
 
         socket.emit(ConstantRegistry.ON_MESSAGE, outgoingMessage);
     }
@@ -1499,7 +1507,7 @@ public class MainActivity extends AppCompatActivity {
                     loadBackStackFragment(
                             ChatFragment.newInstance(
                                     chat,
-                                    getMessages() // TO-DO: call maniPresenter method to get actual messages
+                                    getMessages(chat.getChatId())
                             )
                     );
                     hideChoiceButtons();

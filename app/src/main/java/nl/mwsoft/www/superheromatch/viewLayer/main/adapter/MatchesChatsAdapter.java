@@ -61,7 +61,7 @@ public class MatchesChatsAdapter extends RecyclerView.Adapter<MatchesChatsAdapte
                     mainActivity.loadBackStackFragment(
                             ChatFragment.newInstance(
                                     matchChats.get(getAdapterPosition()),
-                                    mainActivity.getMessages()
+                                    mainActivity.getMessages(matchChats.get(getAdapterPosition()).getChatId())
                             )
                     );
                 }

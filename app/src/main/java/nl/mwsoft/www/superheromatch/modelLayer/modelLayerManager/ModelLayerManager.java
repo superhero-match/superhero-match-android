@@ -288,10 +288,6 @@ public class ModelLayerManager {
         this.chatDatabaseLayer.insertChat(chatId, matchName, matchedUserId, chatProfilePic, context);
     }
 
-    public Message getChatMessageByUUID(Context context, String uuid) {
-        return this.chatDatabaseLayer.getChatMessageByUUID(context, uuid);
-    }
-
     public void insertChatMessage(Message chatMessage, Context context) {
         this.chatDatabaseLayer.insertChatMessage(chatMessage, context);
     }
