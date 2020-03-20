@@ -140,12 +140,6 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView navigation;
     @BindView(R.id.tlMain)
     Toolbar tlMain;
-    @BindView(R.id.ivSuggestionDislike)
-    ImageView ivSuggestionDislike;
-    @BindView(R.id.ivSuggestionLike)
-    ImageView ivSuggestionLike;
-    @BindView(R.id.ivSuperPowerIconSuggestion)
-    ImageView ivSuperPowerIconSuggestion;
     private Unbinder unbinder;
     private RootCoordinator rootCoordinator;
     private MainPresenter mainPresenter;
@@ -587,26 +581,6 @@ public class MainActivity extends AppCompatActivity {
         transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
         transaction.replace(R.id.frame_main_container, fragment);
         transaction.commit();
-
-        if (currFragmentPosition != 1) {
-            hideChoiceButtons();
-
-            return;
-        }
-
-        showChoiceButtons();
-    }
-
-    public void showChoiceButtons() {
-        ivSuggestionDislike.setVisibility(View.VISIBLE);
-        ivSuggestionLike.setVisibility(View.VISIBLE);
-        ivSuperPowerIconSuggestion.setVisibility(View.VISIBLE);
-    }
-
-    public void hideChoiceButtons() {
-        ivSuggestionDislike.setVisibility(View.GONE);
-        ivSuggestionLike.setVisibility(View.GONE);
-        ivSuperPowerIconSuggestion.setVisibility(View.GONE);
     }
 
     public void loadNextSuggestion(Fragment fragment) {
@@ -1420,7 +1394,6 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    @OnClick(R.id.ivSuggestionLike)
     public void onSuggestionLike() {
         if (this.suggestions.size() == 0) {
             return;
@@ -1447,7 +1420,6 @@ public class MainActivity extends AppCompatActivity {
         loadNextSuggestion();
     }
 
-    @OnClick(R.id.ivSuggestionDislike)
     public void onSuggestionDislike() {
         if (this.suggestions.size() == 0) {
             return;
@@ -1481,7 +1453,6 @@ public class MainActivity extends AppCompatActivity {
         getSuggestions(configureSuggestionsRequestBody(this.mainPresenter), false);
     }
 
-    @OnClick(R.id.ivSuperPowerIconSuggestion)
     public void onSuggestionSuperpowerIcon() {
         if ((this.suggestions.size() > 0) && ((this.suggestions.size() - 1) >= this.currentSuggestion)) {
             openSuggestionDescriptionWindow();
@@ -1510,7 +1481,6 @@ public class MainActivity extends AppCompatActivity {
                                     getMessages(chat.getChatId())
                             )
                     );
-                    hideChoiceButtons();
                     break;
             }
         }

@@ -8,7 +8,46 @@
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/vpSuggestionUserProfile"
         android:layout_width="match_parent"
-        android:layout_height="435dp"
+        android:layout_height="400dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <ImageView
+        android:id="@+id/ivSuggestionDislike"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/vpSuggestionUserProfile"
+        android:clickable="true"
+        android:contentDescription="@string/dislike"
+        android:focusable="true"
+        android:src="@drawable/dislike_512" />
+
+    <ImageView
+        android:id="@+id/ivSuperPowerIconSuggestion"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/vpSuggestionUserProfile"
+        android:clickable="true"
+        android:contentDescription="@string/super_power"
+        android:focusable="true"
+        android:src="@drawable/superpower_256" />
+
+    <ImageView
+        android:id="@+id/ivSuggestionLike"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="25dp"
+        android:layout_below="@+id/vpSuggestionUserProfile"
+        android:clickable="true"
+        android:contentDescription="@string/like"
+        android:focusable="true"
+        android:src="@drawable/like_512"
+        android:visibility="visible" />
 
 </RelativeLayout>
