@@ -23,10 +23,12 @@ import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
@@ -37,6 +39,12 @@ public class SuggestionFragment extends Fragment {
 
     @BindView(R.id.vpSuggestionUserProfile)
     ViewPager vpSuggestionUserProfile;
+    @BindView(R.id.ivSuggestionDislike)
+    ImageView ivSuggestionDislike;
+    @BindView(R.id.ivSuggestionLike)
+    ImageView ivSuggestionLike;
+    @BindView(R.id.ivSuperPowerIconSuggestion)
+    ImageView ivSuperPowerIconSuggestion;
     private SuggestionProfileViewPagerAdapter suggestionUserProfileViewPagerAdapter;
     private Unbinder unbinder;
     private MainActivity mainActivity;
@@ -100,5 +108,20 @@ public class SuggestionFragment extends Fragment {
 
         vpSuggestionUserProfile.setOffscreenPageLimit(1);
         vpSuggestionUserProfile.setAdapter(suggestionUserProfileViewPagerAdapter);
+    }
+
+    @OnClick(R.id.ivSuggestionLike)
+    public void onSuggestionLike(){
+        mainActivity.onSuggestionLike();
+    }
+
+    @OnClick(R.id.ivSuggestionDislike)
+    public void onSuggestionDislike(){
+        mainActivity.onSuggestionDislike();
+    }
+
+    @OnClick(R.id.ivSuperPowerIconSuggestion)
+    public void onSuperPowerIconSuggestion(){
+        mainActivity.onSuggestionSuperpowerIcon();
     }
 }
