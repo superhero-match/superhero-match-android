@@ -14,14 +14,18 @@
 package nl.mwsoft.www.superheromatch.presenterLayer.register;
 
 import android.content.Context;
+import android.net.Uri;
 import android.widget.Toast;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
+import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegistrationUser;
@@ -144,6 +148,20 @@ public class RegisterPresenter {
 
     public String getUUID() {
         return this.modelLayerManager.getUUID();
+    }
+
+    // endregion
+
+    // region ImageProcessing Util
+
+    public String encodeImageToString(Context context, Uri uri){
+        try {
+            return this.modelLayerManager.encodeImageToString(context, uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return ConstantRegistry.ERROR;
     }
 
     // endregion

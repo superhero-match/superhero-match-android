@@ -199,9 +199,11 @@ public class DependencyRegistry {
                 new RegisterPresenter(
                         createModelLayerManager(
                                 createUserDatabaseLayer(),
+                                createUUIDUtil(),
+                                createDateTimeUtil(),
+                                createImageProcessingUtil(createDateTimeUtil()),
                                 createInternetConnectionUtil(),
-                                createNetworkLayer(),
-                                createUUIDUtil()
+                                createNetworkLayer()
                         )
                 )
         );

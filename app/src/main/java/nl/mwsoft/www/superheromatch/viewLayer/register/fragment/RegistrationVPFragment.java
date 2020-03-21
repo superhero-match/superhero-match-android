@@ -34,6 +34,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
+import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.viewLayer.register.activity.RegisterActivity;
 import nl.mwsoft.www.superheromatch.viewLayer.register.adapter.RegisterViewPagerAdapter;
 
@@ -47,7 +48,8 @@ public class RegistrationVPFragment extends Fragment {
     private ImageView[] dots;
     @BindView(R.id.btnPrevious)
     Button btnPrevious;
-    @BindView(R.id.btnContinue) Button btnContinue;
+    @BindView(R.id.btnContinue)
+    Button btnContinue;
     private Unbinder unbinder;
     private int currentPosition = 0;
 
@@ -88,7 +90,7 @@ public class RegistrationVPFragment extends Fragment {
         vpRegister.setOnTouchListener(myOnTouchListener);
     }
 
-    private void showDots(int currentPosition){
+    private void showDots(int currentPosition) {
         resetDots();
         showCurrentDots(currentPosition);
     }
@@ -96,32 +98,32 @@ public class RegistrationVPFragment extends Fragment {
     private void showCurrentDots(int currentPosition) {
         dots = new ImageView[7];
 
-        for(int i = 0; i < 7; i++){
+        for (int i = 0; i < 7; i++) {
             dots[i] = new ImageView(registerActivity);
-            if(i == currentPosition){
+            if (i == currentPosition) {
                 dots[i].setImageDrawable(ContextCompat.getDrawable(registerActivity, R.drawable.active_dots));
-            }else{
-                dots[i].setImageDrawable(ContextCompat.getDrawable(registerActivity,R.drawable.inactive_dots));
+            } else {
+                dots[i].setImageDrawable(ContextCompat.getDrawable(registerActivity, R.drawable.inactive_dots));
             }
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.setMargins(4,0,4,0);
+            params.setMargins(4, 0, 4, 0);
 
-            llDots.addView(dots[i],params);
+            llDots.addView(dots[i], params);
         }
     }
 
     private void resetDots() {
-        if(llDots != null){
+        if (llDots != null) {
             llDots.removeAllViews();
         }
     }
 
     private void runOnPageSelectedRoutine(int position) {
         currentPosition = position;
-        if(currentPosition > 0){
+        if (currentPosition > 0) {
             btnPrevious.setVisibility(View.VISIBLE);
-        }else if(currentPosition == 0){
+        } else if (currentPosition == 0) {
             btnPrevious.setVisibility(View.GONE);
         }
         showDots(position);
@@ -129,7 +131,8 @@ public class RegistrationVPFragment extends Fragment {
 
     public ViewPager.OnPageChangeListener myOnPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        }
 
         @Override
         public void onPageSelected(int position) {
@@ -137,7 +140,8 @@ public class RegistrationVPFragment extends Fragment {
         }
 
         @Override
-        public void onPageScrollStateChanged(int state) {}
+        public void onPageScrollStateChanged(int state) {
+        }
     };
 
     public ViewPager.OnTouchListener myOnTouchListener = new View.OnTouchListener() {
@@ -148,51 +152,64 @@ public class RegistrationVPFragment extends Fragment {
     };
 
     @OnClick(R.id.btnPrevious)
-    public void  previousClickListener() {
-        if(currentPosition >= 1){
+    public void previousClickListener() {
+        if (currentPosition >= 1) {
             currentPosition--;
             vpRegister.setCurrentItem(currentPosition);
         }
     }
 
     @OnClick(R.id.btnContinue)
-    public void  continueClickListener() {
-        if(currentPosition < 6){
-             if(currentPosition == 0){
-                if(registerActivity.processSuperheroNameContinue()){
+    public void continueClickListener() {
+        switch (currentPosition) {
+            case ConstantRegistry.CURRENT_POSITION_SUPERHERO_NAME:
+                if (registerActivity.superheroNameHasBeenChosen()) {
                     currentPosition++;
                     vpRegister.setCurrentItem(currentPosition);
                 }
-            }else if(currentPosition == 1){
-                if(registerActivity.processSuperheroBirthdayContinue()){
+
+                break;
+            case ConstantRegistry.CURRENT_POSITION_SUPERHERO_BIRTHDAY:
+                if (registerActivity.superheroBirthdayHasBeenChosen()) {
                     currentPosition++;
                     vpRegister.setCurrentItem(currentPosition);
                 }
-            } else if(currentPosition == 2){
-                 if(registerActivity.processDistanceUnitContinue()){
-                     currentPosition++;
-                     vpRegister.setCurrentItem(currentPosition);
-                 }
-             }else if(currentPosition == 3){
-                if(registerActivity.processSuperheroGenderContinue()){
+
+                break;
+            case ConstantRegistry.CURRENT_POSITION_DISTANCE_UNIT:
+                if (registerActivity.superheroDistanceUnitHasBeenChosen()) {
                     currentPosition++;
                     vpRegister.setCurrentItem(currentPosition);
                 }
-            }else if(currentPosition == 4){
-                if(registerActivity.processSuperheroLookingForGenderContinue()){
+
+                break;
+            case ConstantRegistry.CURRENT_POSITION_SUPERHERO_GENDER:
+                if (registerActivity.superheroGenderHasBeenChosen()) {
                     currentPosition++;
                     vpRegister.setCurrentItem(currentPosition);
                 }
-            } else if(currentPosition == 5){
-                 if(registerActivity.processSuperPowerContinue()){
-                     currentPosition++;
-                     vpRegister.setCurrentItem(currentPosition);
-                 }
-             }
-        }else if(currentPosition == 6){
-            if(registerActivity.processProfilePicContinue()){
-               registerActivity.registerUser();
-            }
+
+                break;
+            case ConstantRegistry.CURRENT_POSITION_LOOKING_FOR_GENDER:
+                if (registerActivity.superheroLookingForGenderHasBeenChosen()) {
+                    currentPosition++;
+                    vpRegister.setCurrentItem(currentPosition);
+                }
+
+                break;
+            case ConstantRegistry.CURRENT_POSITION_SUPERHERO_SUPERPOWER:
+                if (registerActivity.superheroSuperpowerHasBeenChosen()) {
+                    currentPosition++;
+                    vpRegister.setCurrentItem(currentPosition);
+                }
+
+                break;
+            case ConstantRegistry.CURRENT_POSITION_SUPERHERO_PROFILE_PICTURE:
+                if (registerActivity.superheroProfilePictureHasBeenChosen()) {
+                    registerActivity.registerUser();
+                }
+
+                break;
         }
     }
 
@@ -205,7 +222,7 @@ public class RegistrationVPFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        registerActivity = (RegisterActivity)context;
+        registerActivity = (RegisterActivity) context;
     }
 
 }
