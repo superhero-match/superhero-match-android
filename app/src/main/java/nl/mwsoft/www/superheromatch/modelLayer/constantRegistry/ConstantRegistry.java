@@ -62,6 +62,8 @@ public class ConstantRegistry {
     public static final String SUPERHERO_CHAT_PORT = ":5000";
     public static final String SUPERHERO_OFFLINE_MESSAGE_PORT = ":5100";
     public static final String SUPERHERO_FIREBASE_MESSAGING_TOKEN_PORT = ":6000";
+    public static final String SUPERHERO_REGISTER_MEDIA_PORT = ":7000";
+    public static final String SUPERHERO_UPDATE_MEDIA_PORT = ":7100";
 
     public static final String DATE_TIME_FORMAT = "yyyyMMdd_HHmmss";
     public static final String JPG_EXTENSION = ".jpg";
@@ -144,5 +146,18 @@ public class ConstantRegistry {
     public static final String RECEIVER_ID = "receiverId";
     public static final String MESSAGE = "message";
     public static final String MESSAGE_CREATED = "createdAt";
+
+    public static final String STATUS = "status";
+    public static final int SERVER_STATUS_OK = 200;
+    public static final String MAIN_PROFILE_PICTURE_URL = "mainProfilePictureURL";
+    public static final String ON_UPLOAD_MAIN_PROFILE_PICTURE = "onUploadMainProfilePicture";
+
+    public static final int CURRENT_POSITION_SUPERHERO_NAME = 0;
+    public static final int CURRENT_POSITION_SUPERHERO_BIRTHDAY = 1;
+    public static final int CURRENT_POSITION_DISTANCE_UNIT = 2;
+    public static final int CURRENT_POSITION_SUPERHERO_GENDER = 3;
+    public static final int CURRENT_POSITION_LOOKING_FOR_GENDER = 4;
+    public static final int CURRENT_POSITION_SUPERHERO_SUPERPOWER = 5;
+    public static final int CURRENT_POSITION_SUPERHERO_PROFILE_PICTURE = 6;
 
 }

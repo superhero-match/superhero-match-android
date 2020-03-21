@@ -48,8 +48,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -65,11 +68,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.coordinator.RootCoordinator;
 import nl.mwsoft.www.superheromatch.dependencyRegistry.DependencyRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.event.SuperheroProfilePicEvent;
+import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.presenterLayer.register.RegisterPresenter;
@@ -114,6 +121,7 @@ public class RegisterActivity extends AppCompatActivity {
     private RootCoordinator rootCoordinator;
     private RegisterPresenter registerPresenter;
     private Uri profilePicURI;
+    private Socket socket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +135,8 @@ public class RegisterActivity extends AppCompatActivity {
         loadFragment(RegistrationVPFragment.newInstance());
 
         configureInitialValues();
+
+        setUpConnectionToServer();
 
         if (checkLocationPermission()) {
             init();
@@ -162,6 +172,54 @@ public class RegisterActivity extends AppCompatActivity {
         this.rootCoordinator = rootCoordinator;
         this.registerPresenter = registerPresenter;
     }
+
+    private void setUpConnectionToServer() {
+        // default settings for all sockets
+        IO.setDefaultOkHttpWebSocketFactory(OkHttpClientManager.setUpSecureClient());
+        IO.setDefaultOkHttpCallFactory(OkHttpClientManager.setUpSecureClient());
+
+        // set as an option
+        IO.Options opts = new IO.Options();
+        opts.transports = new String[]{io.socket.engineio.client.transports.WebSocket.NAME};
+        opts.callFactory = OkHttpClientManager.setUpSecureClient();
+        opts.webSocketFactory = OkHttpClientManager.setUpSecureClient();
+        try {
+            socket = IO.socket(
+                    ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_REGISTER_MEDIA_PORT),
+                    opts
+            );
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        socket.connect();
+
+        socket.on(ConstantRegistry.MAIN_PROFILE_PICTURE_URL, handleIncomingMainProfilePictureURL);
+    }
+
+    private Emitter.Listener handleIncomingMainProfilePictureURL = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String mainProfilePictureURL = (String) args[0];
+
+                    if (mainProfilePictureURL == null || mainProfilePictureURL.isEmpty()) {
+                        Toast.makeText(RegisterActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+                        closeLoadingDialog();
+
+                        return;
+                    }
+
+                    user.setMainProfilePicUrl(mainProfilePictureURL);
+                    closeLoadingDialog();
+                }
+            });
+        }
+    };
+
 
     @Override
     public void onDestroy() {
@@ -282,7 +340,7 @@ public class RegisterActivity extends AppCompatActivity {
         return user.getLon();
     }
 
-    public boolean processSuperheroNameContinue() {
+    public boolean superheroNameHasBeenChosen() {
         if (user.getName() == null) {
             Toast.makeText(
                     RegisterActivity.this,
@@ -296,7 +354,7 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    public boolean processSuperheroBirthdayContinue() {
+    public boolean superheroBirthdayHasBeenChosen() {
         if (user.getBirthday() == null) {
             Toast.makeText(
                     RegisterActivity.this,
@@ -310,7 +368,7 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    public boolean processSuperheroGenderContinue() {
+    public boolean superheroGenderHasBeenChosen() {
         if (user.getGender() == 0) {
             Toast.makeText(
                     RegisterActivity.this,
@@ -324,7 +382,7 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    public boolean processSuperheroLookingForGenderContinue() {
+    public boolean superheroLookingForGenderHasBeenChosen() {
         if (user.getLookingForGender() == 0) {
             Toast.makeText(
                     RegisterActivity.this,
@@ -338,7 +396,7 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    public boolean processSuperPowerContinue() {
+    public boolean superheroSuperpowerHasBeenChosen() {
         if (user.getSuperPower() == null) {
             Toast.makeText(
                     RegisterActivity.this,
@@ -362,7 +420,7 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    public boolean processDistanceUnitContinue() {
+    public boolean superheroDistanceUnitHasBeenChosen() {
         if (user.getDistanceUnit() == null) {
             Toast.makeText(
                     RegisterActivity.this,
@@ -386,8 +444,8 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    public boolean processProfilePicContinue() {
-        if (getProfilePicURI() == null) {
+    public boolean superheroProfilePictureHasBeenChosen() {
+        if (getProfilePicURI() == null || user.getMainProfilePicUrl() == null || user.getMainProfilePicUrl().isEmpty()) {
             Toast.makeText(
                     RegisterActivity.this,
                     this.getString(R.string.profile_pic_required),
@@ -465,6 +523,22 @@ public class RegisterActivity extends AppCompatActivity {
         setProfilePicURI(uri);
         SuperheroProfilePicEvent event = new SuperheroProfilePicEvent(uri);
         EventBus.getDefault().post(event);
+
+        String encodedImage = registerPresenter.encodeImageToString(RegisterActivity.this, uri);
+
+        if (encodedImage.equals(ConstantRegistry.ERROR)) {
+            Toast.makeText(RegisterActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+
+            return;
+        }
+
+        showLoadingDialog();
+
+        socket.emit(
+                ConstantRegistry.ON_UPLOAD_MAIN_PROFILE_PICTURE,
+                user.getId(),
+                encodedImage
+        );
     }
 
     public boolean accessFilesPermissionIsGranted() {
@@ -749,7 +823,7 @@ public class RegisterActivity extends AppCompatActivity {
                     if (res.getStatus() == 500) {
                         Toast.makeText(
                                 RegisterActivity.this,
-                               "res.getStatus() == 500",
+                                "res.getStatus() == 500",
                                 Toast.LENGTH_LONG
                         ).show();
                         Toast.makeText(
