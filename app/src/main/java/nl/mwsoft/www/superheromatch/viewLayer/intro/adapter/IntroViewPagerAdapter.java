@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.viewLayer.intro.fragment.IntroFeaturesOneFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.intro.fragment.IntroFeaturesTwoFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.intro.fragment.IntroOverviewFragment;
@@ -32,12 +33,16 @@ public class IntroViewPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         Fragment fragment = null;
 
-        if (position == 0) {
-            fragment = new IntroOverviewFragment();
-        } else if (position == 1) {
-            fragment = new IntroFeaturesOneFragment();
-        } else if (position == 2) {
-            fragment = new IntroFeaturesTwoFragment();
+        switch (position) {
+            case 0:
+                fragment = new IntroOverviewFragment();
+                break;
+            case 1:
+                fragment = new IntroFeaturesOneFragment();
+                break;
+            case 2:
+                fragment = new IntroFeaturesTwoFragment();
+                break;
         }
 
         return fragment;
@@ -45,18 +50,22 @@ public class IntroViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return ConstantRegistry.INTRO_FRAGMENTS_COUNT;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
         String title = null;
-        if (position == 0) {
-            //title = ;
-        } else if (position == 1) {
-            //title = ;
-        } else if (position == 2) {
-            //title = ;
+        switch (position) {
+            case 0:
+                //title = ;
+                break;
+            case 1:
+                //title = ;
+                break;
+            case 2:
+                //title = ;
+                break;
         }
 
         return title;

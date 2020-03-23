@@ -13,6 +13,8 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.constantRegistry;
 
+import java.util.HashMap;
+
 public class ConstantRegistry {
 
     public static final String DEFAULT_USER_ID = "default";
@@ -160,4 +162,29 @@ public class ConstantRegistry {
     public static final int CURRENT_POSITION_SUPERHERO_SUPERPOWER = 5;
     public static final int CURRENT_POSITION_SUPERHERO_PROFILE_PICTURE = 6;
 
+    public static final String REGISTER = "register";
+    public static final String NAME = "name";
+    public static final String EMAIL = "email";
+
+
+    public static final String ID = "id";
+    public static final String SUPERHERO_NAME = "superheroName";
+    public static final String MAIN_PROFILE_PIC_URL = "mainProfilePicUrl";
+    public static final String GENDER = "gender";
+    public static final String LOOKING_FOR_GENDER = "lookingForGender";
+    public static final String AGE = "age";
+    public static final String LOOKING_FOR_AGE_MIN = "lookingForAgeMin";
+    public static final String LOOKING_FOR_AGE_MAX = "lookingForAgeMax";
+    public static final String LOOKING_FOR_DISTANCE_MAX = "lookingForDistanceMax";
+    public static final String DISTANCE_UNIT = "distanceUnit";
+    public static final String LATITUDE = "lat";
+    public static final String LONGITUDE = "lon";
+    public static final String BIRTHDAY = "birthday";
+    public static final String COUNTRY = "country";
+    public static final String CITY = "city";
+    public static final String SUPERPOWER = "superpower";
+    public static final String ACCOUNT_TYPE = "accountType";
+    public static final String FIREBASE_TOKEN = "firebaseToken";
+
+    public static final int INTRO_FRAGMENTS_COUNT = 3;
 }
