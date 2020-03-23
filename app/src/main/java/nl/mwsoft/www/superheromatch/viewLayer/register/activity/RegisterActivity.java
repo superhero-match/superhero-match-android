@@ -48,8 +48,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import org.greenrobot.eventbus.EventBus;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -149,11 +147,11 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        if (getIntent().getAction().equals("register")) {
-            String name = Objects.requireNonNull(getIntent().getExtras()).getString("name");
+        if (getIntent().getAction().equals(ConstantRegistry.REGISTER)) {
+            String name = Objects.requireNonNull(getIntent().getExtras()).getString(ConstantRegistry.NAME);
             user.setName(name);
 
-            String email = Objects.requireNonNull(getIntent().getExtras()).getString("email");
+            String email = Objects.requireNonNull(getIntent().getExtras()).getString(ConstantRegistry.EMAIL);
             user.setEmail(email);
 
             String userID = registerPresenter.getUUID();
@@ -208,13 +206,11 @@ public class RegisterActivity extends AppCompatActivity {
 
                     if (mainProfilePictureURL == null || mainProfilePictureURL.isEmpty()) {
                         Toast.makeText(RegisterActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
-                        closeLoadingDialog();
 
                         return;
                     }
 
                     user.setMainProfilePicUrl(mainProfilePictureURL);
-                    closeLoadingDialog();
                 }
             });
         }
@@ -229,9 +225,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void stopLocationUpdates() {
-        if (fusedLocationClient != null && locationCallback != null) {
-            fusedLocationClient.removeLocationUpdates(locationCallback);
+        if (fusedLocationClient == null || locationCallback == null) {
+            return;
         }
+
+        fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
     @Override
@@ -253,9 +251,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void unbindButterKnife() {
-        if (unbinder != null) {
-            unbinder.unbind();
+        if (unbinder == null) {
+            return;
         }
+
+        unbinder.unbind();
     }
 
     public void navigateToMain(Context context) {
@@ -268,8 +268,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public boolean isValidEmail(String email) {
-        Pattern pattern = Patterns.EMAIL_ADDRESS;
-        return pattern.matcher(email).matches();
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     public void setUserName(String userName) {
@@ -532,8 +531,6 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        showLoadingDialog();
-
         socket.emit(
                 ConstantRegistry.ON_UPLOAD_MAIN_PROFILE_PICTURE,
                 user.getId(),
@@ -560,23 +557,31 @@ public class RegisterActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case ConstantRegistry.MY_PERMISSIONS_REQUEST_LOCATION: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                        init();
-                        startLocationUpdates();
-                    }
+                if (grantResults.length == 0) {
+                    return;
                 }
+
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED){
+                    return;
+                }
+
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+
+                init();
+                startLocationUpdates();
 
                 return;
             }
             case ConstantRegistry.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     showProfilePicChoice();
-                } else {
-                    showPopupDeniedPermission(findViewById(android.R.id.content).getRootView());
+
+                    return;
                 }
 
-                return;
+                showPopupDeniedPermission(findViewById(android.R.id.content).getRootView());
             }
         }
     }
@@ -617,46 +622,26 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void setLatAndLong(Location currentLocation) {
-        if (currentLocation != null) {
-            Toast.makeText(
-                    RegisterActivity.this,
-                    "setLatAndLong Lat: " + currentLocation.getLatitude(),
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            Toast.makeText(
-                    RegisterActivity.this,
-                    "setLatAndLong Lon: " + currentLocation.getLongitude(),
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            setLat(currentLocation.getLatitude());
-            setLon(currentLocation.getLongitude());
-
-            setAddress(getLat(), getLon());
+        if (currentLocation == null) {
+            return;
         }
+
+        setLat(currentLocation.getLatitude());
+        setLon(currentLocation.getLongitude());
+        setAddress(getLat(), getLon());
     }
 
     private void setAddress(double lat, double lon) {
         try {
             Geocoder gcd = new Geocoder(RegisterActivity.this, Locale.getDefault());
             List<Address> addresses = gcd.getFromLocation(lat, lon, 1);
-            if (addresses.size() > 0) {
-                Toast.makeText(
-                        RegisterActivity.this,
-                        "City: " + addresses.get(0).getLocality(),
-                        Toast.LENGTH_SHORT
-                ).show();
 
-                Toast.makeText(
-                        RegisterActivity.this,
-                        "Country: " + addresses.get(0).getCountryName(),
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                user.setCity(addresses.get(0).getLocality());
-                user.setCountry(addresses.get(0).getCountryName());
+            if (addresses.size() == 0) {
+                return;
             }
+
+            user.setCity(addresses.get(0).getLocality());
+            user.setCountry(addresses.get(0).getCountryName());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -705,10 +690,11 @@ public class RegisterActivity extends AppCompatActivity {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.location_updates_started), Toast.LENGTH_SHORT).show();
-
-                        fusedLocationClient.requestLocationUpdates(locationRequest,
-                                locationCallback, Looper.myLooper());
+                        fusedLocationClient.requestLocationUpdates(
+                                locationRequest,
+                                locationCallback,
+                                Looper.myLooper()
+                        );
 
                         setLatAndLong(currentLocation);
                     }
@@ -748,9 +734,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void closeLoadingDialog() {
-        if (loadingDialogFragment != null) {
-            loadingDialogFragment.dismiss();
+        if (loadingDialogFragment == null) {
+            return;
         }
+
+        loadingDialogFragment.dismissAllowingStateLoss();
     }
 
     private void showLoadingDialog() {
@@ -766,12 +754,12 @@ public class RegisterActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<InstanceIdResult> task) {
                         if (!task.isSuccessful()) {
                             Log.w(MainActivity.class.getName(), "getInstanceId failed", task.getException());
+
                             return;
                         }
 
                         // Get new Instance ID token
                         String token = task.getResult().getToken();
-
                         register(convertToJSON(getUser(), token));
                     }
                 });
@@ -779,26 +767,27 @@ public class RegisterActivity extends AppCompatActivity {
 
     public HashMap<String, Object> convertToJSON(User user, String token) {
         HashMap<String, Object> userJson = new HashMap();
-        userJson.put("id", user.getId());
-        userJson.put("email", user.getEmail());
-        userJson.put("name", user.getName());
-        userJson.put("superheroName", user.getSuperHeroName());
-        userJson.put("mainProfilePicUrl", user.getMainProfilePicUrl());
-        userJson.put("gender", user.getGender());
-        userJson.put("lookingForGender", user.getLookingForGender());
-        userJson.put("age", user.getAge());
-        userJson.put("lookingForAgeMin", user.getLookingForAgeMin());
-        userJson.put("lookingForAgeMax", user.getLookingForAgeMax());
-        userJson.put("lookingForDistanceMax", user.getLookingForDistanceMax());
-        userJson.put("distanceUnit", user.getDistanceUnit());
-        userJson.put("lat", user.getLat());
-        userJson.put("lon", user.getLon());
-        userJson.put("birthday", user.getBirthday());
-        userJson.put("country", user.getCountry());
-        userJson.put("city", user.getCity());
-        userJson.put("superpower", user.getSuperPower());
-        userJson.put("accountType", user.getAccountType());
-        userJson.put("firebaseToken", token);
+
+        userJson.put(ConstantRegistry.ID, user.getId());
+        userJson.put(ConstantRegistry.EMAIL, user.getEmail());
+        userJson.put(ConstantRegistry.NAME, user.getName());
+        userJson.put(ConstantRegistry.SUPERHERO_NAME, user.getSuperHeroName());
+        userJson.put(ConstantRegistry.MAIN_PROFILE_PIC_URL, user.getMainProfilePicUrl());
+        userJson.put(ConstantRegistry.GENDER, user.getGender());
+        userJson.put(ConstantRegistry.LOOKING_FOR_GENDER, user.getLookingForGender());
+        userJson.put(ConstantRegistry.AGE, user.getAge());
+        userJson.put(ConstantRegistry.LOOKING_FOR_AGE_MIN, user.getLookingForAgeMin());
+        userJson.put(ConstantRegistry.LOOKING_FOR_AGE_MAX, user.getLookingForAgeMax());
+        userJson.put(ConstantRegistry.LOOKING_FOR_DISTANCE_MAX, user.getLookingForDistanceMax());
+        userJson.put(ConstantRegistry.DISTANCE_UNIT, user.getDistanceUnit());
+        userJson.put(ConstantRegistry.LATITUDE, user.getLat());
+        userJson.put(ConstantRegistry.LONGITUDE, user.getLon());
+        userJson.put(ConstantRegistry.BIRTHDAY, user.getBirthday());
+        userJson.put(ConstantRegistry.COUNTRY, user.getCountry());
+        userJson.put(ConstantRegistry.CITY, user.getCity());
+        userJson.put(ConstantRegistry.SUPERPOWER, user.getSuperPower());
+        userJson.put(ConstantRegistry.ACCOUNT_TYPE, user.getAccountType());
+        userJson.put(ConstantRegistry.FIREBASE_TOKEN, token);
 
         return userJson;
     }
@@ -806,26 +795,13 @@ public class RegisterActivity extends AppCompatActivity {
     public void register(HashMap<String, Object> body) {
         showLoadingDialog();
 
-        Log.d("tShoot", body.toString());
-
         subscribe = registerPresenter.register(body)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((RegisterResponse res) -> {
                     closeLoadingDialog();
-                    Toast.makeText(
-                            RegisterActivity.this,
-                            res.toString(),
-                            Toast.LENGTH_LONG
-                    ).show();
 
-
-                    if (res.getStatus() == 500) {
-                        Toast.makeText(
-                                RegisterActivity.this,
-                                "res.getStatus() == 500",
-                                Toast.LENGTH_LONG
-                        ).show();
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Toast.makeText(
                                 RegisterActivity.this,
                                 R.string.smth_went_wrong,
@@ -835,17 +811,12 @@ public class RegisterActivity extends AppCompatActivity {
                         return;
                     }
 
-                    if (res.isRegistered()) {
-                        Toast.makeText(
-                                RegisterActivity.this,
-                                "res.isRegistered()",
-                                Toast.LENGTH_LONG
-                        ).show();
-                        registerPresenter.updateInitiallyRegisteredUser(user, RegisterActivity.this);
-                        navigateToMain(RegisterActivity.this);
+                    if (!res.isRegistered()) {
+                        return;
                     }
 
-                    Toast.makeText(RegisterActivity.this, res.toString(), Toast.LENGTH_LONG).show();
+                    registerPresenter.updateInitiallyRegisteredUser(user, RegisterActivity.this);
+                    navigateToMain(RegisterActivity.this);
                 }, throwable -> handleError());
 
         disposable.add(subscribe);

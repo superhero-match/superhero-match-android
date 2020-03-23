@@ -45,8 +45,10 @@ public class IntroActivity extends AppCompatActivity {
     private ImageView[] dots;
     @BindView(R.id.btnIntroPrevious)
     Button btnIntroPrevious;
-    @BindView(R.id.btnIntroNext) Button btnIntroNext;
-    @BindView(R.id.btnIntroSkip) Button btnIntroSkip;
+    @BindView(R.id.btnIntroNext)
+    Button btnIntroNext;
+    @BindView(R.id.btnIntroSkip)
+    Button btnIntroSkip;
     private Unbinder unbinder;
     private RootCoordinator rootCoordinator;
 
@@ -61,7 +63,7 @@ public class IntroActivity extends AppCompatActivity {
 
     // region Configure
 
-    public void configureWith(RootCoordinator rootCoordinator){
+    public void configureWith(RootCoordinator rootCoordinator) {
         this.rootCoordinator = rootCoordinator;
     }
 
@@ -81,31 +83,33 @@ public class IntroActivity extends AppCompatActivity {
         vpIntroActivity.setAdapter(introViewPagerAdapter);
     }
 
-    private void showDots(int currentPosition){
+    private void showDots(int currentPosition) {
         resetDots();
         showCurrentDots(currentPosition);
     }
 
     private void showCurrentDots(int currentPosition) {
-        dots = new ImageView[3];
+        dots = new ImageView[ConstantRegistry.INTRO_FRAGMENTS_COUNT];
 
-        for(int i = 0; i < 3; i++){
+        for (int i = 0; i < ConstantRegistry.INTRO_FRAGMENTS_COUNT; i++) {
             dots[i] = new ImageView(IntroActivity.this);
-            if(i == currentPosition){
+            if (i == currentPosition) {
                 dots[i].setImageDrawable(ContextCompat.getDrawable(IntroActivity.this, R.drawable.active_dots));
-            }else{
-                dots[i].setImageDrawable(ContextCompat.getDrawable(IntroActivity.this,R.drawable.inactive_dots));
+            } else {
+                dots[i].setImageDrawable(ContextCompat.getDrawable(IntroActivity.this, R.drawable.inactive_dots));
             }
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.setMargins(4,0,4,0);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(4, 0, 4, 0);
 
-            llDots.addView(dots[i],params);
+            llDots.addView(dots[i], params);
         }
     }
 
     private void resetDots() {
-        if(llDots != null){
+        if (llDots != null) {
             llDots.removeAllViews();
         }
     }
@@ -121,7 +125,7 @@ public class IntroActivity extends AppCompatActivity {
     }
 
     private void unbindButterKnife() {
-        if(unbinder != null){
+        if (unbinder != null) {
             unbinder.unbind();
         }
     }
@@ -137,7 +141,8 @@ public class IntroActivity extends AppCompatActivity {
 
     public ViewPager.OnPageChangeListener myOnPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        }
 
         @Override
         public void onPageSelected(int position) {
@@ -145,7 +150,8 @@ public class IntroActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onPageScrollStateChanged(int state) {}
+        public void onPageScrollStateChanged(int state) {
+        }
     };
 
     private void runOnPageSelectedRoutine(int position) {
@@ -155,31 +161,33 @@ public class IntroActivity extends AppCompatActivity {
     }
 
     private void setPreviousButtonVisibility(int position) {
-        if(position == ConstantRegistry.INTRO_VIEW_PAGER_FIRST_PAGE){
+        if (position == ConstantRegistry.INTRO_VIEW_PAGER_FIRST_PAGE) {
             makePreviousButtonInvisible();
-        }else{
-            makePreviousButtonVisible();
+
+            return;
         }
+
+        makePreviousButtonVisible();
     }
 
     private void makePreviousButtonInvisible() {
-        if(btnIntroPrevious.getVisibility() == View.VISIBLE){
+        if (btnIntroPrevious.getVisibility() == View.VISIBLE) {
             btnIntroPrevious.setVisibility(View.GONE);
         }
     }
 
     private void checkNextButton(int position) {
-        if(position == ConstantRegistry.INTRO_VIEW_PAGER_LAST_PAGE ){
+        if (position == ConstantRegistry.INTRO_VIEW_PAGER_LAST_PAGE) {
             btnIntroNext.setText(ConstantRegistry.DONE);
         }
 
-        if(position != ConstantRegistry.INTRO_VIEW_PAGER_LAST_PAGE && !btnIntroNext.getText().equals(getString(R.string.next))){
+        if (position != ConstantRegistry.INTRO_VIEW_PAGER_LAST_PAGE && !btnIntroNext.getText().equals(getString(R.string.next))) {
             btnIntroNext.setText(getString(R.string.next));
         }
     }
 
     @OnClick(R.id.btnIntroNext)
-    public void  nextClickListener() {
+    public void nextClickListener() {
         runOnClickNextRoutine();
     }
 
@@ -189,12 +197,14 @@ public class IntroActivity extends AppCompatActivity {
     }
 
     private void determineNavigateNextAfterOnClick() {
-        if(isLastPage()){
+        if (isLastPage()) {
             navigateToPermissionsRequestActivity();
-        }else{
-            makePreviousButtonVisible();
-            determineNavigateToNextIntroFragment();
+
+            return;
         }
+
+        makePreviousButtonVisible();
+        determineNavigateToNextIntroFragment();
     }
 
     private boolean isLastPage() {
@@ -202,28 +212,28 @@ public class IntroActivity extends AppCompatActivity {
     }
 
     private void determineNavigateToNextIntroFragment() {
-        if(isNotLastPage()){
-            vpIntroActivity.setCurrentItem(vpIntroActivity.getCurrentItem()+1);
+        if (isNotLastPage()) {
+            vpIntroActivity.setCurrentItem(vpIntroActivity.getCurrentItem() + 1);
         }
     }
 
     private boolean isNotLastPage() {
-        return (vpIntroActivity.getCurrentItem()+1) < ConstantRegistry.INTRO_VIEW_PAGER_TOTAL_AMOUNT_PAGES;
+        return (vpIntroActivity.getCurrentItem() + 1) < ConstantRegistry.INTRO_VIEW_PAGER_TOTAL_AMOUNT_PAGES;
     }
 
     private void makePreviousButtonVisible() {
-        if(btnIntroPrevious.getVisibility() == View.GONE){
+        if (btnIntroPrevious.getVisibility() == View.GONE) {
             btnIntroPrevious.setVisibility(View.VISIBLE);
         }
     }
 
     private void navigateToPermissionsRequestActivity() {
-         rootCoordinator.navigateToPermissionsRequestActivity(IntroActivity.this);
-         finish();
+        rootCoordinator.navigateToPermissionsRequestActivity(IntroActivity.this);
+        finish();
     }
 
     private void determineChangeNextButtonToDone() {
-        if(vpIntroActivity.getCurrentItem() == ConstantRegistry.INTRO_VIEW_PAGER_ONE_BEFORE_LAST_PAGE){
+        if (vpIntroActivity.getCurrentItem() == ConstantRegistry.INTRO_VIEW_PAGER_ONE_BEFORE_LAST_PAGE) {
             btnIntroNext.setText(ConstantRegistry.DONE);
         }
     }
@@ -242,24 +252,24 @@ public class IntroActivity extends AppCompatActivity {
     }
 
     private void determineNavigateToPreviousFragment() {
-        if(isNotFirstPage()){
+        if (isNotFirstPage()) {
             determineMakePreviousButtonInvisible();
-            vpIntroActivity.setCurrentItem(vpIntroActivity.getCurrentItem()-1);
+            vpIntroActivity.setCurrentItem(vpIntroActivity.getCurrentItem() - 1);
         }
     }
 
     private boolean isNotFirstPage() {
-        return (vpIntroActivity.getCurrentItem()-1) >= ConstantRegistry.INTRO_VIEW_PAGER_FIRST_PAGE;
+        return (vpIntroActivity.getCurrentItem() - 1) >= ConstantRegistry.INTRO_VIEW_PAGER_FIRST_PAGE;
     }
 
     private void determineMakePreviousButtonInvisible() {
-        if(isFirstPage()){
+        if (isFirstPage()) {
             btnIntroPrevious.setVisibility(View.GONE);
         }
     }
 
     private boolean isFirstPage() {
-        return (vpIntroActivity.getCurrentItem()-1) == ConstantRegistry.INTRO_VIEW_PAGER_FIRST_PAGE;
+        return (vpIntroActivity.getCurrentItem() - 1) == ConstantRegistry.INTRO_VIEW_PAGER_FIRST_PAGE;
     }
 
     @OnClick(R.id.btnIntroSkip)
