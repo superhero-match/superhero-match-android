@@ -23,101 +23,60 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 import nl.mwsoft.www.superheromatch.R;
-import nl.mwsoft.www.superheromatch.modelLayer.model.User;
+import nl.mwsoft.www.superheromatch.modelLayer.model.ProfilePicture;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.ImageDetailFragment;
 
 public class UserProfilePicturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private User user;
+    private ArrayList<ProfilePicture> profilePictures;
     private Context context;
     private MainActivity mainActivity;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public ImageView ivUserProfilePictureItem;
+        public ImageView ivProfilePictureItem;
+        public ImageView ivProfilePictureEdit;
 
         public MyViewHolder(View view) {
             super(view);
             context = view.getContext();
             mainActivity = (MainActivity) context;
-            ivUserProfilePictureItem = (ImageView) view.findViewById(R.id.ivUserProfilePictureItem);
-            ivUserProfilePictureItem.setOnClickListener(new View.OnClickListener() {
+            ivProfilePictureItem = (ImageView) view.findViewById(R.id.ivProfilePictureItem);
+            ivProfilePictureEdit = (ImageView) view.findViewById(R.id.ivProfilePictureEdit);
+            ivProfilePictureEdit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mainActivity.loadBackStackFragment(ImageDetailFragment.newInstance(user.getProfilePicsUrls().get(getAdapterPosition())));
+                    // TO-DO: choose new picture at specific position
                 }
             });
         }
     }
 
-    public class MyNewViewHolder extends RecyclerView.ViewHolder {
-        public ImageView ivUserProfilePictureNewItem;
-
-        public MyNewViewHolder(View view) {
-            super(view);
-            context = view.getContext();
-            mainActivity = (MainActivity) context;
-            ivUserProfilePictureNewItem = (ImageView) view.findViewById(R.id.ivUserProfilePictureNewItem);
-            ivUserProfilePictureNewItem.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(mainActivity.accessFilesPermissionIsGranted()){
-                        mainActivity.showProfilePicChoice();
-                    }else{
-                        mainActivity.requestPermissionWriteExternalStorage();
-                    }
-                }
-            });
-        }
-    }
-
-    public UserProfilePicturesAdapter(User user, MainActivity mainActivity) {
-        this.user = user;
+    public UserProfilePicturesAdapter(ArrayList<ProfilePicture> profilePictures, MainActivity mainActivity) {
+        this.profilePictures = profilePictures;
         this.mainActivity = mainActivity;
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        if(user.getId() == mainActivity.getUserId()){
-            if(position == 0){
-                return 1;
-            }else{
-                return 2;
-            }
-        }else {
-            return 2;
-        }
-    }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView;
-        if(viewType == 2){
-            itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.user_profile_pictures_item, parent, false);
-            return new UserProfilePicturesAdapter.MyViewHolder(itemView);
-        }else{
-            itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.user_profile_pictures_new_item, parent, false);
-            return new UserProfilePicturesAdapter.MyNewViewHolder(itemView);
-        }
+        View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.fragment_profile_picture_settings, parent, false);
+
+        return new UserProfilePicturesAdapter.MyViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        String userProfilePictureUrl = user.getProfilePicsUrls().get(position);
-        if(holder.getItemViewType() == 2){
-            MyViewHolder myViewHolder = (MyViewHolder)holder;
-            Picasso.with(context).load(R.drawable.user_512).into(myViewHolder.ivUserProfilePictureItem);
-        }else{
-            MyNewViewHolder myNewViewHolder = (MyNewViewHolder)holder;
-            Picasso.with(context).load(R.drawable.plus_256).into(myNewViewHolder.ivUserProfilePictureNewItem);
-        }
+        ProfilePicture userProfilePicture = profilePictures.get(position);
+        MyViewHolder myViewHolder = (MyViewHolder)holder;
+        Picasso.with(context).load(userProfilePicture.getProfilePicUrl()).into(myViewHolder.ivProfilePictureItem);
     }
 
     @Override
     public int getItemCount() {
-        return user.getProfilePicsUrls().size();
+        return profilePictures.size();
     }
 }

@@ -29,6 +29,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.UserProfileViewPagerAdapter;
@@ -40,12 +41,12 @@ public class UserProfileFragment extends Fragment {
     private UserProfileViewPagerAdapter userProfileViewPagerAdapter;
     private Unbinder unbinder;
     private MainActivity mainActivity;
-    private User user;
-    private static final String USER = "user";
+    private Superhero superhero;
+    private static final String SUPERHERO = "superhero";
 
-    public static UserProfileFragment newInstance(User user) {
+    public static UserProfileFragment newInstance(Superhero superhero) {
         Bundle args = new Bundle();
-        args.putParcelable(USER, user);
+        args.putParcelable(SUPERHERO, superhero);
         UserProfileFragment fragment = new UserProfileFragment();
         fragment.setArguments(args);
         return fragment;
@@ -63,18 +64,20 @@ public class UserProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Bundle arguments = getArguments();
-        if (arguments != null) {
-            user = arguments.getParcelable(USER);
-            if (user == null) {
-                user = new User();
-                Toast.makeText(mainActivity, "Something went wrong!", Toast.LENGTH_SHORT).show();
-            } else {
-                configureViewPager(user);
-            }
-        } else {
-            user = new User();
-            Toast.makeText(mainActivity, "Something went wrong!", Toast.LENGTH_SHORT).show();
+        if (arguments == null) {
+            Toast.makeText(mainActivity, R.string.smth_went_wrong, Toast.LENGTH_SHORT).show();
+
+            return;
         }
+
+        superhero = arguments.getParcelable(SUPERHERO);
+        if (superhero == null) {
+            Toast.makeText(mainActivity, R.string.smth_went_wrong, Toast.LENGTH_SHORT).show();
+
+            return;
+        }
+
+        configureViewPager(superhero);
     }
 
     @Override
@@ -89,10 +92,10 @@ public class UserProfileFragment extends Fragment {
         mainActivity = (MainActivity) context;
     }
 
-    private void configureViewPager(User user) {
+    private void configureViewPager(Superhero superhero) {
         userProfileViewPagerAdapter = new UserProfileViewPagerAdapter(
                 getChildFragmentManager(),
-                user
+                superhero
         );
 
         vpUserProfile.setOffscreenPageLimit(1);
@@ -111,6 +114,6 @@ public class UserProfileFragment extends Fragment {
 
     @OnClick(R.id.ivUserProfileImageGallery)
     public void onUserProfilePicClickListener() {
-        mainActivity.loadProfilePictureSettingsFragment(mainActivity.createMockUser());
+        mainActivity.loadProfilePictureSettingsFragment(superhero);
     }
 }

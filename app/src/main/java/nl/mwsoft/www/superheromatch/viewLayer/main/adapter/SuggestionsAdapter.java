@@ -30,12 +30,13 @@ import java.util.List;
 
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.image.ImageCircleTransformUtil;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 
 public class SuggestionsAdapter extends RecyclerView.Adapter<SuggestionsAdapter.MyViewHolder> {
 
-    private List<User> users;
+    private List<Superhero> superheroes;
     private Context context;
     private MainActivity mainActivity;
 
@@ -57,21 +58,21 @@ public class SuggestionsAdapter extends RecyclerView.Adapter<SuggestionsAdapter.
             rlSuggestionsItem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mainActivity.loadSuggestionUserProfileFragment(users.get(getAdapterPosition()));
+                    mainActivity.loadSuggestionUserProfileFragment(superheroes.get(getAdapterPosition()));
                 }
             });
 
             ivSuggestionsMainProfilePic.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mainActivity.loadSuggestionUserProfileFragment(users.get(getAdapterPosition()));
+                    mainActivity.loadSuggestionUserProfileFragment(superheroes.get(getAdapterPosition()));
                 }
             });
         }
     }
 
-    public SuggestionsAdapter(List<User> users) {
-        this.users = users;
+    public SuggestionsAdapter(List<Superhero> superheroes) {
+        this.superheroes = superheroes;
     }
 
     @Override
@@ -85,16 +86,16 @@ public class SuggestionsAdapter extends RecyclerView.Adapter<SuggestionsAdapter.
 
     @Override
     public void onBindViewHolder(SuggestionsAdapter.MyViewHolder holder, int position) {
-        User user = users.get(position);
+        Superhero superhero = superheroes.get(position);
         Picasso.with(context).load(R.drawable.user_512).transform(new ImageCircleTransformUtil()).into(holder.ivSuggestionsMainProfilePic);
         holder.tvSuggestionsUsernameAge.setTypeface(holder.tvSuggestionsUsernameAge.getTypeface(), Typeface.BOLD);
-        holder.tvSuggestionsUsernameAge.setText(user.getName().concat(", ").concat(String.valueOf(user.getAge())));
-        holder.tvSuggestionsCityCountry.setText(user.getCity().concat(", ").concat(user.getCountry()));
+        holder.tvSuggestionsUsernameAge.setText(superhero.getSuperheroName().concat(", ").concat(String.valueOf(superhero.getAge())));
+        holder.tvSuggestionsCityCountry.setText(superhero.getCity().concat(", ").concat(superhero.getCountry()));
     }
 
     @Override
     public int getItemCount() {
-        return users.size();
+        return superheroes.size();
     }
 }
 
