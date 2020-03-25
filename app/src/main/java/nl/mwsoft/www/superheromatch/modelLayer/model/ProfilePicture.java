@@ -17,7 +17,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class ProfilePicture implements Parcelable {
-    private int id;
     private String superheroId;
     private String profilePicUrl;
     private int position;
@@ -25,15 +24,13 @@ public class ProfilePicture implements Parcelable {
     public ProfilePicture() {
     }
 
-    public ProfilePicture(int id, String superheroId, String profilePicUrl, int position) {
-        this.id = id;
+    public ProfilePicture(String superheroId, String profilePicUrl, int position) {
         this.superheroId = superheroId;
         this.profilePicUrl = profilePicUrl;
         this.position = position;
     }
 
     protected ProfilePicture(Parcel in) {
-        id = in.readInt();
         superheroId = in.readString();
         profilePicUrl = in.readString();
         position = in.readInt();
@@ -41,7 +38,6 @@ public class ProfilePicture implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
         dest.writeString(superheroId);
         dest.writeString(profilePicUrl);
         dest.writeInt(position);
@@ -63,14 +59,6 @@ public class ProfilePicture implements Parcelable {
             return new ProfilePicture[size];
         }
     };
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getSuperheroId() {
         return superheroId;
@@ -99,8 +87,7 @@ public class ProfilePicture implements Parcelable {
     @Override
     public String toString() {
         return "ProfilePicture{" +
-                "id=" + id +
-                ", superheroId='" + superheroId + '\'' +
+                "superheroId='" + superheroId + '\'' +
                 ", profilePicUrl='" + profilePicUrl + '\'' +
                 ", position=" + position +
                 '}';

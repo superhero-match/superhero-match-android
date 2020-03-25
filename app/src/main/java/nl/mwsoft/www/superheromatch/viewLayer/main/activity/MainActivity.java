@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                         senderId = data.getString(ConstantRegistry.SENDER_ID);
                         messageText = data.getString(ConstantRegistry.MESSAGE);
 
-                        if (getCurrentChat() == null){
+                        if (getCurrentChat() == null) {
                             saveMessageForNotCurrentChat(senderId, messageText);
 
                             return;
@@ -566,7 +566,8 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_profile:
                     currFragmentPosition = 5;
 
-                    fragment = UserProfileFragment.newInstance(createMockUser());
+                    // TO-DO: make a network call to retrieve user data
+                    fragment = UserProfileFragment.newInstance(new Superhero());
                     loadFragment(fragment);
 
                     return true;
@@ -616,8 +617,8 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
-    public void loadSuggestionUserProfileFragment(User user) {
-        loadBackStackFragment(UserProfileFragment.newInstance(user));
+    public void loadSuggestionUserProfileFragment(Superhero superhero) {
+        loadBackStackFragment(UserProfileFragment.newInstance(superhero));
     }
 
     public void loadSuggestionUserProfileSettingsFragment() {
@@ -628,92 +629,23 @@ public class MainActivity extends AppCompatActivity {
         loadBackStackFragment(UserProfileEditFragment.newInstance());
     }
 
-    public void loadProfilePictureSettingsFragment(User user) {
-        loadBackStackFragment(
-                UserProfilePictureSettingsFragment.newInstance(
-                        user.getMainProfilePicUrl(),
-                        user.getProfilePicsUrls()
-                )
-        );
-    }
-
-    public Superhero createMockSuperhero() {
-        Superhero superhero = new Superhero();
-        superhero.setId("id");
-        superhero.setSuperheroName("Amazingwoman"); // Superwoman Wonderwoman Magicwoman Amazingwoman
-        superhero.setMainProfilePicUrl("pdp_4");
+    public void loadProfilePictureSettingsFragment(Superhero superhero) {
         ArrayList<ProfilePicture> profilePictures = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            ProfilePicture profilePicture = new ProfilePicture();
-            profilePicture.setId(i + 1);
-            profilePicture.setPosition(i + 1);
-            profilePicture.setProfilePicUrl("pdp_" + (i + 2));
-            profilePicture.setSuperheroId("id");
-            profilePictures.add(profilePicture);
-        }
-        superhero.setProfilePictures(profilePictures);
-        superhero.setGender(2);
-        superhero.setAge(25);
-        superhero.setLat(5.0);
-        superhero.setLon(5.0);
-        superhero.setCountry("USA");
-        superhero.setCity("L.A.");
-        superhero.setSuperpower("I always dance like nobody is watching");
-        superhero.setAccountType("PAID");
-        superhero.setHasLikedMe(true);
-        superhero.setCreatedAt("2020-01-11");
+        ProfilePicture mainProfilePicture = new ProfilePicture();
+        mainProfilePicture.setSuperheroId(superhero.getId());
+        mainProfilePicture.setPosition(0);
+        mainProfilePicture.setProfilePicUrl(superhero.getMainProfilePicUrl());
+        profilePictures.add(mainProfilePicture);
 
-        return superhero;
-    }
-
-    public User createMockUser() {
-        ArrayList<String> profilePicUrls = new ArrayList<>();
-        profilePicUrls.add(0, "test");// add main profile pic first always
-        profilePicUrls.add("test5");
-        profilePicUrls.add("test2");
-        profilePicUrls.add("test3");
-        profilePicUrls.add("test7");
-
-        User user = new User();
-        user.setId("311234567890L");
-        user.setName("Superhero");
-        user.setSuperHeroName("Superhero");
-        user.setMainProfilePicUrl("test");
-        user.setProfilePicsUrls(profilePicUrls);
-        user.setGender(1);
-        user.setAge(32);
-        user.setBirthday("30-05-1985");
-        user.setCountry("Netherlands");
-        user.setCity("Utrecht");
-        user.setSuperPower("My Super Power described here but really long to check how it looks on the screen needs to be around 126 characters.");
-        user.setAccountType("PAID");
-
-        return user;
-    }
-
-    public ArrayList<Message> createMockMessages() {
-        ArrayList<Message> msgs = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            Message message = new Message();
-            message.setMessageChatId("testuuid");
-            message.setMessageCreated("22-04-2018 16:51:00");
-            message.setMessageId(i);
-            message.setMessageText("Just testing.");
-            if (i % 3 == 0) {
-                message.setMessageSenderId("312345678900L");
-            } else {
-                message.setMessageSenderId("311234567890L");
-            }
-
-            msgs.add(message);
+        for (ProfilePicture pp : superhero.getProfilePictures()) {
+            profilePictures.add(pp);
         }
 
-        return msgs;
+        loadBackStackFragment(UserProfilePictureSettingsFragment.newInstance(profilePictures));
     }
 
     public ArrayList<Message> getMessages(String chatId) {
-        for(Message msg : mainPresenter.getAllMessagesForChatWithId(MainActivity.this, chatId)) {
-            Log.d("tShoot", msg.toString());
+        for (Message msg : mainPresenter.getAllMessagesForChatWithId(MainActivity.this, chatId)) {
             messages.add(msg);
         }
 
@@ -1468,11 +1400,11 @@ public class MainActivity extends AppCompatActivity {
     private void handleNotificationAction() {
         if (getIntent().getExtras() != null && getIntent().getAction() != null) {
             switch (getIntent().getAction()) {
-                case ConstantRegistry.NEW_MATCH_REQUEST :
+                case ConstantRegistry.NEW_MATCH_REQUEST:
                     removeNotifications();
                     navigation.setSelectedItemId(R.id.navigation_matches);
                     break;
-                case ConstantRegistry.NEW_OFFLINE_MESSAGE_REQUEST :
+                case ConstantRegistry.NEW_OFFLINE_MESSAGE_REQUEST:
                     removeNotifications();
                     Chat chat = getIntent().getExtras().getParcelable(ConstantRegistry.NEW_OFFLINE_MESSAGE_REQUEST);
                     loadBackStackFragment(
@@ -1491,7 +1423,7 @@ public class MainActivity extends AppCompatActivity {
         mNotificationManager.cancelAll();
     }
 
-    public void setCurrentChat(Chat chat){
+    public void setCurrentChat(Chat chat) {
         this.currentChat = chat;
     }
 

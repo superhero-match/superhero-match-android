@@ -19,43 +19,43 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import nl.mwsoft.www.superheromatch.modelLayer.model.User;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileImageFragment;
 
 public class UserProfileViewPagerAdapter extends FragmentPagerAdapter {
 
-    private User user;
+    private Superhero superhero;
 
-    public UserProfileViewPagerAdapter(FragmentManager fm, User user) {
+    public UserProfileViewPagerAdapter(FragmentManager fm, Superhero superhero) {
         super(fm);
-        this.user = user;
+        this.superhero = superhero;
     }
 
     @Override
     public Fragment getItem(int position) {
         String profilePic = "";
 
-        if (position == 0 || (this.user.getProfilePicsUrls() == null)){
-            profilePic = this.user.getMainProfilePicUrl();
+        if (position == 0 || (this.superhero.getProfilePictures() == null)){
+            profilePic = this.superhero.getMainProfilePicUrl();
         }
 
-        if (this.user.getProfilePicsUrls() != null) {
-            profilePic = this.user.getProfilePicsUrls().get(position);
+        if (this.superhero.getProfilePictures() != null) {
+            profilePic = this.superhero.getProfilePictures().get(position).getProfilePicUrl();
         }
 
         return UserProfileImageFragment.newInstance(
                 profilePic,
-                this.user.getSuperHeroName(),
-                this.user.getAge(),
-                this.user.getCity(),
-                this.user.getSuperPower()
+                this.superhero.getSuperheroName(),
+                this.superhero.getAge(),
+                this.superhero.getCity(),
+                this.superhero.getSuperpower()
         );
     }
 
     @Override
     public int getCount() {
-        if (this.user.getProfilePicsUrls() != null) {
-            return this.user.getProfilePicsUrls().size();
+        if (this.superhero.getProfilePictures() != null) {
+            return this.superhero.getProfilePictures().size();
         }
 
         return 0;
