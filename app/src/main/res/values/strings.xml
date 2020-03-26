@@ -621,5 +621,10 @@
     <string name="it_s_a_match">It\'s a match!</string>
     <string name="new_match">New match!</string>
     <string name="new_message">%1$s sent you new message!</string>
+    <string name="fetch_profile_error_msg">Error fetching superhero profile</string>
+    <string name="profile_pictures_settings_information">Profile Pictures Settings Information</string>
+    <string name="update_existing_picture">To update existing profile picture tap on the picture and choose another picture.</string>
+    <string name="delete_existing_profile_picture">To delete existing profile picture tap and hold on profile picture.</string>
+    <string name="add_new_profile_picture">To add new profile picture, first, close this pop-up, and then tap on the \'+\' button</string>
 
 </resources>

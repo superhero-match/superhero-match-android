@@ -376,8 +376,8 @@ public class MainPresenter {
 
     // region Get Suggestion Profile
 
-    public Observable<ProfileResponse> getSuggestionProfile(HashMap<String, Object> body){
-        return this.modelLayerManager.getSuggestionProfile(body);
+    public Observable<ProfileResponse> getSuperheroProfile(HashMap<String, Object> body){
+        return this.modelLayerManager.getSuperheroProfile(body);
     }
 
     // endregion

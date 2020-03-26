@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/profile_picture_pop_up">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvProfilePicturePopUpHeader"
+        android:text="@string/profile_pictures_settings_information"
+        android:textSize="20sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvProfilePicturePopUpUpdate"
+        android:text="@string/update_existing_picture"
+        android:textSize="16sp"
+        android:lineSpacingExtra="3dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/tvProfilePicturePopUpHeader"
+        android:layout_marginTop="15dp"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvProfilePicturePopUpDelete"
+        android:text="@string/delete_existing_profile_picture"
+        android:textSize="16sp"
+        android:lineSpacingExtra="3dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/tvProfilePicturePopUpUpdate"
+        android:layout_marginTop="15dp"
+        android:gravity="center"/>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvProfilePicturePopUpNew"
+        android:text="@string/add_new_profile_picture"
+        android:textSize="16sp"
+        android:lineSpacingExtra="3dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/tvProfilePicturePopUpDelete"
+        android:layout_marginTop="15dp"
+        android:gravity="center"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnPermissionsRequestDeniedGrant"
+        android:text="@string/ok"
+        android:background="@drawable/my_button"
+        android:textSize="18sp"
+        android:textColor="@color/colorWhite"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/tvProfilePicturePopUpNew"/>
+
+</RelativeLayout>

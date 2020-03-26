@@ -19,19 +19,34 @@ import android.os.Parcelable;
 public class ProfileResponse implements Parcelable {
 
     private int status;
-    private Superhero suggestion;
+    private Superhero profile;
 
     public ProfileResponse() {
     }
 
-    public ProfileResponse(int status, Superhero suggestion) {
+    public ProfileResponse(int status) {
         this.status = status;
-        this.suggestion = suggestion;
+    }
+
+    public ProfileResponse(int status, Superhero profile) {
+        this.status = status;
+        this.profile = profile;
     }
 
     protected ProfileResponse(Parcel in) {
         status = in.readInt();
-        suggestion = in.readParcelable(Superhero.class.getClassLoader());
+        profile = in.readParcelable(Superhero.class.getClassLoader());
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(status);
+        dest.writeParcelable(profile, flags);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<ProfileResponse> CREATOR = new Creator<ProfileResponse>() {
@@ -54,22 +69,19 @@ public class ProfileResponse implements Parcelable {
         this.status = status;
     }
 
-    public Superhero getSuggestion() {
-        return suggestion;
+    public Superhero getProfile() {
+        return profile;
     }
 
-    public void setSuggestion(Superhero suggestion) {
-        this.suggestion = suggestion;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
+    public void setProfile(Superhero profile) {
+        this.profile = profile;
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(status);
-        dest.writeParcelable(suggestion, flags);
+    public String toString() {
+        return "ProfileResponse{" +
+                "status=" + status +
+                ", profile=" + profile.toString() +
+                '}';
     }
 }
