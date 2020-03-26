@@ -29,7 +29,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ProfileImpl {
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_SUGGESTIONS_PORT))
+            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_PROFILE_PORT))
             .client(OkHttpClientManager.setUpSecureClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build();

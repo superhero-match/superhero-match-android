@@ -15,9 +15,11 @@ package nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -30,14 +32,20 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
-import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.UserProfileViewPagerAdapter;
 
 public class UserProfileFragment extends Fragment {
-
     @BindView(R.id.vpUserProfile)
     ViewPager vpUserProfile;
+    @BindView(R.id.ivUserProfileSettings)
+    ImageView ivUserProfileSettings;
+    @BindView(R.id.ivUserProfileAddNewPic)
+    ImageView ivUserProfileAddNewPic;
+    @BindView(R.id.ivUserProfileEdit)
+    ImageView ivUserProfileEdit;
+    @BindView(R.id.ivUserProfileInformation)
+    ImageView ivUserProfileInformation;
     private UserProfileViewPagerAdapter userProfileViewPagerAdapter;
     private Unbinder unbinder;
     private MainActivity mainActivity;
@@ -49,6 +57,7 @@ public class UserProfileFragment extends Fragment {
         args.putParcelable(SUPERHERO, superhero);
         UserProfileFragment fragment = new UserProfileFragment();
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -56,6 +65,7 @@ public class UserProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user_profile, container, false);
         unbinder = ButterKnife.bind(this, view);
+
         return view;
     }
 
@@ -76,6 +86,8 @@ public class UserProfileFragment extends Fragment {
 
             return;
         }
+
+        Log.d("tShoot", "arguments.getParcelable(SUPERHERO) --> " + superhero.toString());
 
         configureViewPager(superhero);
     }
@@ -112,8 +124,13 @@ public class UserProfileFragment extends Fragment {
         mainActivity.loadSuggestionUserProfileEditFragment();
     }
 
-    @OnClick(R.id.ivUserProfileImageGallery)
-    public void onUserProfilePicClickListener() {
-        mainActivity.loadProfilePictureSettingsFragment(superhero);
+    @OnClick(R.id.ivUserProfileInformation)
+    public void onUserProfileInformationClickListener() {
+        mainActivity.showPopupProfilePictureInformation();
+    }
+
+    @OnClick(R.id.ivUserProfileAddNewPic)
+    public void onUserProfileAddNewProfilePictureClickListener() {
+        mainActivity.showProfilePicChoice();
     }
 }

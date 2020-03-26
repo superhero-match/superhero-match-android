@@ -113,6 +113,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OutgoingMessage;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfilePicture;
+import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
@@ -150,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
     private Disposable subscribeUploadChoice;
     private Disposable subscribeUploadMatch;
     private Disposable subscribeDeleteMatch;
+    private Disposable subscribeGetProfile;
     Disposable subscribeUpdateUserToken;
     private LoadingDialogFragment loadingDialogFragment;
     private MatchDialog matchDialog;
@@ -452,6 +454,13 @@ public class MainActivity extends AppCompatActivity {
         return reqBodyUpdateProfile;
     }
 
+    private HashMap<String, Object> configureGetSuperheroProfileRequestBody(MainPresenter mainPresenter) {
+        HashMap<String, Object> reqBodyUpdateProfile = new HashMap<>();
+        reqBodyUpdateProfile.put("superheroId", mainPresenter.getUserId(this));
+
+        return reqBodyUpdateProfile;
+    }
+
     private void init() {
         messages = new ArrayList<>();
         disposable = new CompositeDisposable();
@@ -566,9 +575,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_profile:
                     currFragmentPosition = 5;
 
-                    // TO-DO: make a network call to retrieve user data
-                    fragment = UserProfileFragment.newInstance(new Superhero());
-                    loadFragment(fragment);
+                    getSuperheroProfile(mainPresenter);
 
                     return true;
             }
@@ -637,17 +644,15 @@ public class MainActivity extends AppCompatActivity {
         mainProfilePicture.setProfilePicUrl(superhero.getMainProfilePicUrl());
         profilePictures.add(mainProfilePicture);
 
-        for (ProfilePicture pp : superhero.getProfilePictures()) {
-            profilePictures.add(pp);
+        if (superhero.getProfilePictures() != null){
+            profilePictures.addAll(superhero.getProfilePictures());
         }
 
         loadBackStackFragment(UserProfilePictureSettingsFragment.newInstance(profilePictures));
     }
 
     public ArrayList<Message> getMessages(String chatId) {
-        for (Message msg : mainPresenter.getAllMessagesForChatWithId(MainActivity.this, chatId)) {
-            messages.add(msg);
-        }
+        messages.addAll(mainPresenter.getAllMessagesForChatWithId(MainActivity.this, chatId));
 
         return messages;
     }
@@ -763,6 +768,38 @@ public class MainActivity extends AppCompatActivity {
         popupWindow.showAsDropDown(v);
 
         btnPermissionsRequestDeniedGrant.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+    }
+
+    public void showPopupProfilePictureInformation() {
+        View v = findViewById(android.R.id.content).getRootView();
+        LayoutInflater layoutInflater = (LayoutInflater) v.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View popupView = layoutInflater.inflate(R.layout.profile_picture_info_pop_up, null);
+        Button btnProfilePictureInformation = (Button) popupView.findViewById(R.id.btnPermissionsRequestDeniedGrant);
+
+        final PopupWindow popupWindow = new PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+
+        popupWindow.setBackgroundDrawable(new BitmapDrawable());
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+
+            }
+        });
+
+        popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
+        popupWindow.showAsDropDown(v);
+
+        btnProfilePictureInformation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 popupWindow.dismiss();
@@ -895,7 +932,7 @@ public class MainActivity extends AppCompatActivity {
 
                     closeLoadingDialog();
 
-                    if (res.getStatus() == 500) {
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         handleError();
 
                         return;
@@ -952,7 +989,7 @@ public class MainActivity extends AppCompatActivity {
         )).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((ChoiceResponse res) -> {
-                    if (res.getStatus() == 500) {
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Toast.makeText(
                                 MainActivity.this,
                                 R.string.smth_went_wrong,
@@ -969,6 +1006,39 @@ public class MainActivity extends AppCompatActivity {
                 }, throwable -> handleError());
 
         disposable.add(subscribeUploadChoice);
+    }
+
+    private void getSuperheroProfile(MainPresenter mainPresenter) {
+        showLoadingDialog();
+
+        subscribeGetProfile = mainPresenter.getSuperheroProfile(configureGetSuperheroProfileRequestBody(mainPresenter))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe((ProfileResponse res) -> {
+                    closeLoadingDialog();
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                        Toast.makeText(
+                                MainActivity.this,
+                                R.string.smth_went_wrong,
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        return;
+                    }
+
+                    Log.d("tShoot", "res.getProfile --> " + res.getProfile().toString());
+
+                    loadFragment(UserProfileFragment.newInstance(res.getProfile()));
+                }, throwable -> handleGetProfileError());
+
+        disposable.add(subscribeGetProfile);
+    }
+
+    private void handleGetProfileError(){
+        closeLoadingDialog();
+        Log.e(MainActivity.class.getName(), getString(R.string.fetch_profile_error_msg));
+        Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
     }
 
     public void showDialogDeleteMatch(final String chatId, final int position, final ArrayList<Chat> chats,
@@ -1030,7 +1100,7 @@ public class MainActivity extends AppCompatActivity {
     private void uploadMatch(HashMap<String, Object> reqBody) {
         subscribeUploadMatch = mainPresenter.uploadMatch(reqBody).subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
-                    if (res == 500) {
+                    if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
                     }
                 }, throwable -> handleErrorInBackground());
@@ -1041,7 +1111,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateFirebaseToken(HashMap<String, Object> reqBody) {
         subscribeUpdateUserToken = mainPresenter.updateFirebaseToken(reqBody).subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
-                    if (res == 500) {
+                    if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), "Error while updating Firebase messaging token");
                     }
                 }, throwable -> handleErrorInBackground());
@@ -1055,7 +1125,7 @@ public class MainActivity extends AppCompatActivity {
 
         subscribeDeleteMatch = mainPresenter.deleteMatch(reqBody).subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
-                    if (res == 500) {
+                    if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
                     }
                 }, throwable -> handleErrorInBackground());
@@ -1077,7 +1147,6 @@ public class MainActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((UpdateResponse res) -> {
-
                     closeLoadingDialog();
 
                     if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {

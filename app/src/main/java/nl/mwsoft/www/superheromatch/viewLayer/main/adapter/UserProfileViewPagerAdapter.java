@@ -43,8 +43,12 @@ public class UserProfileViewPagerAdapter extends FragmentPagerAdapter {
             profilePic = this.superhero.getProfilePictures().get(position).getProfilePicUrl();
         }
 
+        Log.d("tShoot", "UserProfileViewPagerAdapter profilePic --> " + profilePic);
+        Log.d("tShoot", "UserProfileViewPagerAdapter --> " + this.superhero.toString());
+
         return UserProfileImageFragment.newInstance(
                 profilePic,
+                position,
                 this.superhero.getSuperheroName(),
                 this.superhero.getAge(),
                 this.superhero.getCity(),
@@ -55,10 +59,11 @@ public class UserProfileViewPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         if (this.superhero.getProfilePictures() != null) {
-            return this.superhero.getProfilePictures().size();
+            return this.superhero.getProfilePictures().size() + 1; // need to add 1 to display main profile picture
         }
 
-        return 0;
+        // need to return 1 to display main profile picture
+        return 1;
     }
 
     @Override

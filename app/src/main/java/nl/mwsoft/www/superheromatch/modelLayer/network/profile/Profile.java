@@ -15,7 +15,6 @@ package nl.mwsoft.www.superheromatch.modelLayer.network.profile;
 
 import java.util.HashMap;
 
-import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -28,6 +27,6 @@ public interface Profile {
             "User-Agent: SuperheroMatch",
             "X-Platform: Android"
     })
-    @POST("/api/v1/superhero_suggestions/profile")
+    @POST("/api/v1/superhero_profile/profile")
     Call<ProfileResponse> getSuggestionProfile(@Body HashMap<String, Object> body);
 }

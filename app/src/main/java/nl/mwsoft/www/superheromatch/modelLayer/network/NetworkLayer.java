@@ -235,7 +235,7 @@ public class NetworkLayer {
 
     // region Get Suggestion Profile
 
-    public Observable<ProfileResponse> getSuggestionProfile(HashMap<String, Object> body){
+    public Observable<ProfileResponse> getSuperheroProfile(HashMap<String, Object> body){
         return Observable.create(new ObservableOnSubscribe<ProfileResponse>() {
             @Override
             public void subscribe(ObservableEmitter<ProfileResponse> emitter) throws Exception {

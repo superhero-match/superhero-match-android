@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import nl.mwsoft.www.superheromatch.modelLayer.database.chat.ChatDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.database.user.UserDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.dateTimeUtil.DateTimeUtil;
@@ -43,7 +41,6 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.modelLayer.network.NetworkLayer;
-import nl.mwsoft.www.superheromatch.modelLayer.network.getOfflineMessages.GetOfflineMessagesImpl;
 
 public class ModelLayerManager {
 
@@ -457,8 +454,8 @@ public class ModelLayerManager {
 
     // region Get Suggestion Profile
 
-    public Observable<ProfileResponse> getSuggestionProfile(HashMap<String, Object> body){
-        return this.networkLayer.getSuggestionProfile(body);
+    public Observable<ProfileResponse> getSuperheroProfile(HashMap<String, Object> body){
+        return this.networkLayer.getSuperheroProfile(body);
     }
 
     // endregion

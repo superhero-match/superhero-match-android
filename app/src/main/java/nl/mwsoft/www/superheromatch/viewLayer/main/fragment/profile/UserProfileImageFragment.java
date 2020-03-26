@@ -21,19 +21,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnLongClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 
-public class UserProfileImageFragment  extends Fragment {
+public class UserProfileImageFragment extends Fragment {
 
     @BindView(R.id.ivUserProfilePic)
     ImageView ivUserProfilePic;
@@ -46,19 +51,28 @@ public class UserProfileImageFragment  extends Fragment {
     private Unbinder unbinder;
     private MainActivity mainActivity;
     private static final String PIC_URL = "picUrl";
+    private static final String PIC_POSITION = "picPosition";
     private static final String NAME = "name";
     private static final String AGE = "age";
     private static final String CITY = "city";
     private static final String SUPERPOWER = "superpower";
     private String picUrl;
+    private int picPosition;
     private String name;
     private int age;
     private String city;
     private String superpower;
 
-    public static UserProfileImageFragment newInstance(String picUrl, String name, int age, String city, String superpower) {
+    public static UserProfileImageFragment newInstance(
+            String picUrl,
+            int picPosition,
+            String name,
+            int age,
+            String city,
+            String superpower) {
         Bundle args = new Bundle();
         args.putString(PIC_URL, picUrl);
+        args.putInt(PIC_POSITION, picPosition);
         args.putString(NAME, name);
         args.putInt(AGE, age);
         args.putString(CITY, city);
@@ -73,6 +87,7 @@ public class UserProfileImageFragment  extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user_profile_image, container, false);
         unbinder = ButterKnife.bind(this, view);
+
         return view;
     }
 
@@ -81,48 +96,27 @@ public class UserProfileImageFragment  extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Bundle arguments = getArguments();
-        if (arguments != null) {
-            picUrl = arguments.getString(PIC_URL);
-            name = arguments.getString(NAME);
-            age = arguments.getInt(AGE);
-            city = arguments.getString(CITY);
-            superpower = arguments.getString(SUPERPOWER);
-            if (picUrl == null) {
-                picUrl = "";
-            }
-        } else {
+        if (arguments == null) {
             return;
         }
 
+        picUrl = arguments.getString(PIC_URL);
+        picPosition = arguments.getInt(PIC_POSITION);
+        name = arguments.getString(NAME);
+        age = arguments.getInt(AGE);
+        city = arguments.getString(CITY);
+        superpower = arguments.getString(SUPERPOWER);
+
         ivUserProfilePic.setClipToOutline(true);
 
-        switch (picUrl) {
-            case "test":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test)
-                        .into(ivUserProfilePic);
-                break;
-            case "test5":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test5)
-                        .into(ivUserProfilePic);
-                break;
-            case "test2":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test2)
-                        .into(ivUserProfilePic);
-                break;
-            case "test3":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test3)
-                        .into(ivUserProfilePic);
-                break;
-            case "test7":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test7)
-                        .into(ivUserProfilePic);
-                break;
-        }
+        RequestOptions options = new RequestOptions()
+                .placeholder(R.drawable.user_512)
+                .error(R.drawable.user_512);
+
+        Glide.with(mainActivity).
+                load(picUrl).
+                apply(options).
+                into(ivUserProfilePic);
 
         tvUserNameAge.bringToFront();
         tvUserNameAge.setTypeface(tvUserNameAge.getTypeface(), Typeface.BOLD);
@@ -150,5 +144,17 @@ public class UserProfileImageFragment  extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mainActivity = (MainActivity) context;
+    }
+
+    @OnClick(R.id.ivUserProfilePic)
+    public void onUserProfileProfilePictureClickListener() {
+        Toast.makeText(mainActivity, "On Tap Pic Position " + picPosition, Toast.LENGTH_LONG).show();
+    }
+
+    @OnLongClick(R.id.ivUserProfilePic)
+    public boolean onUserProfileProfilePictureLongClickListener() {
+        Toast.makeText(mainActivity, "On Tap And Hold Pic Position " + picPosition, Toast.LENGTH_LONG).show();
+
+        return true;
     }
 }

@@ -30,14 +30,29 @@
     <ImageView
         android:layout_width="45dp"
         android:layout_height="45dp"
-        android:id="@+id/ivUserProfileImageGallery"
-        android:src="@drawable/user_imgs_256"
+        android:id="@+id/ivUserProfileAddNewPic"
+        android:src="@drawable/new_profile_picture_256"
         android:clickable="true"
         android:focusable="true"
-        android:layout_centerHorizontal="true"
+        android:layout_toEndOf="@+id/ivUserProfileSettings"
         android:layout_alignParentBottom="true"
         android:contentDescription="@string/user_profile_image"
         android:layout_marginBottom="65dp"
+        android:layout_marginStart="40dp"
+        android:visibility="visible"/>
+
+    <ImageView
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:id="@+id/ivUserProfileInformation"
+        android:src="@drawable/information_256"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_toStartOf="@+id/ivUserProfileEdit"
+        android:layout_alignParentBottom="true"
+        android:contentDescription="@string/user_profile_image"
+        android:layout_marginBottom="65dp"
+        android:layout_marginEnd="40dp"
         android:visibility="visible"/>
 
     <ImageView
