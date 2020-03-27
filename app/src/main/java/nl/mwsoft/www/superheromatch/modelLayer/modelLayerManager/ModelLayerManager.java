@@ -492,5 +492,13 @@ public class ModelLayerManager {
 
     // endregion
 
+    // region Delete Profile Picture
+
+    public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body){
+        return this.networkLayer.deleteProfilePicture(body);
+    }
+
+    // endregion
+
     // endregion
 }

@@ -69,7 +69,8 @@ public class UserProfileImageFragment extends Fragment {
             String name,
             int age,
             String city,
-            String superpower) {
+            String superpower
+    ) {
         Bundle args = new Bundle();
         args.putString(PIC_URL, picUrl);
         args.putInt(PIC_POSITION, picPosition);
@@ -148,12 +149,21 @@ public class UserProfileImageFragment extends Fragment {
 
     @OnClick(R.id.ivUserProfilePic)
     public void onUserProfileProfilePictureClickListener() {
-        Toast.makeText(mainActivity, "On Tap Pic Position " + picPosition, Toast.LENGTH_LONG).show();
+        mainActivity.setAddingNewProfilePicture(false);
+        mainActivity.setCurrentProfilePicturePosition(picPosition);
+        mainActivity.showProfilePicChoice();
     }
 
     @OnLongClick(R.id.ivUserProfilePic)
     public boolean onUserProfileProfilePictureLongClickListener() {
-        Toast.makeText(mainActivity, "On Tap And Hold Pic Position " + picPosition, Toast.LENGTH_LONG).show();
+        if (picPosition == 0) {
+            Toast.makeText(mainActivity, R.string.cant_delete_main_profile_pic, Toast.LENGTH_LONG).show();
+
+            return true;
+        }
+
+        mainActivity.setCurrentProfilePicturePosition(picPosition);
+        mainActivity.showDialogDeleteProfilePicture(picPosition);
 
         return true;
     }

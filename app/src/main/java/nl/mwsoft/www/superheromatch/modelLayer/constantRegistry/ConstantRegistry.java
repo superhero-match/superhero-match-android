@@ -67,6 +67,7 @@ public class ConstantRegistry {
     public static final String SUPERHERO_FIREBASE_MESSAGING_TOKEN_PORT = ":6000";
     public static final String SUPERHERO_REGISTER_MEDIA_PORT = ":7000";
     public static final String SUPERHERO_UPDATE_MEDIA_PORT = ":7100";
+    public static final String SUPERHERO_DELETE_MEDIA_PORT = ":7200";
 
     public static final String DATE_TIME_FORMAT = "yyyyMMdd_HHmmss";
     public static final String JPG_EXTENSION = ".jpg";
@@ -154,6 +155,9 @@ public class ConstantRegistry {
     public static final int SERVER_STATUS_OK = 200;
     public static final String MAIN_PROFILE_PICTURE_URL = "mainProfilePictureURL";
     public static final String ON_UPLOAD_MAIN_PROFILE_PICTURE = "onUploadMainProfilePicture";
+    public static final String ON_UPDATE_PROFILE_PICTURE = "onUpdateProfilePicture";
+    public static final String ON_UPLOAD_NEW_PROFILE_PICTURE = "onUploadNewProfilePicture";
+    public static final String ON_DELETE_PROFILE_PICTURE = "onDeleteProfilePicture";
 
     public static final int CURRENT_POSITION_SUPERHERO_NAME = 0;
     public static final int CURRENT_POSITION_SUPERHERO_BIRTHDAY = 1;
