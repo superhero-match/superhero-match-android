@@ -87,8 +87,6 @@ public class UserProfileFragment extends Fragment {
             return;
         }
 
-        Log.d("tShoot", "arguments.getParcelable(SUPERHERO) --> " + superhero.toString());
-
         configureViewPager(superhero);
     }
 
@@ -131,6 +129,8 @@ public class UserProfileFragment extends Fragment {
 
     @OnClick(R.id.ivUserProfileAddNewPic)
     public void onUserProfileAddNewProfilePictureClickListener() {
+        mainActivity.setProfile(superhero);
+        mainActivity.setAddingNewProfilePicture(true);
         mainActivity.showProfilePicChoice();
     }
 }

@@ -414,6 +414,14 @@ public class MainPresenter {
 
     // endregion
 
+    // region Delete Profile Picture
+
+    public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body){
+        return this.modelLayerManager.deleteProfilePicture(body);
+    }
+
+    // endregion
+
     // endregion
 
 }

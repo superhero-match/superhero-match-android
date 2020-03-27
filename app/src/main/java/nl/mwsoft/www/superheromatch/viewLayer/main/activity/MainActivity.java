@@ -27,6 +27,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
@@ -40,7 +41,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
@@ -81,6 +81,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -88,7 +89,6 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -107,6 +107,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic2SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic3SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic4SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
+import nl.mwsoft.www.superheromatch.modelLayer.helper.compare.ProfilePicturePositionComparator;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
@@ -117,7 +118,6 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
-import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.matchDialog.MatchDialog;
@@ -131,6 +131,7 @@ import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.Suggesti
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileEditFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileSettingsSuggestionsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.register.activity.RegisterActivity;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity {
@@ -152,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
     private Disposable subscribeUploadMatch;
     private Disposable subscribeDeleteMatch;
     private Disposable subscribeGetProfile;
+    private Disposable subscribeDeleteProfilePicture;
     Disposable subscribeUpdateUserToken;
     private LoadingDialogFragment loadingDialogFragment;
     private MatchDialog matchDialog;
@@ -170,8 +172,14 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> retrievedSuperheroIds;
     private ArrayList<Superhero> suggestions;
     private int currentSuggestion = 0;
-    private Socket socket;
+    private Socket chatSocket;
+    private Socket updateProfilePictureSocket;
     private Chat currentChat;
+    private Superhero profile;
+    private boolean isAddingNewProfilePicture;
+    private int currentProfilePicturePosition = 0;
+    private final int WAIT_TIME = 5000;
+    private Handler uiHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,7 +191,8 @@ public class MainActivity extends AppCompatActivity {
 
         init();
 
-        setUpConnectionToServer();
+        setUpConnectionToChatServer();
+        setUpConnectionToUpdateMediaServer();
 
         // || mainPresenter.getUserIsLoggedIn(this) == 0
         if (mainPresenter.getUserId(this).equals("default")) {
@@ -207,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
     // region Socket.IO
 
-    private void setUpConnectionToServer() {
+    private void setUpConnectionToChatServer() {
         // default settings for all sockets
         IO.setDefaultOkHttpWebSocketFactory(OkHttpClientManager.setUpSecureClient());
         IO.setDefaultOkHttpCallFactory(OkHttpClientManager.setUpSecureClient());
@@ -218,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
         opts.callFactory = OkHttpClientManager.setUpSecureClient();
         opts.webSocketFactory = OkHttpClientManager.setUpSecureClient();
         try {
-            socket = IO.socket(
+            chatSocket = IO.socket(
                     ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_CHAT_PORT),
                     opts
             );
@@ -227,9 +236,9 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        socket.connect();
+        chatSocket.connect();
 
-        socket.on(ConstantRegistry.ON_MESSAGE, handleIncomingMessages);
+        chatSocket.on(ConstantRegistry.ON_MESSAGE, handleIncomingMessages);
 
         OutgoingMessage outgoingMessage = new OutgoingMessage(
                 ConstantRegistry.ON_OPEN,
@@ -238,10 +247,70 @@ public class MainActivity extends AppCompatActivity {
                 ConstantRegistry.MESSAGE
         );
 
-        socket.emit(ConstantRegistry.ON_OPEN, outgoingMessage.toString());
+        chatSocket.emit(ConstantRegistry.ON_OPEN, outgoingMessage.toString());
     }
 
     private Emitter.Listener handleIncomingMessages = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String senderId = "";
+                    String messageText = "";
+
+                    try {
+                        senderId = data.getString(ConstantRegistry.SENDER_ID);
+                        messageText = data.getString(ConstantRegistry.MESSAGE);
+
+                        if (getCurrentChat() == null) {
+                            saveMessageForNotCurrentChat(senderId, messageText);
+
+                            return;
+                        }
+
+                        if (!getCurrentChat().getMatchedUserId().equals(senderId)) {
+                            saveMessageForNotCurrentChat(senderId, messageText);
+
+                            return;
+                        }
+
+                        saveMessageForCurrentChat(senderId, messageText);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+    };
+
+    private void setUpConnectionToUpdateMediaServer() {
+        // default settings for all sockets
+        IO.setDefaultOkHttpWebSocketFactory(OkHttpClientManager.setUpSecureClient());
+        IO.setDefaultOkHttpCallFactory(OkHttpClientManager.setUpSecureClient());
+
+        // set as an option
+        IO.Options opts = new IO.Options();
+        opts.transports = new String[]{io.socket.engineio.client.transports.WebSocket.NAME};
+        opts.callFactory = OkHttpClientManager.setUpSecureClient();
+        opts.webSocketFactory = OkHttpClientManager.setUpSecureClient();
+        try {
+            updateProfilePictureSocket = IO.socket(
+                    ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_UPDATE_MEDIA_PORT),
+                    opts
+            );
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        updateProfilePictureSocket.connect();
+
+        updateProfilePictureSocket.on(ConstantRegistry.ON_UPDATE_PROFILE_PICTURE, handleIncomingProfilePictureUpdateMessage);
+    }
+
+    private Emitter.Listener handleIncomingProfilePictureUpdateMessage = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             runOnUiThread(new Runnable() {
@@ -467,6 +536,7 @@ public class MainActivity extends AppCompatActivity {
         superheroIds = new ArrayList<>();
         retrievedSuperheroIds = new ArrayList<>();
         suggestions = new ArrayList<>();
+        uiHandler = new Handler(); // anything posted to this handler will run on the UI Thread
     }
 
     public void configureWith(RootCoordinator rootCoordinator, MainPresenter mainPresenter) {
@@ -498,8 +568,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void socketDisconnect() {
-        if (socket != null && socket.connected()) {
-            socket.disconnect();
+        if (chatSocket != null && chatSocket.connected()) {
+            chatSocket.disconnect();
         }
     }
 
@@ -644,7 +714,7 @@ public class MainActivity extends AppCompatActivity {
         mainProfilePicture.setProfilePicUrl(superhero.getMainProfilePicUrl());
         profilePictures.add(mainProfilePicture);
 
-        if (superhero.getProfilePictures() != null){
+        if (superhero.getProfilePictures() != null) {
             profilePictures.addAll(superhero.getProfilePictures());
         }
 
@@ -677,7 +747,7 @@ public class MainActivity extends AppCompatActivity {
                 message
         );
 
-        socket.emit(ConstantRegistry.ON_MESSAGE, outgoingMessage);
+        chatSocket.emit(ConstantRegistry.ON_MESSAGE, outgoingMessage);
     }
 
     public String getUserId() {
@@ -808,33 +878,111 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void processUpdateProfilePic(Uri uri) {
-        switch (getCurrentProfileImageView()) {
-            case ConstantRegistry.MAIN_PROFILE_IMAGE_VIEW:
-                MainProfilePicSettingsEvent mainProfilePicSettingsEvent = new MainProfilePicSettingsEvent(uri);
-                EventBus.getDefault().post(mainProfilePicSettingsEvent);
+        showLoadingDialog();
 
-                break;
-            case ConstantRegistry.FIRST_PROFILE_IMAGE_VIEW:
-                ProfilePic1SettingsEvent profilePic1SettingsEvent = new ProfilePic1SettingsEvent(uri);
-                EventBus.getDefault().post(profilePic1SettingsEvent);
+        Runnable onUi = new Runnable() {
+            @Override
+            public void run() {
+                closeLoadingDialog();
+                navigation.setSelectedItemId(R.id.navigation_profile);
+            }
+        };
 
-                break;
-            case ConstantRegistry.SECOND_PROFILE_IMAGE_VIEW:
-                ProfilePic2SettingsEvent profilePic2SettingsEvent = new ProfilePic2SettingsEvent(uri);
-                EventBus.getDefault().post(profilePic2SettingsEvent);
+        Runnable background = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String encodedImage = mainPresenter.encodeImageToString(MainActivity.this, uri);
 
-                break;
-            case ConstantRegistry.THIRD_PROFILE_IMAGE_VIEW:
-                ProfilePic3SettingsEvent profilePic3SettingsEvent = new ProfilePic3SettingsEvent(uri);
-                EventBus.getDefault().post(profilePic3SettingsEvent);
+                    if (encodedImage.equals(ConstantRegistry.ERROR)) {
+                        Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
 
-                break;
-            case ConstantRegistry.FOURTH_PROFILE_IMAGE_VIEW:
-                ProfilePic4SettingsEvent profilePic4SettingsEvent = new ProfilePic4SettingsEvent(uri);
-                EventBus.getDefault().post(profilePic4SettingsEvent);
+                        return;
+                    }
 
-                break;
+                    int position = 0;
+
+                    if (isAddingNewProfilePicture) {
+                        if (getProfile().getProfilePictures() == null) {
+                            // Increment by 1 because position 0 is the main profile picture, so when adding
+                            // new picture it will go into position 1.
+                            position = position + 1;
+                            updateProfilePictureSocket.emit(
+                                    ConstantRegistry.ON_UPDATE_PROFILE_PICTURE,
+                                    mainPresenter.getUserId(MainActivity.this),
+                                    encodedImage,
+                                    position
+                            );
+
+                            triggerOnUICloseDialog(onUi);
+
+                            return;
+                        }
+
+                        position = getProfile().getProfilePictures().size() + 1;
+
+                        updateProfilePictureSocket.emit(
+                                ConstantRegistry.ON_UPDATE_PROFILE_PICTURE,
+                                mainPresenter.getUserId(MainActivity.this),
+                                encodedImage,
+                                position
+                        );
+
+                        triggerOnUICloseDialog(onUi);
+
+                        return;
+                    }
+
+                    // Update existing picture.
+                    updateProfilePictureSocket.emit(
+                            ConstantRegistry.ON_UPDATE_PROFILE_PICTURE,
+                            mainPresenter.getUserId(MainActivity.this),
+                            encodedImage,
+                            getCurrentProfilePicturePosition()
+                    );
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                triggerOnUICloseDialog(onUi);
+            }
+        };
+
+        new Thread(background).start();
+    }
+
+    private void triggerOnUICloseDialog(Runnable onUi) {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
+        uiHandler.post(onUi);
+    }
+
+
+    public void processDeleteProfilePic(int position) {
+        showLoadingDialog();
+
+        Runnable onUi = new Runnable() {
+            @Override
+            public void run() {
+                closeLoadingDialog();
+                navigation.setSelectedItemId(R.id.navigation_profile);
+            }
+        };
+
+        Runnable background = new Runnable() {
+            @Override
+            public void run() {
+                deleteProfilePicture( mainPresenter.getUserId(MainActivity.this), position);
+
+                triggerOnUICloseDialog(onUi);
+            }
+        };
+
+        new Thread(background).start();
     }
 
     public boolean accessFilesPermissionIsGranted() {
@@ -1026,16 +1174,16 @@ public class MainActivity extends AppCompatActivity {
 
                         return;
                     }
-
-                    Log.d("tShoot", "res.getProfile --> " + res.getProfile().toString());
-
+                    Log.d("tShoot", "Before sort res.getProfile --> " + res.getProfile().toString());
+                    Collections.sort(res.getProfile().getProfilePictures(), new ProfilePicturePositionComparator());
+                    Log.d("tShoot", "After sort res.getProfile --> " + res.getProfile().toString());
                     loadFragment(UserProfileFragment.newInstance(res.getProfile()));
                 }, throwable -> handleGetProfileError());
 
         disposable.add(subscribeGetProfile);
     }
 
-    private void handleGetProfileError(){
+    private void handleGetProfileError() {
         closeLoadingDialog();
         Log.e(MainActivity.class.getName(), getString(R.string.fetch_profile_error_msg));
         Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
@@ -1054,6 +1202,23 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setMessage("Delete match?")
+                .setPositiveButton("Delete", dialogClickListener)
+                .setNegativeButton("Cancel", dialogClickListener)
+                .show();
+    }
+
+    public void showDialogDeleteProfilePicture(final int position) {
+
+        DialogInterface.OnClickListener dialogClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int button) {
+                        processDeleteProfilePic(position);
+                    }
+                };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("Delete profile picture?")
                 .setPositiveButton("Delete", dialogClickListener)
                 .setNegativeButton("Cancel", dialogClickListener)
                 .show();
@@ -1131,6 +1296,22 @@ public class MainActivity extends AppCompatActivity {
                 }, throwable -> handleErrorInBackground());
 
         disposable.add(subscribeDeleteMatch);
+    }
+
+    public void deleteProfilePicture(String superheroId, int position) {
+        HashMap<String, Object> reqBody = new HashMap<>();
+        reqBody.put("superheroId", superheroId);
+        reqBody.put("position", position);
+
+        subscribeDeleteProfilePicture = mainPresenter.deleteProfilePicture(reqBody)
+                .subscribeOn(Schedulers.io())
+                .subscribe((Integer res) -> {
+                    if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                        Log.e(MainActivity.class.getName(), getString(R.string.delete_profile_picture_error));
+                    }
+                }, throwable -> handleErrorInBackground());
+
+        disposable.add(subscribeDeleteProfilePicture);
     }
 
 
@@ -1498,5 +1679,29 @@ public class MainActivity extends AppCompatActivity {
 
     public Chat getCurrentChat() {
         return this.currentChat;
+    }
+
+    public Superhero getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Superhero profile) {
+        this.profile = profile;
+    }
+
+    public boolean isAddingNewProfilePicture() {
+        return isAddingNewProfilePicture;
+    }
+
+    public void setAddingNewProfilePicture(boolean addingNewProfilePicture) {
+        isAddingNewProfilePicture = addingNewProfilePicture;
+    }
+
+    public int getCurrentProfilePicturePosition() {
+        return currentProfilePicturePosition;
+    }
+
+    public void setCurrentProfilePicturePosition(int currentProfilePicturePosition) {
+        this.currentProfilePicturePosition = currentProfilePicturePosition;
     }
 }
