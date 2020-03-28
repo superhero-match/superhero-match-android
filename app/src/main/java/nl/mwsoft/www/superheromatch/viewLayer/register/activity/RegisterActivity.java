@@ -27,6 +27,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.util.Patterns;
@@ -120,6 +121,8 @@ public class RegisterActivity extends AppCompatActivity {
     private RegisterPresenter registerPresenter;
     private Uri profilePicURI;
     private Socket socket;
+    private final int WAIT_TIME = 5000;
+    private Handler uiHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +146,8 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void configureInitialValues() {
+        uiHandler = new Handler(); // anything posted to this handler will run on the UI Thread
+
         if (getIntent().getAction() == null) {
             return;
         }
@@ -518,24 +523,54 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void processUpdateProfilePic(Uri uri) {
-        setProfilePicURI(uri);
-        SuperheroProfilePicEvent event = new SuperheroProfilePicEvent(uri);
-        EventBus.getDefault().post(event);
-
-        String encodedImage = registerPresenter.encodeImageToString(RegisterActivity.this, uri);
-
-        if (encodedImage.equals(ConstantRegistry.ERROR)) {
-            Toast.makeText(RegisterActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
-
-            return;
+    private void triggerOnUICloseDialog(Runnable onUi) {
+        try {
+            Thread.sleep(WAIT_TIME);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
-        socket.emit(
-                ConstantRegistry.ON_UPLOAD_MAIN_PROFILE_PICTURE,
-                user.getId(),
-                encodedImage
-        );
+        closeLoadingDialog();
+
+        uiHandler.post(onUi);
+    }
+
+    private void processUpdateProfilePic(Uri uri) {
+        showLoadingDialog();
+
+        Runnable onUi = new Runnable() {
+            @Override
+            public void run() {
+                closeLoadingDialog();
+
+                setProfilePicURI(uri);
+                SuperheroProfilePicEvent event = new SuperheroProfilePicEvent(uri);
+                EventBus.getDefault().post(event);
+            }
+        };
+
+        Runnable background = new Runnable() {
+            @Override
+            public void run() {
+                String encodedImage = registerPresenter.encodeImageToString(RegisterActivity.this, uri);
+
+                if (encodedImage.equals(ConstantRegistry.ERROR)) {
+                    Toast.makeText(RegisterActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+
+                    return;
+                }
+
+                socket.emit(
+                        ConstantRegistry.ON_UPLOAD_MAIN_PROFILE_PICTURE,
+                        user.getId(),
+                        encodedImage
+                );
+
+                triggerOnUICloseDialog(onUi);
+            }
+        };
+
+        new Thread(background).start();
     }
 
     public boolean accessFilesPermissionIsGranted() {
@@ -556,12 +591,12 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case ConstantRegistry.MY_PERMISSIONS_REQUEST_LOCATION: {
+            case ConstantRegistry.MY_PERMISSIONS_REQUEST_LOCATION:
                 if (grantResults.length == 0) {
                     return;
                 }
 
-                if (grantResults[0] != PackageManager.PERMISSION_GRANTED){
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
 
@@ -572,17 +607,15 @@ public class RegisterActivity extends AppCompatActivity {
                 init();
                 startLocationUpdates();
 
-                return;
-            }
-            case ConstantRegistry.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                break;
+            case ConstantRegistry.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     showProfilePicChoice();
-
-                    return;
+                } else {
+                    showPopupDeniedPermission(findViewById(android.R.id.content).getRootView());
                 }
 
-                showPopupDeniedPermission(findViewById(android.R.id.content).getRootView());
-            }
+                return;
         }
     }
 
@@ -743,7 +776,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void showLoadingDialog() {
         loadingDialogFragment = new LoadingDialogFragment();
-        loadingDialogFragment.setCancelable(false);
+        loadingDialogFragment.setCancelable(true);
         loadingDialogFragment.show(getSupportFragmentManager(), ConstantRegistry.LOADING);
     }
 

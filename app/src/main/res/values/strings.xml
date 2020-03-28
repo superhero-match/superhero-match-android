@@ -628,5 +628,9 @@
     <string name="add_new_profile_picture">To add new profile picture, first, close this pop-up, and then tap on the \'+\' button</string>
     <string name="delete_profile_picture_error">Error deleting profile picture</string>
     <string name="cant_delete_main_profile_pic">Cannot delete main profile picture. Main profile picture can only be updated.</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="delete_match_question">Delete match?</string>
+    <string name="delete_profile_picture_question">Delete profile picture?</string>
 
 </resources>

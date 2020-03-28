@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -95,99 +96,18 @@ public class SuggestionProfileImageFragment extends Fragment {
         age = arguments.getInt(AGE);
         city = arguments.getString(CITY);
         superpower = arguments.getString(SUPERPOWER);
-        if (picUrl == null) {
-            picUrl = "";
-        }
+
 
         ivSuggestionProfilePic.setClipToOutline(true);
 
-        switch (picUrl) {
-//            case "pdp_1":
-//                Glide.with(mainActivity)
-//                        .load(R.drawable.pdp_1)
-//                        .into(ivSuggestionProfilePic);
-//                break;
-//            case "pdp_2":
-//                Glide.with(mainActivity)
-//                        .load(R.drawable.pdp_2)
-//                        .into(ivSuggestionProfilePic);
-//                break;
-//            case "pdp_3":
-//                Glide.with(mainActivity)
-//                        .load(R.drawable.pdp_3)
-//                        .into(ivSuggestionProfilePic);
-//                break;
-//            case "pdp_4":
-//                Glide.with(mainActivity)
-//                        .load(R.drawable.pdp_4)
-//                        .into(ivSuggestionProfilePic);
-//                break;
-            case "test":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test1":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test1)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test2":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test2)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test3":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test3)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test4":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test4)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test5":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test5)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test6":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test6)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test7":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test7)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test8":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test8)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test9":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test9)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test10":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test10)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test11":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test11)
-                        .into(ivSuggestionProfilePic);
-                break;
-            case "test12":
-                Glide.with(mainActivity)
-                        .load(R.drawable.test12)
-                        .into(ivSuggestionProfilePic);
-                break;
-        }
+        RequestOptions options = new RequestOptions()
+                .placeholder(R.drawable.user_512)
+                .error(R.drawable.user_512);
+
+        Glide.with(mainActivity).
+                load(picUrl).
+                apply(options).
+                into(ivSuggestionProfilePic);
 
         tvSuggestionNameAge.bringToFront();
         tvSuggestionNameAge.setTypeface(tvSuggestionNameAge.getTypeface(), Typeface.BOLD);

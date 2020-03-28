@@ -13,12 +13,16 @@
  */
 package nl.mwsoft.www.superheromatch.viewLayer.main.adapter;
 
+import android.util.Log;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
+import nl.mwsoft.www.superheromatch.modelLayer.helper.compare.ProfilePicturePositionComparator;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfilePicture;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionProfileImageFragment;
@@ -33,7 +37,10 @@ public class SuggestionProfileViewPagerAdapter extends FragmentPagerAdapter {
         this.suggestion = suggestion;
         this.profilePictures = new ArrayList<>();
         this.profilePictures.add(this.suggestion.getMainProfilePicUrl());
+
         if (this.suggestion.getProfilePictures() != null) {
+            Collections.sort(this.suggestion.getProfilePictures(), new ProfilePicturePositionComparator());
+
             for(ProfilePicture profilePicture : this.suggestion.getProfilePictures()){
                 this.profilePictures.add(profilePicture.getProfilePicUrl());
             }
