@@ -94,7 +94,9 @@ public class MatchesChatsFragment extends Fragment {
                         matchChats.get(position).getChatId(),
                         position,
                         matchChats,
-                        matchesChatsAdapter
+                        matchesChatsAdapter,
+                        mainActivity.getUserId(),
+                        matchChats.get(position).getMatchedUserId()
                 );
             }
         }));

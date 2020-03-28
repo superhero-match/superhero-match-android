@@ -751,7 +751,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String getUserId() {
-        return "311234567890L";
+        return mainPresenter.getUserId(MainActivity.this);
     }
 
     public String getDateTime() {
@@ -907,53 +907,43 @@ public class MainActivity extends AppCompatActivity {
                             // Increment by 1 because position 0 is the main profile picture, so when adding
                             // new picture it will go into position 1.
                             position = position + 1;
-                            updateProfilePictureSocket.emit(
-                                    ConstantRegistry.ON_UPDATE_PROFILE_PICTURE,
-                                    mainPresenter.getUserId(MainActivity.this),
-                                    encodedImage,
-                                    position
-                            );
-
-                            triggerOnUICloseDialog(onUi);
+                            uploadProfileImageToServer(encodedImage, onUi, position);
 
                             return;
                         }
 
                         position = getProfile().getProfilePictures().size() + 1;
 
-                        updateProfilePictureSocket.emit(
-                                ConstantRegistry.ON_UPDATE_PROFILE_PICTURE,
-                                mainPresenter.getUserId(MainActivity.this),
-                                encodedImage,
-                                position
-                        );
-
-                        triggerOnUICloseDialog(onUi);
+                        uploadProfileImageToServer(encodedImage, onUi, position);
 
                         return;
                     }
 
                     // Update existing picture.
-                    updateProfilePictureSocket.emit(
-                            ConstantRegistry.ON_UPDATE_PROFILE_PICTURE,
-                            mainPresenter.getUserId(MainActivity.this),
-                            encodedImage,
-                            getCurrentProfilePicturePosition()
-                    );
+                    uploadProfileImageToServer(encodedImage, onUi, getCurrentProfilePicturePosition());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-                triggerOnUICloseDialog(onUi);
             }
         };
 
         new Thread(background).start();
     }
 
+    private void uploadProfileImageToServer(String encodedImage, Runnable onUi, int position) {
+        updateProfilePictureSocket.emit(
+                ConstantRegistry.ON_UPDATE_PROFILE_PICTURE,
+                mainPresenter.getUserId(MainActivity.this),
+                encodedImage,
+                position
+        );
+
+        triggerOnUICloseDialog(onUi);
+    }
+
     private void triggerOnUICloseDialog(Runnable onUi) {
         try {
-            Thread.sleep(5000);
+            Thread.sleep(WAIT_TIME);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -976,7 +966,7 @@ public class MainActivity extends AppCompatActivity {
         Runnable background = new Runnable() {
             @Override
             public void run() {
-                deleteProfilePicture( mainPresenter.getUserId(MainActivity.this), position);
+                deleteProfilePicture(mainPresenter.getUserId(MainActivity.this), position);
 
                 triggerOnUICloseDialog(onUi);
             }
@@ -1174,9 +1164,11 @@ public class MainActivity extends AppCompatActivity {
 
                         return;
                     }
-                    Log.d("tShoot", "Before sort res.getProfile --> " + res.getProfile().toString());
-                    Collections.sort(res.getProfile().getProfilePictures(), new ProfilePicturePositionComparator());
-                    Log.d("tShoot", "After sort res.getProfile --> " + res.getProfile().toString());
+
+                    if (res.getProfile().getProfilePictures() != null) {
+                        Collections.sort(res.getProfile().getProfilePictures(), new ProfilePicturePositionComparator());
+                    }
+
                     loadFragment(UserProfileFragment.newInstance(res.getProfile()));
                 }, throwable -> handleGetProfileError());
 
@@ -1189,27 +1181,49 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
     }
 
-    public void showDialogDeleteMatch(final String chatId, final int position, final ArrayList<Chat> chats,
-                                      final MatchesChatsAdapter matchesChatsAdapter) {
+    public void showDialogDeleteMatch(
+            final String chatId,
+            final int position,
+            final ArrayList<Chat> chats,
+            final MatchesChatsAdapter matchesChatsAdapter,
+            String superheroId,
+            String matchedSuperheroId
+    ) {
 
-        DialogInterface.OnClickListener dialogClickListener =
+        DialogInterface.OnClickListener dialogDeleteClickListener =
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int button) {
-                        handleDeleteChatDialogButtonClick(button, mainPresenter, chatId, chats, position, matchesChatsAdapter);
+                        handleDeleteChatDialogButtonClick(
+                                button,
+                                mainPresenter,
+                                chatId,
+                                chats,
+                                position,
+                                matchesChatsAdapter,
+                                superheroId,
+                                matchedSuperheroId
+                        );
+                    }
+                };
+
+        DialogInterface.OnClickListener dialogCancelClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int button) {
+                        dialog.dismiss();
                     }
                 };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Delete match?")
-                .setPositiveButton("Delete", dialogClickListener)
-                .setNegativeButton("Cancel", dialogClickListener)
+        builder.setMessage(R.string.delete_match_question)
+                .setPositiveButton(R.string.delete, dialogDeleteClickListener)
+                .setNegativeButton(R.string.cancel, dialogCancelClickListener)
                 .show();
     }
 
     public void showDialogDeleteProfilePicture(final int position) {
-
-        DialogInterface.OnClickListener dialogClickListener =
+        DialogInterface.OnClickListener dialogDeleteClickListener =
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int button) {
@@ -1217,11 +1231,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                 };
 
+        DialogInterface.OnClickListener dialogCancelClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int button) {
+                        dialog.dismiss();
+                    }
+                };
+
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Delete profile picture?")
-                .setPositiveButton("Delete", dialogClickListener)
-                .setNegativeButton("Cancel", dialogClickListener)
+        builder.setMessage(R.string.delete_profile_picture_question)
+                .setPositiveButton(R.string.delete, dialogDeleteClickListener)
+                .setNegativeButton(R.string.cancel, dialogCancelClickListener)
                 .show();
+
     }
 
     private void handleDeleteChatDialogButtonClick(
@@ -1230,14 +1253,16 @@ public class MainActivity extends AppCompatActivity {
             String chatId,
             ArrayList<Chat> chats,
             int position,
-            MatchesChatsAdapter matchesChatsAdapter
+            MatchesChatsAdapter matchesChatsAdapter,
+            String superheroId,
+            String matchedSuperheroId
     ) {
         if (button == DialogInterface.BUTTON_NEGATIVE) {
             return;
         }
 
         mainPresenter.deleteChatById(chatId, MainActivity.this);
-        deleteMatch(chats.get(position).getChatId());
+        deleteMatch(superheroId, matchedSuperheroId);
         chats.remove(position);
         matchesChatsAdapter.notifyDataSetChanged();
     }
@@ -1284,9 +1309,10 @@ public class MainActivity extends AppCompatActivity {
         disposable.add(subscribeUpdateUserToken);
     }
 
-    public void deleteMatch(String matchId) {
+    public void deleteMatch(String superheroId, String matchedSuperheroId) {
         HashMap<String, Object> reqBody = new HashMap<>();
-        reqBody.put("id", matchId);
+        reqBody.put("superheroId", superheroId);
+        reqBody.put("matchedSuperheroId", matchedSuperheroId);
 
         subscribeDeleteMatch = mainPresenter.deleteMatch(reqBody).subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
