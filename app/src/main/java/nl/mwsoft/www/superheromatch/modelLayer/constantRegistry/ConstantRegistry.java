@@ -65,6 +65,7 @@ public class ConstantRegistry {
     public static final String SUPERHERO_GET_MATCH_PORT = ":4500";
     public static final String SUPERHERO_CHAT_PORT = ":5000";
     public static final String SUPERHERO_OFFLINE_MESSAGE_PORT = ":5100";
+    public static final String SUPERHERO_DELETE_OFFLINE_MESSAGE_PORT = ":5200";
     public static final String SUPERHERO_FIREBASE_MESSAGING_TOKEN_PORT = ":6000";
     public static final String SUPERHERO_REGISTER_MEDIA_PORT = ":7000";
     public static final String SUPERHERO_UPDATE_MEDIA_PORT = ":7100";

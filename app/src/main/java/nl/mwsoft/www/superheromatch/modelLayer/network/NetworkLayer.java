@@ -33,6 +33,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.network.checkEmail.CheckEmailImpl
 import nl.mwsoft.www.superheromatch.modelLayer.network.choice.ChoiceImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteAccount.DeleteAccountImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteMatch.DeleteMatchImpl;
+import nl.mwsoft.www.superheromatch.modelLayer.network.deleteOfflineMessages.DeleteOfflineMessagesImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteProfilePicture.DeleteProfilePictureImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.getMatch.GetMatchImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.getOfflineMessages.GetOfflineMessagesImpl;
@@ -141,7 +142,6 @@ public class NetworkLayer {
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
-                    Log.d("tShoot", "Exception: " + e.getMessage());
                     emitter.onError(e);
                 }
             }
@@ -162,7 +162,6 @@ public class NetworkLayer {
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
-                    Log.d("tShoot", "Exception: " + e.getMessage());
                     emitter.onError(e);
                 }
             }
@@ -183,7 +182,6 @@ public class NetworkLayer {
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
-                    Log.d("tShoot", "Exception: " + e.getMessage());
                     emitter.onError(e);
                 }
             }
@@ -204,7 +202,6 @@ public class NetworkLayer {
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
-                    Log.d("tShoot", "Exception: " + e.getMessage());
                     emitter.onError(e);
                 }
             }
@@ -225,7 +222,6 @@ public class NetworkLayer {
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
-                    Log.d("tShoot", "Exception: " + e.getMessage());
                     emitter.onError(e);
                 }
             }
@@ -246,7 +242,6 @@ public class NetworkLayer {
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
-                    Log.d("tShoot", "Exception: " + e.getMessage());
                     emitter.onError(e);
                 }
             }
@@ -387,7 +382,26 @@ public class NetworkLayer {
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
-                    Log.d("tShoot", "Exception: " + e.getMessage());
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    // endregion
+
+    // region Delete Profile Picture
+
+    public Observable<Integer> deleteOfflineMessages(HashMap<String, Object> body){
+        return Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+                try {
+                    DeleteOfflineMessagesImpl deleteOfflineMessagesImpl = new DeleteOfflineMessagesImpl();
+                    Integer response = deleteOfflineMessagesImpl.deleteOfflineMessages(body);
+                    emitter.onNext(response);
+                    emitter.onComplete();
+                } catch (Exception e) {
                     emitter.onError(e);
                 }
             }

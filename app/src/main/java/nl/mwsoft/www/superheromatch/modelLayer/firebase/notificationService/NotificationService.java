@@ -40,10 +40,10 @@ public class NotificationService extends FirebaseMessagingService {
     private CompositeDisposable disposable = new CompositeDisposable();
     private NetworkLayer networkLayer = new NetworkLayer();
     private UserDatabaseLayer userDatabaseLayer = new UserDatabaseLayer();
-    private ChatDatabaseLayer chatDatabaseLayer = new ChatDatabaseLayer();
     private InternetConnectionUtil internetConnectionUtil = new InternetConnectionUtil();
     private DateTimeUtil dateTimeUtil = new DateTimeUtil();
     private UUIDUtil uuidUtil = new UUIDUtil();
+    private ChatDatabaseLayer chatDatabaseLayer = new ChatDatabaseLayer(dateTimeUtil);
 
     @Override
     public void onDeletedMessages() {
@@ -91,6 +91,8 @@ public class NotificationService extends FirebaseMessagingService {
                 break;
             case ConstantRegistry.NEW_MESSAGE:
                 // Fetch the message and show user notification.
+                // Once messages were saved to local db successfully,
+                // delete messages from cache on server.
                 handleNewOfflineMessages(userDatabaseLayer.getUserId(NotificationService.this));
 
                 break;
@@ -135,10 +137,18 @@ public class NotificationService extends FirebaseMessagingService {
         return reqBodyChoice;
     }
 
-    private HashMap<String, Object> configureGetOfflineMessagesRequestBody(String userId) {
+    private HashMap<String, Object> configureGetOfflineMessagesRequestBody(String superheroId) {
         HashMap<String, Object> reqBody = new HashMap<>();
 
-        reqBody.put("superheroId", userId);
+        reqBody.put("superheroId", superheroId);
+
+        return reqBody;
+    }
+
+    private HashMap<String, Object> configureDeleteOfflineMessagesRequestBody(String superheroId) {
+        HashMap<String, Object> reqBody = new HashMap<>();
+
+        reqBody.put("superheroId", superheroId);
 
         return reqBody;
     }
@@ -153,11 +163,11 @@ public class NotificationService extends FirebaseMessagingService {
     }
 
     private void handleNewOfflineMessages(String superheroId) {
-        Disposable subscribeGetMatch = networkLayer.
+        Disposable subscribeGetNewOfflineMessages = networkLayer.
                 getOfflineMessages(configureGetOfflineMessagesRequestBody(superheroId)).
                 subscribeOn(Schedulers.io()).
                 subscribe(res -> {
-                    if (res.getStatus() != 200) {
+                    if (res.getStatus() != ConstantRegistry.SERVER_STATUS_OK) {
                         Log.e(
                                 NotificationService.class.getName(),
                                 "Error while fetching new offline messages"
@@ -180,6 +190,8 @@ public class NotificationService extends FirebaseMessagingService {
 
                         chatDatabaseLayer.insertChatMessage(msg, NotificationService.this);
 
+                        deleteOfflineMessages(superheroId);
+
                         NotificationUtil.sendNewOfflineMessageNotification(
                                 NotificationService.this,
                                 chat
@@ -188,6 +200,24 @@ public class NotificationService extends FirebaseMessagingService {
 
                 }, Log::getStackTraceString);
 
-        disposable.add(subscribeGetMatch);
+        disposable.add(subscribeGetNewOfflineMessages);
+    }
+
+    private void deleteOfflineMessages(String superheroId) {
+        Disposable subscribeDeleteOfflineMessages = networkLayer.
+                deleteOfflineMessages(configureDeleteOfflineMessagesRequestBody(superheroId)).
+                subscribeOn(Schedulers.io()).
+                subscribe(res -> {
+                    if (res != ConstantRegistry.SERVER_STATUS_OK) {
+                        Log.e(
+                                NotificationService.class.getName(),
+                                "Error while deleting new offline messages"
+                        );
+                    }
+
+
+                }, Log::getStackTraceString);
+
+        disposable.add(subscribeDeleteOfflineMessages);
     }
 }
