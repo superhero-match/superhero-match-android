@@ -259,24 +259,27 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject data = (JSONObject) args[0];
                     String senderId = "";
                     String messageText = "";
+                    String createdAt = "";
 
                     try {
                         senderId = data.getString(ConstantRegistry.SENDER_ID);
                         messageText = data.getString(ConstantRegistry.MESSAGE);
+                        createdAt = data.getString(ConstantRegistry.MESSAGE_CREATED);
+                        createdAt = mainPresenter.convertFromUtcToLocal(createdAt);
 
                         if (getCurrentChat() == null) {
-                            saveMessageForNotCurrentChat(senderId, messageText);
+                            saveMessageForNotCurrentChat(senderId, messageText, createdAt);
 
                             return;
                         }
 
                         if (!getCurrentChat().getMatchedUserId().equals(senderId)) {
-                            saveMessageForNotCurrentChat(senderId, messageText);
+                            saveMessageForNotCurrentChat(senderId, messageText, createdAt);
 
                             return;
                         }
 
-                        saveMessageForCurrentChat(senderId, messageText);
+                        saveMessageForCurrentChat(senderId, messageText, createdAt);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -317,26 +320,13 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     JSONObject data = (JSONObject) args[0];
-                    String senderId = "";
-                    String messageText = "";
+                    String url = "";
+                    int position = 0;
 
                     try {
-                        senderId = data.getString(ConstantRegistry.SENDER_ID);
-                        messageText = data.getString(ConstantRegistry.MESSAGE);
+                        url = data.getString(ConstantRegistry.PROFILE_PICTURE_URL);
+                        position = data.getInt(ConstantRegistry.PROFILE_PICTURE_POSITION);
 
-                        if (getCurrentChat() == null) {
-                            saveMessageForNotCurrentChat(senderId, messageText);
-
-                            return;
-                        }
-
-                        if (!getCurrentChat().getMatchedUserId().equals(senderId)) {
-                            saveMessageForNotCurrentChat(senderId, messageText);
-
-                            return;
-                        }
-
-                        saveMessageForCurrentChat(senderId, messageText);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -345,26 +335,28 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private void saveMessageForCurrentChat(String senderId, String messageText) {
-        Message chatMessage = createMessage(senderId, messageText, currentChat);
-        mainPresenter.insertChatMessage(chatMessage, MainActivity.this);
+    private void saveMessageForCurrentChat(String senderId, String messageText, String createdAt) {
+        Message chatMessage = createMessage(senderId, messageText, currentChat, createdAt);
+        mainPresenter.insertChatMessage(chatMessage, ConstantRegistry.MESSAGE_HAS_BEEN_READ, MainActivity.this);
 
         // Update Chat UI to display new message.
         messages.add(chatMessage);
         EventBus.getDefault().post(new TextMessageEvent(messages));
     }
 
-    private void saveMessageForNotCurrentChat(String senderId, String messageText) {
+    private void saveMessageForNotCurrentChat(String senderId, String messageText, String createdAt) {
         Chat tempChat = mainPresenter.getChatByMatchId(MainActivity.this, senderId);
-        Message chatMessage = createMessage(senderId, messageText, tempChat);
-        mainPresenter.insertChatMessage(chatMessage, MainActivity.this);
+        Message chatMessage = createMessage(senderId, messageText, tempChat, createdAt);
+        mainPresenter.insertChatMessage(chatMessage, ConstantRegistry.MESSAGE_HAS_NOT_BEEN_READ,MainActivity.this);
     }
 
-    private Message createMessage(String senderId, String messageText, Chat chat) {
+    private Message createMessage(String senderId, String messageText, Chat chat, String createdAt) {
         Message chatMessage = new Message();
         chatMessage.setMessageChatId(chat.getChatId());
         chatMessage.setMessageSenderId(senderId);
         chatMessage.setMessageText(messageText);
+        chatMessage.setMessageCreated(createdAt);
+
         return chatMessage;
     }
 
@@ -734,11 +726,12 @@ public class MainActivity extends AppCompatActivity {
         msg.setMessageChatId(tempChat.getChatId());
         msg.setMessageText(message);
         msg.setMessageSenderId(mainPresenter.getUserId(MainActivity.this));
+        msg.setMessageCreated(getDateTime());
 
         messages.add(msg);
         EventBus.getDefault().post(new TextMessageEvent(messages));
 
-        mainPresenter.insertChatMessage(msg, MainActivity.this);
+        mainPresenter.insertChatMessage(msg, ConstantRegistry.MESSAGE_HAS_BEEN_READ,MainActivity.this);
 
         OutgoingMessage outgoingMessage = new OutgoingMessage(
                 ConstantRegistry.ON_MESSAGE,
@@ -755,11 +748,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String getDateTime() {
-        return "2018-04-22 16:40:00";
+        return mainPresenter.getDateTime();
     }
 
     public String getContactNameById(Context context, String messageSenderId) {
-        return "Niko";
+        return mainPresenter.getChatByMatchId(context, messageSenderId).getChatName();
     }
 
     public void setToolbarStatusBarColorBlack() {
@@ -1677,18 +1670,9 @@ public class MainActivity extends AppCompatActivity {
         if (getIntent().getExtras() != null && getIntent().getAction() != null) {
             switch (getIntent().getAction()) {
                 case ConstantRegistry.NEW_MATCH_REQUEST:
-                    removeNotifications();
-                    navigation.setSelectedItemId(R.id.navigation_matches);
-                    break;
                 case ConstantRegistry.NEW_OFFLINE_MESSAGE_REQUEST:
                     removeNotifications();
-                    Chat chat = getIntent().getExtras().getParcelable(ConstantRegistry.NEW_OFFLINE_MESSAGE_REQUEST);
-                    loadBackStackFragment(
-                            ChatFragment.newInstance(
-                                    chat,
-                                    getMessages(chat.getChatId())
-                            )
-                    );
+                    navigation.setSelectedItemId(R.id.navigation_matches);
                     break;
             }
         }
