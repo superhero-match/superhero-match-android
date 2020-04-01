@@ -189,7 +189,7 @@ public class MainPresenter {
 
     // region Chat Database Layer
 
-    public void updateMessageHasBeenReadByMessageId(int messageId, Context context){
+    public void updateMessageHasBeenReadByMessageId(int messageId, Context context) {
         this.modelLayerManager.updateMessageHasBeenReadByMessageId(messageId, context);
     }
 
@@ -221,11 +221,11 @@ public class MainPresenter {
         return this.modelLayerManager.getChatById(context, chatId);
     }
 
-    public void deleteChatMessageById(int messageId, Context context){
+    public void deleteChatMessageById(int messageId, Context context) {
         this.modelLayerManager.deleteChatMessageById(messageId, context);
     }
 
-    public void deleteChatMessageBySenderId(String senderId, Context context){
+    public void deleteChatMessageBySenderId(String senderId, Context context) {
         this.modelLayerManager.deleteChatMessageBySenderId(senderId, context);
     }
 
@@ -233,11 +233,11 @@ public class MainPresenter {
         this.modelLayerManager.insertChat(chatId, matchName, matchedUserId, chatProfilePic, context);
     }
 
-    public void insertChatMessage(Message chatMessage, Context context) {
-        this.modelLayerManager.insertChatMessage(chatMessage, context);
+    public void insertChatMessage(Message chatMessage, int messageHasBeenRead, Context context) {
+        this.modelLayerManager.insertChatMessage(chatMessage, messageHasBeenRead, context);
     }
 
-    public void deleteChatById(String chatId, Context context){
+    public void deleteChatById(String chatId, Context context) {
         this.modelLayerManager.deleteChatById(chatId, context);
     }
 
@@ -256,11 +256,11 @@ public class MainPresenter {
         return this.modelLayerManager.getDateTime();
     }
 
-    public String convertFromUtcToLocal(String utc){
+    public String convertFromUtcToLocal(String utc) {
         return this.modelLayerManager.convertFromUtcToLocal(utc);
     }
 
-    public String getUtcTime(){
+    public String getUtcTime() {
         return this.modelLayerManager.getUtcTime();
     }
 
@@ -328,7 +328,7 @@ public class MainPresenter {
 
     // region Delete User's Account
 
-    public Observable<String> deleteAccount(String userId){
+    public Observable<String> deleteAccount(String userId) {
         return this.modelLayerManager.deleteAccount(userId);
     }
 
@@ -336,7 +336,7 @@ public class MainPresenter {
 
     // region Retrieve Suggestions
 
-    public Observable<SuggestionsResponse> getSuggestions(HashMap<String, Object> body){
+    public Observable<SuggestionsResponse> getSuggestions(HashMap<String, Object> body) {
         return this.modelLayerManager.getSuggestions(body);
     }
 
@@ -344,7 +344,7 @@ public class MainPresenter {
 
     // region Upload Choice
 
-    public Observable<ChoiceResponse> uploadChoice(HashMap<String, Object> body){
+    public Observable<ChoiceResponse> uploadChoice(HashMap<String, Object> body) {
         return this.modelLayerManager.uploadChoice(body);
     }
 
@@ -352,7 +352,7 @@ public class MainPresenter {
 
     // region Upload Match
 
-    public Observable<Integer> uploadMatch(HashMap<String, Object> body){
+    public Observable<Integer> uploadMatch(HashMap<String, Object> body) {
         return this.modelLayerManager.uploadMatch(body);
     }
 
@@ -376,7 +376,7 @@ public class MainPresenter {
 
     // region Get Suggestion Profile
 
-    public Observable<ProfileResponse> getSuperheroProfile(HashMap<String, Object> body){
+    public Observable<ProfileResponse> getSuperheroProfile(HashMap<String, Object> body) {
         return this.modelLayerManager.getSuperheroProfile(body);
     }
 
@@ -408,7 +408,7 @@ public class MainPresenter {
 
     // region Get Offline Messages
 
-    public Observable<OfflineMessagesResponse> getOfflineMessages(HashMap<String, Object> body){
+    public Observable<OfflineMessagesResponse> getOfflineMessages(HashMap<String, Object> body) {
         return this.modelLayerManager.getOfflineMessages(body);
     }
 
@@ -416,7 +416,7 @@ public class MainPresenter {
 
     // region Delete Profile Picture
 
-    public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body){
+    public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body) {
         return this.modelLayerManager.deleteProfilePicture(body);
     }
 

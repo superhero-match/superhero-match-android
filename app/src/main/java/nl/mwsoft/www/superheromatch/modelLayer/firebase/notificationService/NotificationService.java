@@ -153,11 +153,12 @@ public class NotificationService extends FirebaseMessagingService {
         return reqBody;
     }
 
-    private Message createMessage(String senderId, String messageText, String chatId) {
+    private Message createMessage(String senderId, String messageText, String chatId, String createdAt) {
         Message chatMessage = new Message();
         chatMessage.setMessageChatId(chatId);
         chatMessage.setMessageSenderId(senderId);
         chatMessage.setMessageText(messageText);
+        chatMessage.setMessageCreated(dateTimeUtil.convertFromUtcToLocal(createdAt));
 
         return chatMessage;
     }
@@ -185,10 +186,15 @@ public class NotificationService extends FirebaseMessagingService {
                         Message msg = createMessage(
                                 offlineMessage.getSenderId(),
                                 offlineMessage.getMessage(),
-                                chat.getChatId()
+                                chat.getChatId(),
+                                offlineMessage.getCreatedAt()
                         );
 
-                        chatDatabaseLayer.insertChatMessage(msg, NotificationService.this);
+                        chatDatabaseLayer.insertChatMessage(
+                                msg,
+                                ConstantRegistry.MESSAGE_HAS_NOT_BEEN_READ,
+                                NotificationService.this
+                        );
 
                         deleteOfflineMessages(superheroId);
 

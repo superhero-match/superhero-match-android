@@ -285,8 +285,8 @@ public class ModelLayerManager {
         this.chatDatabaseLayer.insertChat(chatId, matchName, matchedUserId, chatProfilePic, context);
     }
 
-    public void insertChatMessage(Message chatMessage, Context context) {
-        this.chatDatabaseLayer.insertChatMessage(chatMessage, context);
+    public void insertChatMessage(Message chatMessage, int messageHasBeenRead, Context context) {
+        this.chatDatabaseLayer.insertChatMessage(chatMessage, messageHasBeenRead, context);
     }
 
     public void deleteChatById(String chatId, Context context){

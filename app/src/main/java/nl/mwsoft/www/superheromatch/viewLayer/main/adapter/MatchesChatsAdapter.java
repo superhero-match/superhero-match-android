@@ -23,6 +23,9 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
 import java.util.List;
 
 import nl.mwsoft.www.superheromatch.R;
@@ -85,6 +88,19 @@ public class MatchesChatsAdapter extends RecyclerView.Adapter<MatchesChatsAdapte
     @Override
     public void onBindViewHolder(MatchesChatsAdapter.MyViewHolder holder, int position) {
         Chat matchChat = matchChats.get(position);
+
+        RequestOptions options = new RequestOptions()
+                .placeholder(R.drawable.user_512)
+                .error(R.drawable.user_512)
+                .circleCrop();
+
+        Glide.with(mainActivity).
+                load(matchChat.getMatchedUserMainProfilePic()).
+                apply(options).
+                into(holder.ivProfileMatchesChats);
+
+
+
         holder.tvUserNameMatchesChats.setText(matchChat.getChatName());
         holder.tvLastActivityDateMatchesChats.setText(matchChat.getLastActivityDate());
         holder.tvLastActivityMessageMatchesChats.setText(matchChat.getLastActivityMessage());

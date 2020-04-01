@@ -153,11 +153,14 @@ public class ConstantRegistry {
     public static final String MESSAGE = "message";
     public static final String MESSAGE_CREATED = "createdAt";
 
+    public static final String PROFILE_PICTURE_URL = "url";
+    public static final String PROFILE_PICTURE_POSITION = "position";
+
     public static final String STATUS = "status";
     public static final int SERVER_STATUS_OK = 200;
     public static final String MAIN_PROFILE_PICTURE_URL = "mainProfilePictureURL";
     public static final String ON_UPLOAD_MAIN_PROFILE_PICTURE = "onUploadMainProfilePicture";
-    public static final String ON_UPDATE_PROFILE_PICTURE = "onUpdateProfilePicture";
+    public static final String ON_UPDATE_PROFILE_PICTURE = "updateProfilePictureURL";
     public static final String ON_UPLOAD_NEW_PROFILE_PICTURE = "onUploadNewProfilePicture";
     public static final String ON_DELETE_PROFILE_PICTURE = "onDeleteProfilePicture";
 
@@ -194,4 +197,7 @@ public class ConstantRegistry {
     public static final String FIREBASE_TOKEN = "firebaseToken";
 
     public static final int INTRO_FRAGMENTS_COUNT = 3;
+
+    public static final int MESSAGE_HAS_NOT_BEEN_READ = 0;
+    public static final int MESSAGE_HAS_BEEN_READ = 1;
 }

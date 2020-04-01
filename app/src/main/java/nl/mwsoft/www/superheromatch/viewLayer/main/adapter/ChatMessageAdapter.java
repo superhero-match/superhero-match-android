@@ -15,6 +15,7 @@ package nl.mwsoft.www.superheromatch.viewLayer.main.adapter;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -140,6 +141,9 @@ public class ChatMessageAdapter  extends RecyclerView.Adapter<RecyclerView.ViewH
         if(message.getMessageCreated() != null && !message.getMessageCreated().equals("")){
             messageCreated = message.getMessageCreated();
             parts = messageCreated.split(" ");
+            if(parts.length == 1){
+                parts = messageCreated.split("T");
+            }
             part1 = parts[0]; // 2017-05-27
             part2 = parts[1]; // 12:05:41
             String[] dateParts = part1.split("-");

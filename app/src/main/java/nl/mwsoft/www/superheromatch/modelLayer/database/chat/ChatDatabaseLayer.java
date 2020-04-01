@@ -257,12 +257,13 @@ public class ChatDatabaseLayer {
         context.getContentResolver().delete(SuperHeroMatchProvider.CONTENT_URI_MESSAGE_QUEUE, msgSelectionUpdate, null);
     }
 
-    public void insertChatMessage(Message chatMessage, Context context) {
+    public void insertChatMessage(Message chatMessage, int messageHasBeenRead, Context context) {
         ContentValues setValues = new ContentValues();
         setValues.put(DBOpenHelper.MESSAGE_SENDER_ID, chatMessage.getMessageSenderId());
         setValues.put(DBOpenHelper.MESSAGE_CHAT_ID, chatMessage.getMessageChatId());
-        setValues.put(DBOpenHelper.MESSAGE_HAS_BEEN_READ, 1);
+        setValues.put(DBOpenHelper.MESSAGE_HAS_BEEN_READ, messageHasBeenRead);
         setValues.put(DBOpenHelper.TEXT_MESSAGE, chatMessage.getMessageText());
+        setValues.put(DBOpenHelper.MESSAGE_CREATED, chatMessage.getMessageCreated());
 
         Uri setUri = context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_MESSAGE, setValues);
     }

@@ -13,6 +13,8 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.helper.util.dateTimeUtil;
 
+import android.util.Log;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -57,7 +59,11 @@ public class DateTimeUtil {
         String part1;
         String part2 = "";
         if (fullDate != null && !fullDate.equals("")) {
+            Log.d("tShoot", "fullDate --> " + fullDate);
             parts = fullDate.split(" ");
+            if(parts.length == 1){
+                parts = fullDate.split("T");
+            }
             part1 = parts[0]; // 2017-05-27
             part2 = parts[1]; // 12:05:41
             String[] newParts = part2.split(":");
