@@ -36,6 +36,7 @@ public class SuperHeroMatchProvider extends ContentProvider {
     private static final String MATCH_CHAT_MESSAGE_PATH = "match_chat_message";
     private static final String RETRIEVED_OFFLINE_MESSAGE_UUID_PATH = "retrieved_offline_message_uuid";
     private static final String RECEIVED_ONLINE_MESSAGE_PATH = "received_online_message";
+    private static final String CHOICE_PATH = "choice";
 
 
     public static final Uri CONTENT_URI_MESSAGE_QUEUE = Uri.parse("content://" + AUTHORITY + "/" + MESSAGE_QUEUE_PATH);
@@ -45,6 +46,7 @@ public class SuperHeroMatchProvider extends ContentProvider {
     public static final Uri CONTENT_URI_MESSAGE = Uri.parse("content://" + AUTHORITY + "/" + MATCH_CHAT_MESSAGE_PATH);
     public static final Uri CONTENT_URI_RETRIEVED_OFFLINE_MESSAGE_UUID = Uri.parse("content://" + AUTHORITY + "/" + RETRIEVED_OFFLINE_MESSAGE_UUID_PATH);
     public static final Uri CONTENT_URI_RECEIVED_ONLINE_MESSAGE = Uri.parse("content://" + AUTHORITY + "/" + RECEIVED_ONLINE_MESSAGE_PATH);
+    public static final Uri CONTENT_URI_CHOICE = Uri.parse("content://" + AUTHORITY + "/" + CHOICE_PATH);
 
 
     // ConstantRegistry to identify the requested operation
@@ -70,6 +72,9 @@ public class SuperHeroMatchProvider extends ContentProvider {
     private static final int MATCH_CHAT_MESSAGES = 17;
     private static final int MATCH_CHAT_MESSAGE_ID = 18;
 
+    private static final int CHOICES = 19;
+    private static final int CHOICE_ID = 20;
+
 
     private static  final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -80,6 +85,7 @@ public class SuperHeroMatchProvider extends ContentProvider {
     private static final String CONTENT_ITEM_MATCH_CHAT_MESSAGE = "match_chat_message";
     private static final String CONTENT_ITEM_RETRIEVED_OFFLINE_MESSAGE_UUID = "retrieved_offline_message_uuid";
     private static final String CONTENT_ITEM_RECEIVED_ONLINE_MESSAGE = "received_online_message";
+    private static final String CONTENT_ITEM_CHOICE = "choice";
 
 
     static {
@@ -104,6 +110,9 @@ public class SuperHeroMatchProvider extends ContentProvider {
 
         uriMatcher.addURI(AUTHORITY, MATCH_CHAT_MESSAGE_PATH, MATCH_CHAT_MESSAGES);
         uriMatcher.addURI(AUTHORITY, MATCH_CHAT_MESSAGE_PATH + "/#", MATCH_CHAT_MESSAGE_ID);
+
+        uriMatcher.addURI(AUTHORITY, CHOICE_PATH, CHOICES);
+        uriMatcher.addURI(AUTHORITY, CHOICE_PATH + "/#", CHOICE_ID);
     }
 
     private SQLiteDatabase database;
@@ -135,6 +144,8 @@ public class SuperHeroMatchProvider extends ContentProvider {
             selection = DBOpenHelper.CHAT_ID + "=" + uri.getLastPathSegment();
         }  else if(uriMatcher.match(uri) == MATCH_CHAT_MESSAGE_ID){
             selection = DBOpenHelper.MESSAGE_ID + "=" + uri.getLastPathSegment();
+        }  else if(uriMatcher.match(uri) == CHOICE_ID){
+            selection = DBOpenHelper.CHOICE_ID + "=" + uri.getLastPathSegment();
         }
 
 
@@ -166,6 +177,10 @@ public class SuperHeroMatchProvider extends ContentProvider {
                 break;
             case MATCH_CHAT_MESSAGES:
                 _cursor = database.query(DBOpenHelper.TABLE_MESSAGE, DBOpenHelper.ALL_COLUMNS_MATCH_CHAT_MESSAGE,
+                        selection, null, null, null, null);
+                break;
+            case CHOICES:
+                _cursor = database.query(DBOpenHelper.TABLE_CHOICE, DBOpenHelper.ALL_COLUMNS_CHOICE,
                         selection, null, null, null, null);
                 break;
 
@@ -253,6 +268,16 @@ public class SuperHeroMatchProvider extends ContentProvider {
                 //---if added successfully---
                 if (mcm > 0) {
                     _uri = ContentUris.withAppendedId(CONTENT_URI_MESSAGE, mcm);
+                    getContext().getContentResolver().notifyChange(_uri, null);
+                }
+
+                break;
+            case CHOICES:
+                long cm = database.insert(DBOpenHelper.TABLE_CHOICE, null, values);
+
+                //---if added successfully---
+                if (cm > 0) {
+                    _uri = ContentUris.withAppendedId(CONTENT_URI_CHOICE, cm);
                     getContext().getContentResolver().notifyChange(_uri, null);
                 }
 
@@ -348,6 +373,17 @@ public class SuperHeroMatchProvider extends ContentProvider {
 
                 result = (int)mcm;
                 break;
+            case CHOICES:
+                long cm = database.delete(DBOpenHelper.TABLE_CHOICE, selection, selectionArgs);
+
+                //---if added successfully---
+                if (cm > 0) {
+                    _uri = ContentUris.withAppendedId(CONTENT_URI_CHOICE, cm);
+                    getContext().getContentResolver().notifyChange(_uri, null);
+                }
+
+                result = (int)cm;
+                break;
 
             default: throw new SQLException("Failed to delete row in " + uri);
         }
@@ -437,6 +473,17 @@ public class SuperHeroMatchProvider extends ContentProvider {
                 }
 
                 result = (int)mcm;
+                break;
+            case CHOICES:
+                long cm = database.update(DBOpenHelper.TABLE_CHOICE, values, selection, selectionArgs);
+
+                //---if added successfully---
+                if (cm > 0) {
+                    _uri = ContentUris.withAppendedId(CONTENT_URI_CHOICE, cm);
+                    getContext().getContentResolver().notifyChange(_uri, null);
+                }
+
+                result = (int)cm;
                 break;
 
             default: throw new SQLException("Failed to update row in " + uri);

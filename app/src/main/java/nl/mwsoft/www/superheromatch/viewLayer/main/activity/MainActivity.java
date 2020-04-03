@@ -110,6 +110,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.compare.ProfilePicturePositionComparator;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Choice;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OutgoingMessage;
@@ -194,6 +195,8 @@ public class MainActivity extends AppCompatActivity {
         setUpConnectionToChatServer();
         setUpConnectionToUpdateMediaServer();
 
+        deleteOldChoices();
+
         // || mainPresenter.getUserIsLoggedIn(this) == 0
         if (mainPresenter.getUserId(this).equals("default")) {
             navigateToVerifyIdentity(this);
@@ -213,6 +216,28 @@ public class MainActivity extends AppCompatActivity {
             startLocationUpdates();
         }
     }
+
+    // region Delete Choices
+
+    private void deleteOldChoices() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        try {
+            ArrayList<Choice> choices = mainPresenter.getAllChoices(MainActivity.this);
+            for (Choice choice : choices) {
+                Date choiceCratedAt = simpleDateFormat.parse(choice.getCreatedAt());
+                Date now = simpleDateFormat.parse(mainPresenter.getDateTime());
+
+                if (mainPresenter.isOlderThanOneDay(choiceCratedAt, now)) {
+                    mainPresenter.deleteChoice(choice.getChoiceId(), MainActivity.this);
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // endregion
 
     // region Socket.IO
 
@@ -347,7 +372,7 @@ public class MainActivity extends AppCompatActivity {
     private void saveMessageForNotCurrentChat(String senderId, String messageText, String createdAt) {
         Chat tempChat = mainPresenter.getChatByMatchId(MainActivity.this, senderId);
         Message chatMessage = createMessage(senderId, messageText, tempChat, createdAt);
-        mainPresenter.insertChatMessage(chatMessage, ConstantRegistry.MESSAGE_HAS_NOT_BEEN_READ,MainActivity.this);
+        mainPresenter.insertChatMessage(chatMessage, ConstantRegistry.MESSAGE_HAS_NOT_BEEN_READ, MainActivity.this);
     }
 
     private Message createMessage(String senderId, String messageText, Chat chat, String createdAt) {
@@ -467,6 +492,13 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<Chat> chats = mainPresenter.getAllChats(MainActivity.this);
         for (Chat chat : chats) {
             this.retrievedSuperheroIds.add(chat.getMatchedUserId());
+        }
+
+        // Add all user ids that have been liked, disliked or superliked within last day.
+        // This is in order to prevent the same users showing up in search result too frequently.
+        ArrayList<Choice> choices = mainPresenter.getAllChoices(MainActivity.this);
+        for (Choice choice : choices){
+            this.retrievedSuperheroIds.add(choice.getChosenUserId());
         }
 
         reqBodySuggestions.put("retrievedSuperheroIds", this.retrievedSuperheroIds);
@@ -731,7 +763,7 @@ public class MainActivity extends AppCompatActivity {
         messages.add(msg);
         EventBus.getDefault().post(new TextMessageEvent(messages));
 
-        mainPresenter.insertChatMessage(msg, ConstantRegistry.MESSAGE_HAS_BEEN_READ,MainActivity.this);
+        mainPresenter.insertChatMessage(msg, ConstantRegistry.MESSAGE_HAS_BEEN_READ, MainActivity.this);
 
         OutgoingMessage outgoingMessage = new OutgoingMessage(
                 ConstantRegistry.ON_MESSAGE,
@@ -1600,6 +1632,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        mainPresenter.insertChoice(
+                this.suggestions.get(this.currentSuggestion).getId(),
+                ConstantRegistry.LIKE,
+                mainPresenter.getDateTime(),
+                MainActivity.this
+        );
+
         // Check if it is a match.
         if (this.suggestions.get(this.currentSuggestion).isHasLikedMe()) {
             handleMatch(
@@ -1625,6 +1664,13 @@ public class MainActivity extends AppCompatActivity {
         if (this.suggestions.size() == 0) {
             return;
         }
+
+        mainPresenter.insertChoice(
+                this.suggestions.get(this.currentSuggestion).getId(),
+                ConstantRegistry.DISLIKE,
+                mainPresenter.getDateTime(),
+                MainActivity.this
+        );
 
         // Send the choice to the server.
         uploadChoice(

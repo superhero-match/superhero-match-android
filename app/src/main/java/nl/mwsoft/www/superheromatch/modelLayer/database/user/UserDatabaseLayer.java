@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 import nl.mwsoft.www.superheromatch.modelLayer.database.dbhelper.DBOpenHelper;
 import nl.mwsoft.www.superheromatch.modelLayer.database.provider.SuperHeroMatchProvider;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Choice;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 
 
@@ -613,5 +614,44 @@ public class UserDatabaseLayer {
         contentValues.put(DBOpenHelper.USER_SUPER_POWER, superPower);
 
         context.getContentResolver().update(SuperHeroMatchProvider.CONTENT_URI_USER, contentValues, selection, null);
+    }
+
+    public ArrayList<Choice> getAllChoices(Context context) {
+        ArrayList<Choice> choices = new ArrayList<>();
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_CHOICE, null);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                Choice choice = new Choice();
+                choice.setChoiceId(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHOICE_ID))));
+                choice.setChosenUserId(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHOSEN_USER_ID)));
+                choice.setChoice(Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHOICE))));
+                choice.setCreatedAt(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.CHOICE_CREATED_AT)));
+                choices.add(choice);
+            }
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        db.close();
+
+        return choices;
+    }
+
+    public void insertChoice(String chosenUserId, int choice, String createdAt, Context context) {
+        ContentValues setValues = new ContentValues();
+        setValues.put(DBOpenHelper.CHOSEN_USER_ID, chosenUserId);
+        setValues.put(DBOpenHelper.CHOICE, choice);
+        setValues.put(DBOpenHelper.CHOICE_CREATED_AT, createdAt);
+
+        context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_CHOICE, setValues);
+    }
+
+    public void deleteChoice(int id, Context context) {
+        String choiceSelectionDelete = DBOpenHelper.CHOICE_ID + "=" + id + "";
+        context.getContentResolver().delete(SuperHeroMatchProvider.CONTENT_URI_CHOICE, choiceSelectionDelete, null);
     }
 }

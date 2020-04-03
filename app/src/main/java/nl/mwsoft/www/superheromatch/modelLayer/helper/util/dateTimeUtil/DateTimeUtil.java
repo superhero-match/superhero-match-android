@@ -34,7 +34,7 @@ public class DateTimeUtil {
         return dateFormat.format(date);
     }
 
-    public String convertFromUtcToLocal(String utc){
+    public String convertFromUtcToLocal(String utc) {
         try {
             DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -47,7 +47,7 @@ public class DateTimeUtil {
         }
     }
 
-    public String getUtcTime(){
+    public String getUtcTime() {
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         f.setTimeZone(TimeZone.getTimeZone("UTC"));
         return f.format(new Date());
@@ -61,7 +61,7 @@ public class DateTimeUtil {
         if (fullDate != null && !fullDate.equals("")) {
             Log.d("tShoot", "fullDate --> " + fullDate);
             parts = fullDate.split(" ");
-            if(parts.length == 1){
+            if (parts.length == 1) {
                 parts = fullDate.split("T");
             }
             part1 = parts[0]; // 2017-05-27
@@ -79,5 +79,22 @@ public class DateTimeUtil {
         }
 
         return date;
+    }
+
+    // 1 minute = 60 seconds
+    // 1 hour = 60 x 60 = 3600
+    // 1 day = 3600 x 24 = 86400
+    public boolean isOlderThanOneDay(Date startDate, Date endDate) {
+        //milliseconds
+        long difference = endDate.getTime() - startDate.getTime();
+
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+        long daysInMilli = hoursInMilli * 24;
+
+        long elapsedDays = difference / daysInMilli;
+
+        return elapsedDays >= 1L;
     }
 }
