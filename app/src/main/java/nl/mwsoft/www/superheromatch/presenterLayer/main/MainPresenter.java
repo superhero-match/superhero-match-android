@@ -22,10 +22,12 @@ import android.net.Uri;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Choice;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
@@ -241,6 +243,18 @@ public class MainPresenter {
         this.modelLayerManager.deleteChatById(chatId, context);
     }
 
+    public ArrayList<Choice> getAllChoices(Context context) {
+        return this.modelLayerManager.getAllChoices(context);
+    }
+
+    public void insertChoice(String chosenUserId, int choice, String createdAt, Context context) {
+        this.modelLayerManager.insertChoice(chosenUserId, choice, createdAt, context);
+    }
+
+    public void deleteChoice(int id, Context context) {
+        this.modelLayerManager.deleteChoice(id, context);
+    }
+
 
     // endregion
 
@@ -266,6 +280,10 @@ public class MainPresenter {
 
     public String getMessageCreated(String fullDate) {
         return this.modelLayerManager.getMessageCreated(fullDate);
+    }
+
+    public boolean isOlderThanOneDay(Date startDate, Date endDate) {
+        return this.modelLayerManager.isOlderThanOneDay(startDate, endDate);
     }
 
     // endregion

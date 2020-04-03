@@ -13,7 +13,10 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.modelLayerManager;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -21,10 +24,13 @@ import android.net.Uri;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
 import nl.mwsoft.www.superheromatch.modelLayer.database.chat.ChatDatabaseLayer;
+import nl.mwsoft.www.superheromatch.modelLayer.database.dbhelper.DBOpenHelper;
+import nl.mwsoft.www.superheromatch.modelLayer.database.provider.SuperHeroMatchProvider;
 import nl.mwsoft.www.superheromatch.modelLayer.database.user.UserDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.dateTimeUtil.DateTimeUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.imageProcessing.ImageProcessingUtil;
@@ -32,6 +38,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.helper.util.internet.InternetConn
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.uuid.UUIDUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Choice;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
@@ -293,6 +300,18 @@ public class ModelLayerManager {
         this.chatDatabaseLayer.deleteChatById(chatId, context);
     }
 
+    public ArrayList<Choice> getAllChoices(Context context) {
+        return this.userDatabaseLayer.getAllChoices(context);
+    }
+
+    public void insertChoice(String chosenUserId, int choice, String createdAt, Context context) {
+        this.userDatabaseLayer.insertChoice(chosenUserId, choice, createdAt, context);
+    }
+
+    public void deleteChoice(int id, Context context) {
+        this.userDatabaseLayer.deleteChoice(id, context);
+    }
+
 
     // endregion
 
@@ -319,6 +338,10 @@ public class ModelLayerManager {
 
     public String getMessageCreated(String fullDate) {
         return this.dateTimeUtil.getMessageCreated(fullDate);
+    }
+
+    public boolean isOlderThanOneDay(Date startDate, Date endDate) {
+        return this.dateTimeUtil.isOlderThanOneDay(startDate, endDate);
     }
 
     // endregion

@@ -17,11 +17,13 @@ import android.content.Context;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
 import nl.mwsoft.www.superheromatch.dependencyRegistry.DependencyRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.database.user.UserDatabaseLayer;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Choice;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.network.NetworkLayer;
 
@@ -56,6 +58,18 @@ public class UserModelLayerManager {
 
     public void updateUserProfilePic(String userID, String uri, Context context){
         this.userDatabaseLayer.updateUserMainProfilePic(userID, uri, context);
+    }
+
+    public ArrayList<Choice> getAllChoices(Context context) {
+        return this.userDatabaseLayer.getAllChoices(context);
+    }
+
+    public void insertChoice(String chosenUserId, int choice, String createdAt, Context context) {
+        this.userDatabaseLayer.insertChoice(chosenUserId, choice, createdAt, context);
+    }
+
+    public void deleteChoice(int id, Context context) {
+        this.userDatabaseLayer.deleteChoice(id, context);
     }
 
     // region User Network

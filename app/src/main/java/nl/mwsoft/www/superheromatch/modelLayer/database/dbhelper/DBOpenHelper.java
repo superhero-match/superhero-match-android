@@ -22,7 +22,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
     // Constants for db name and version
     private static final String DATABASE_NAME = "superheromatch.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     //=======================================================================================================================
     // Constants for identifying tables and columns
@@ -232,6 +232,30 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
     //=======================================================================================================================
 
+    //=======================================================================================================================
+    // choice table
+    //=======================================================================================================================
+    public static final String TABLE_CHOICE = "choice";
+    public static final String CHOICE_ID = "_id";
+    public static final String CHOSEN_USER_ID = "chosen_user_id";
+    public static final String CHOICE = "choice";
+    public static final String CHOICE_CREATED_AT = "created_at";
+
+
+    public static final String[] ALL_COLUMNS_CHOICE = {CHOICE_ID,
+            CHOSEN_USER_ID, CHOICE, CHOICE_CREATED_AT};
+
+    // SQL to create table text_message
+    private static final String TABLE_CREATE_CHOICE =
+            "CREATE TABLE " + TABLE_CHOICE + " (" +
+                    CHOICE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    CHOSEN_USER_ID + " TEXT NOT NULL, " +
+                    CHOICE + " INTEGER NOT NULL, " +
+                    CHOICE_CREATED_AT + " TEXT default CURRENT_TIMESTAMP " +
+                    ")";
+
+    //=======================================================================================================================
+
     // endregion
 
     public DBOpenHelper(Context context) {
@@ -248,6 +272,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         db.execSQL(TABLE_CREATE_USER_PROFILE_PICTURE);
         db.execSQL(TABLE_CREATE_RETRIEVED_OFFLINE_MESSAGE_UUID);
         db.execSQL(TABLE_CREATE_RECEIVED_ONLINE_MESSAGE);
+        db.execSQL(TABLE_CREATE_CHOICE);
     }
 
     @Override
@@ -259,6 +284,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RETRIEVED_OFFLINE_MESSAGE_UUID);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECEIVED_ONLINE_MESSAGE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGE_QUEUE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CREATE_CHOICE);
         onCreate(db);
     }
 
