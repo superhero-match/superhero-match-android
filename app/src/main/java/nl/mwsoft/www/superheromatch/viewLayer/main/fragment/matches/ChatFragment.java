@@ -107,7 +107,7 @@ public class ChatFragment extends Fragment {
         chat = arguments.getParcelable(CHAT);
         messages = arguments.getParcelableArrayList(MESSAGES);
 
-        chatMessageAdapter = new ChatMessageAdapter(messages, mainActivity);
+        chatMessageAdapter = new ChatMessageAdapter(messages, mainActivity, chat);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(view.getContext());
         rvChat.setLayoutManager(mLayoutManager);
         rvChat.setItemAnimator(new DefaultItemAnimator());

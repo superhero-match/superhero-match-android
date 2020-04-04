@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -31,14 +30,11 @@ import com.bumptech.glide.request.RequestOptions;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnLongClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 
-public class UserProfileImageFragment extends Fragment {
-
+public class SuggestionProfileImageFragment extends Fragment {
     @BindView(R.id.ivUserProfilePic)
     ImageView ivUserProfilePic;
     @BindView(R.id.tvUserNameAge)
@@ -144,26 +140,5 @@ public class UserProfileImageFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mainActivity = (MainActivity) context;
-    }
-
-    @OnClick(R.id.ivUserProfilePic)
-    public void onUserProfileProfilePictureClickListener() {
-        mainActivity.setAddingNewProfilePicture(false);
-        mainActivity.setCurrentProfilePicturePosition(picPosition);
-        mainActivity.showProfilePicChoice();
-    }
-
-    @OnLongClick(R.id.ivUserProfilePic)
-    public boolean onUserProfileProfilePictureLongClickListener() {
-        if (picPosition == 0) {
-            Toast.makeText(mainActivity, R.string.cant_delete_main_profile_pic, Toast.LENGTH_LONG).show();
-
-            return true;
-        }
-
-        mainActivity.setCurrentProfilePicturePosition(picPosition);
-        mainActivity.showDialogDeleteProfilePicture(picPosition);
-
-        return true;
     }
 }

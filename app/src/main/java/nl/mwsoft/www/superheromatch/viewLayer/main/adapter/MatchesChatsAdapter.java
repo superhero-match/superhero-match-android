@@ -53,6 +53,9 @@ public class MatchesChatsAdapter extends RecyclerView.Adapter<MatchesChatsAdapte
             mainActivity = (MainActivity) context;
             rlMatchesChats = (RelativeLayout) view.findViewById(R.id.rlMatchesChats);
             ivProfileMatchesChats = (ImageView) view.findViewById(R.id.ivProfileMatchesChats);
+            ivProfileMatchesChats.setOnClickListener(v -> {
+                mainActivity.loadSuggestionProfileFragment(matchChats.get(getAdapterPosition()).getMatchedUserId());
+            });
             tvUserNameMatchesChats = (TextView) view.findViewById(R.id.tvUserNameMatchesChats);
             tvLastActivityMessageMatchesChats = (TextView) view.findViewById(R.id.tvLastActivityMessageMatchesChats);
             tvLastActivityDateMatchesChats = (TextView) view.findViewById(R.id.tvLastActivityDateMatchesChats);
@@ -104,15 +107,15 @@ public class MatchesChatsAdapter extends RecyclerView.Adapter<MatchesChatsAdapte
         holder.tvUserNameMatchesChats.setText(matchChat.getChatName());
         holder.tvLastActivityDateMatchesChats.setText(matchChat.getLastActivityDate());
         holder.tvLastActivityMessageMatchesChats.setText(matchChat.getLastActivityMessage());
+        if (holder.tvUnreadMsgMatchesChat.getVisibility() == View.VISIBLE) {
+            holder.tvUnreadMsgMatchesChat.setVisibility(View.GONE);
+        }
+
         if (matchChat.getUnreadMessageCount() > 0) {
             if (holder.tvUnreadMsgMatchesChat.getVisibility() == View.GONE) {
                 holder.tvUnreadMsgMatchesChat.setVisibility(View.VISIBLE);
             }
             holder.tvUnreadMsgMatchesChat.setText(String.valueOf(matchChat.getUnreadMessageCount()));
-        } else {
-            if (holder.tvUnreadMsgMatchesChat.getVisibility() == View.VISIBLE) {
-                holder.tvUnreadMsgMatchesChat.setVisibility(View.GONE);
-            }
         }
     }
 

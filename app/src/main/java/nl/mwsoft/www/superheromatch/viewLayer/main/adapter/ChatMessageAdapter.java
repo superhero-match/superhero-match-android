@@ -29,14 +29,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import nl.mwsoft.www.superheromatch.R;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
+import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.ChatFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.SuggestionProfileFragment;
 
-public class ChatMessageAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private ArrayList<Message> messageList;
     private Context context;
     private MainActivity mainActivity;
+    private Chat chat;
 
     public class TextMessageViewHolder extends RecyclerView.ViewHolder {
         public TextView tvChatMessageSenderName;
@@ -47,6 +52,9 @@ public class ChatMessageAdapter  extends RecyclerView.Adapter<RecyclerView.ViewH
             super(view);
             context = view.getContext();
             tvChatMessageSenderName = (TextView) view.findViewById(R.id.tvChatMessageSenderName);
+            tvChatMessageSenderName.setOnClickListener(v -> {
+                mainActivity.loadSuggestionProfileFragment(chat.getMatchedUserId());
+            });
             tvChatMessageText = (TextView) view.findViewById(R.id.tvChatMessageText);
             tvChatMessageCreated = (TextView) view.findViewById(R.id.tvChatMessageCreated);
         }
@@ -68,9 +76,10 @@ public class ChatMessageAdapter  extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
 
-    public ChatMessageAdapter(ArrayList<Message> messageList, MainActivity mainActivity) {
+    public ChatMessageAdapter(ArrayList<Message> messageList, MainActivity mainActivity, Chat chat) {
         this.messageList = messageList;
         this.mainActivity = mainActivity;
+        this.chat = chat;
     }
 
     @Override
@@ -127,8 +136,8 @@ public class ChatMessageAdapter  extends RecyclerView.Adapter<RecyclerView.ViewH
             textMessageViewHolder.tvChatMessageCreated.setText(date);
         }
 
-        // after the message has been read by the user, mark it as has been read
-        // TO-DO: mainActivity.updateMessageHasBeenReadByMessageId(message.getMessageId(), context);
+        // After the message has been read by the user, mark it as has been read
+        mainActivity.updateMessageHasBeenReadByMessageId(message.getMessageId(), context);
     }
 
     @NonNull
