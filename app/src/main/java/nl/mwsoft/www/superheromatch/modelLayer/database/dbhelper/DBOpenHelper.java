@@ -284,7 +284,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RETRIEVED_OFFLINE_MESSAGE_UUID);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECEIVED_ONLINE_MESSAGE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGE_QUEUE);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CREATE_CHOICE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHOICE);
         onCreate(db);
     }
 

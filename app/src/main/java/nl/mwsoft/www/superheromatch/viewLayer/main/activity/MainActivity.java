@@ -125,6 +125,7 @@ import nl.mwsoft.www.superheromatch.viewLayer.dialog.matchDialog.MatchDialog;
 import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.MatchesChatsAdapter;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.ChatFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.MatchesChatsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.SuggestionProfileFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfilePictureSettingsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.NoSuggestionsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionDescriptionFragment;
@@ -197,7 +198,6 @@ public class MainActivity extends AppCompatActivity {
 
         deleteOldChoices();
 
-        // || mainPresenter.getUserIsLoggedIn(this) == 0
         if (mainPresenter.getUserId(this).equals("default")) {
             navigateToVerifyIdentity(this);
 
@@ -497,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
         // Add all user ids that have been liked, disliked or superliked within last day.
         // This is in order to prevent the same users showing up in search result too frequently.
         ArrayList<Choice> choices = mainPresenter.getAllChoices(MainActivity.this);
-        for (Choice choice : choices){
+        for (Choice choice : choices) {
             this.retrievedSuperheroIds.add(choice.getChosenUserId());
         }
 
@@ -547,9 +547,9 @@ public class MainActivity extends AppCompatActivity {
         return reqBodyUpdateProfile;
     }
 
-    private HashMap<String, Object> configureGetSuperheroProfileRequestBody(MainPresenter mainPresenter) {
+    private HashMap<String, Object> configureGetSuperheroProfileRequestBody(String superheroId) {
         HashMap<String, Object> reqBodyUpdateProfile = new HashMap<>();
-        reqBodyUpdateProfile.put("superheroId", mainPresenter.getUserId(this));
+        reqBodyUpdateProfile.put("superheroId", superheroId);
 
         return reqBodyUpdateProfile;
     }
@@ -560,7 +560,7 @@ public class MainActivity extends AppCompatActivity {
         superheroIds = new ArrayList<>();
         retrievedSuperheroIds = new ArrayList<>();
         suggestions = new ArrayList<>();
-        uiHandler = new Handler(); // anything posted to this handler will run on the UI Thread
+        uiHandler = new Handler();
     }
 
     public void configureWith(RootCoordinator rootCoordinator, MainPresenter mainPresenter) {
@@ -669,7 +669,9 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_profile:
                     currFragmentPosition = 5;
 
-                    getSuperheroProfile(mainPresenter);
+                    getSuperheroProfile(
+                            configureGetSuperheroProfileRequestBody(mainPresenter.getUserId(MainActivity.this))
+                    );
 
                     return true;
             }
@@ -1171,10 +1173,10 @@ public class MainActivity extends AppCompatActivity {
         disposable.add(subscribeUploadChoice);
     }
 
-    private void getSuperheroProfile(MainPresenter mainPresenter) {
+    public void getSuperheroProfile(HashMap<String, Object> requestBody) {
         showLoadingDialog();
 
-        subscribeGetProfile = mainPresenter.getSuperheroProfile(configureGetSuperheroProfileRequestBody(mainPresenter))
+        subscribeGetProfile = mainPresenter.getSuperheroProfile(requestBody)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((ProfileResponse res) -> {
@@ -1759,5 +1761,41 @@ public class MainActivity extends AppCompatActivity {
 
     public void setCurrentProfilePicturePosition(int currentProfilePicturePosition) {
         this.currentProfilePicturePosition = currentProfilePicturePosition;
+    }
+
+    public void loadSuggestionProfileFragment(String superheroId) {
+        showLoadingDialog();
+
+        HashMap<String, Object> requestBody = new HashMap<>();
+        requestBody.put("superheroId", superheroId);
+
+        subscribeGetProfile = mainPresenter.getSuperheroProfile(requestBody)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe((ProfileResponse res) -> {
+                    closeLoadingDialog();
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                        Toast.makeText(
+                                MainActivity.this,
+                                R.string.smth_went_wrong,
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        return;
+                    }
+
+                    if (res.getProfile().getProfilePictures() != null) {
+                        Collections.sort(res.getProfile().getProfilePictures(), new ProfilePicturePositionComparator());
+                    }
+
+                    loadBackStackFragment(SuggestionProfileFragment.newInstance(res.getProfile()));
+                }, throwable -> handleGetProfileError());
+
+        disposable.add(subscribeGetProfile);
+    }
+
+    public void updateMessageHasBeenReadByMessageId(int messageId, Context context) {
+        mainPresenter.updateMessageHasBeenReadByMessageId(messageId, context);
     }
 }

@@ -13,8 +13,6 @@
  */
 package nl.mwsoft.www.superheromatch.viewLayer.main.adapter;
 
-import android.util.Log;
-
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;

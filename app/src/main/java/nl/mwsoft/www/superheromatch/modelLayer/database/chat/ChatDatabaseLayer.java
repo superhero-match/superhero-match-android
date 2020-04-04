@@ -145,6 +145,7 @@ public class ChatDatabaseLayer {
                     chat.setLastActivityMessage(getLastChatMessageByChatId(context, chat.getChatId()).getMessageText());
                 }
                 chat.setLastActivityDate(getLastChatMessageByChatId(context, chat.getChatId()).getMessageCreated());
+                chat.setUnreadMessageCount(getUnreadMessageCountByChatId(context, chat.getChatId()));
                 chats.add(chat);
 
                 Log.d("tShoot", chat.toString());
@@ -173,6 +174,7 @@ public class ChatDatabaseLayer {
                     chat.setLastActivityMessage(getLastChatMessageByChatId(context, chat.getChatId()).getMessageText());
                 }
                 chat.setLastActivityDate(getLastChatMessageByChatId(context, chat.getChatId()).getMessageCreated());
+                chat.setUnreadMessageCount(getUnreadMessageCountByChatId(context, chat.getChatId()));
             }
         }
         cursor.close();
@@ -197,6 +199,7 @@ public class ChatDatabaseLayer {
                     chat.setLastActivityMessage(getLastChatMessageByChatId(context, chat.getChatId()).getMessageText());
                 }
                 chat.setLastActivityDate(getLastChatMessageByChatId(context, chat.getChatId()).getMessageCreated());
+                chat.setUnreadMessageCount(getUnreadMessageCountByChatId(context, chat.getChatId()));
             }
         }
         cursor.close();
