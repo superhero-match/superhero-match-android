@@ -200,4 +200,6 @@ public class ConstantRegistry {
 
     public static final int MESSAGE_HAS_NOT_BEEN_READ = 0;
     public static final int MESSAGE_HAS_BEEN_READ = 1;
+
+    public static final int NUMBER_OF_SUGGESTIONS_BEFORE_SHOWING_AD = 7;
 }

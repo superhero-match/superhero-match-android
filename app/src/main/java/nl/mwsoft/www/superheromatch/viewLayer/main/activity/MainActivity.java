@@ -53,6 +53,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdLoader;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -101,11 +106,6 @@ import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.coordinator.RootCoordinator;
 import nl.mwsoft.www.superheromatch.dependencyRegistry.DependencyRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
-import nl.mwsoft.www.superheromatch.modelLayer.event.MainProfilePicSettingsEvent;
-import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic1SettingsEvent;
-import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic2SettingsEvent;
-import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic3SettingsEvent;
-import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic4SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.TextMessageEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.compare.ProfilePicturePositionComparator;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
@@ -123,7 +123,7 @@ import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.matchDialog.MatchDialog;
 import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.MatchesChatsAdapter;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.ChatFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.admob.AdFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.MatchesChatsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.SuggestionProfileFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfilePictureSettingsFragment;
@@ -133,7 +133,6 @@ import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.Suggesti
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileEditFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileSettingsSuggestionsFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.register.activity.RegisterActivity;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity {
@@ -180,8 +179,11 @@ public class MainActivity extends AppCompatActivity {
     private Superhero profile;
     private boolean isAddingNewProfilePicture;
     private int currentProfilePicturePosition = 0;
-    private final int WAIT_TIME = 5000;
+    private final static int WAIT_TIME = 5000;
     private Handler uiHandler;
+    public static final int NUMBER_OF_ADS = 2;
+    private AdLoader adLoader;
+    private ArrayList<UnifiedNativeAd> nativeAds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,6 +194,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(tlMain);
 
         init();
+
+        loadNativeAds();
 
         setUpConnectionToChatServer();
         setUpConnectionToUpdateMediaServer();
@@ -217,6 +221,45 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // region AdMob
+
+    private void loadNativeAds() {
+        AdLoader.Builder builder = new AdLoader.Builder(this, getString(R.string.ad_unit_id));
+        adLoader = builder.forUnifiedNativeAd(
+                new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
+                    @Override
+                    public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd) {
+                        // A native ad loaded successfully, check if the ad loader has finished loading
+                        // and if so, insert the ads into the list.
+                        nativeAds.add(unifiedNativeAd);
+                        if (!adLoader.isLoading()) {
+                            // insertAdsInMenuItems();
+                        }
+                    }
+                }).withAdListener(
+                new AdListener() {
+                    @Override
+                    public void onAdFailedToLoad(int errorCode) {
+                        // A native ad failed to load, check if the ad loader has finished loading
+                        // and if so, insert the ads into the list.
+                        Log.e("MainActivity", "The previous native ad failed to load. Attempting to"
+                                + " load another.");
+                        if (!adLoader.isLoading()) {
+                            // insertAdsInMenuItems();
+                        }
+                    }
+                }).build();
+
+        // Load the Native ads.
+        adLoader.loadAds(new AdRequest.Builder().build(), NUMBER_OF_ADS);
+    }
+
+    public UnifiedNativeAd getNativeAd() {
+        return nativeAds.get(0);
+    }
+
+    // endregion
+
     // region Delete Choices
 
     private void deleteOldChoices() {
@@ -228,9 +271,11 @@ public class MainActivity extends AppCompatActivity {
                 Date choiceCratedAt = simpleDateFormat.parse(choice.getCreatedAt());
                 Date now = simpleDateFormat.parse(mainPresenter.getDateTime());
 
-                if (mainPresenter.isOlderThanOneDay(choiceCratedAt, now)) {
-                    mainPresenter.deleteChoice(choice.getChoiceId(), MainActivity.this);
-                }
+                mainPresenter.deleteChoice(choice.getChoiceId(), MainActivity.this);
+
+//                if (mainPresenter.isOlderThanOneDay(choiceCratedAt, now)) {
+//                    mainPresenter.deleteChoice(choice.getChoiceId(), MainActivity.this);
+//                }
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -561,6 +606,8 @@ public class MainActivity extends AppCompatActivity {
         retrievedSuperheroIds = new ArrayList<>();
         suggestions = new ArrayList<>();
         uiHandler = new Handler();
+        nativeAds = new ArrayList<>();
+        MobileAds.initialize(this, getString(R.string.admob_app_id));
     }
 
     public void configureWith(RootCoordinator rootCoordinator, MainPresenter mainPresenter) {
@@ -1684,7 +1731,7 @@ public class MainActivity extends AppCompatActivity {
         loadNextSuggestion();
     }
 
-    public void loadNextSuggestion() {
+    public void nextSuggestion() {
         // If there are still suggestions left, display next suggestion.
         if ((this.suggestions.size() > 0) && ((this.suggestions.size() - 1) > this.currentSuggestion)) {
             this.currentSuggestion++;
@@ -1700,6 +1747,16 @@ public class MainActivity extends AppCompatActivity {
 
         // If not, fetch more suggestions.
         getSuggestions(configureSuggestionsRequestBody(this.mainPresenter), false);
+    }
+
+    public void loadNextSuggestion() {
+        if ((this.currentSuggestion % ConstantRegistry.NUMBER_OF_SUGGESTIONS_BEFORE_SHOWING_AD) == 0) {
+            loadNextSuggestion(AdFragment.newInstance());
+
+            return;
+        }
+
+        nextSuggestion();
     }
 
     public void onSuggestionSuperpowerIcon() {
