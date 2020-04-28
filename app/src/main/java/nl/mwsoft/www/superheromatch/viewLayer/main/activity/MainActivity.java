@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
             startLocationUpdates();
         }
     }
-
+    
     // region AdMob
 
     private void loadNativeAds() {
@@ -271,11 +271,9 @@ public class MainActivity extends AppCompatActivity {
                 Date choiceCratedAt = simpleDateFormat.parse(choice.getCreatedAt());
                 Date now = simpleDateFormat.parse(mainPresenter.getDateTime());
 
-                mainPresenter.deleteChoice(choice.getChoiceId(), MainActivity.this);
-
-//                if (mainPresenter.isOlderThanOneDay(choiceCratedAt, now)) {
-//                    mainPresenter.deleteChoice(choice.getChoiceId(), MainActivity.this);
-//                }
+                if (mainPresenter.isOlderThanOneDay(choiceCratedAt, now)) {
+                    mainPresenter.deleteChoice(choice.getChoiceId(), MainActivity.this);
+                }
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -310,14 +308,7 @@ public class MainActivity extends AppCompatActivity {
 
         chatSocket.on(ConstantRegistry.ON_MESSAGE, handleIncomingMessages);
 
-        OutgoingMessage outgoingMessage = new OutgoingMessage(
-                ConstantRegistry.ON_OPEN,
-                mainPresenter.getUserId(MainActivity.this),
-                ConstantRegistry.RECEIVER_ID,
-                ConstantRegistry.MESSAGE
-        );
-
-        chatSocket.emit(ConstantRegistry.ON_OPEN, outgoingMessage.toString());
+        chatSocket.emit(ConstantRegistry.ON_OPEN, mainPresenter.getUserId(MainActivity.this));
     }
 
     private Emitter.Listener handleIncomingMessages = new Emitter.Listener() {

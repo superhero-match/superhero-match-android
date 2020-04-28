@@ -5,11 +5,6 @@
         android:icon="@drawable/suggestions_512"
         android:title="@string/super_heros" />
 
-    <!--<item-->
-        <!--android:id="@+id/navigation_location"-->
-        <!--android:icon="@drawable/location_512"-->
-        <!--android:title="@string/nearby" />-->
-
     <item
         android:id="@+id/navigation_matches"
         android:icon="@drawable/favorites_512"

@@ -179,7 +179,7 @@
     <string name="delete_match_question">Delete match?</string>
     <string name="delete_profile_picture_question">Delete profile picture?</string>
 
-    <string name="admob_app_id">YOUR_APP_ID_HERE</string>
-    <string name="ad_unit_id">YOUR_AD_UNIT_ID_HERE</string>
+    <string name="admob_app_id">ca-app-pub-2674315147517239~3282445051</string>
+    <string name="ad_unit_id">ca-app-pub-3940256099942544/2247696110</string>
 
 </resources>
