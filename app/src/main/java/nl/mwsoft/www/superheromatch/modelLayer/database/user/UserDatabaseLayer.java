@@ -654,4 +654,31 @@ public class UserDatabaseLayer {
         String choiceSelectionDelete = DBOpenHelper.CHOICE_ID + "=" + id + "";
         context.getContentResolver().delete(SuperHeroMatchProvider.CONTENT_URI_CHOICE, choiceSelectionDelete, null);
     }
+
+    public ArrayList<String> getAllReportedUsers(Context context) {
+        ArrayList<String> reportedUsers = new ArrayList<>();
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        cursor = db.rawQuery("SELECT * FROM " + DBOpenHelper.TABLE_REPORTED_USER, null);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                reportedUsers.add(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.REPORTED_USER_USER_ID)));
+            }
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        db.close();
+
+        return reportedUsers;
+    }
+
+    public void insertReportedUser(String reportedUserId, Context context) {
+        ContentValues setValues = new ContentValues();
+        setValues.put(DBOpenHelper.REPORTED_USER_USER_ID, reportedUserId);
+
+        context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_REPORTED_USER, setValues);
+    }
 }

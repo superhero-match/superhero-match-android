@@ -13,8 +13,6 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.constantRegistry;
 
-import java.util.HashMap;
-
 public class ConstantRegistry {
 
     public static final String DEFAULT_USER_ID = "default";
@@ -49,7 +47,7 @@ public class ConstantRegistry {
 
     public static final int SERVER_RESPONSE_ERROR = 500;
 
-    public static final String BASE_SERVER_URL = "https://192.168.0.101";
+    public static final String BASE_SERVER_URL = "https://192.168.0.64";
     public static final String IMAGE_URL_PREFIX = "https:";
     public static final String CHAT_ENDPOINT = "/ws";
 
@@ -70,6 +68,7 @@ public class ConstantRegistry {
     public static final String SUPERHERO_REGISTER_MEDIA_PORT = ":7000";
     public static final String SUPERHERO_UPDATE_MEDIA_PORT = ":7100";
     public static final String SUPERHERO_DELETE_MEDIA_PORT = ":7200";
+    public static final String SUPERHERO_REPORT_USER_PORT = ":9000";
 
     public static final String DATE_TIME_FORMAT = "yyyyMMdd_HHmmss";
     public static final String JPG_EXTENSION = ".jpg";
@@ -202,4 +201,8 @@ public class ConstantRegistry {
     public static final int MESSAGE_HAS_BEEN_READ = 1;
 
     public static final int NUMBER_OF_SUGGESTIONS_BEFORE_SHOWING_AD = 7;
+
+    public static final String  REPORT_REASON_FAKE_ACCOUNT = "FAKE_ACCOUNT";
+    public static final String  REPORT_REASON_UNDER_AGE_OF_18 = "UNDER_AGE_OF_18";
+    public static final String  REPORT_REASON_PICTURES_ARE_INAPPROPRIATE = "PICTURES_ARE_INAPPROPRIATE";
 }

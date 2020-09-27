@@ -14,8 +14,6 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network;
 
 
-import android.util.Log;
-
 import java.util.HashMap;
 
 import io.reactivex.Observable;
@@ -41,6 +39,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.network.inviteUser.InviteSuperher
 import nl.mwsoft.www.superheromatch.modelLayer.network.match.MatchImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.profile.ProfileImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.register.RegisterImpl;
+import nl.mwsoft.www.superheromatch.modelLayer.network.reportUser.ReportUserImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.suggestions.SuggestionsImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.update.UpdateImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.updateToken.UpdateTokenImpl;
@@ -399,6 +398,26 @@ public class NetworkLayer {
                 try {
                     DeleteOfflineMessagesImpl deleteOfflineMessagesImpl = new DeleteOfflineMessagesImpl();
                     Integer response = deleteOfflineMessagesImpl.deleteOfflineMessages(body);
+                    emitter.onNext(response);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    // endregion
+
+    // region Report User
+
+    public Observable<Integer> reportUser(HashMap<String, Object> body){
+        return Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+                try {
+                    ReportUserImpl reportUserImpl = new ReportUserImpl();
+                    Integer response = reportUserImpl.reportUser(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {

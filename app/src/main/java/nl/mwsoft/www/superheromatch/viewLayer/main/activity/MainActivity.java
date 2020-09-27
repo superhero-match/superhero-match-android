@@ -41,6 +41,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
@@ -126,13 +127,12 @@ import nl.mwsoft.www.superheromatch.viewLayer.main.adapter.MatchesChatsAdapter;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.admob.AdFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.MatchesChatsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.SuggestionProfileFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfilePictureSettingsFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.NoSuggestionsFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionDescriptionFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileEditFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfilePictureSettingsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileSettingsSuggestionsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.NoSuggestionsFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionFragment;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity {
@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
     private Disposable subscribeDeleteMatch;
     private Disposable subscribeGetProfile;
     private Disposable subscribeDeleteProfilePicture;
+    private Disposable subscribeReportUser;
     Disposable subscribeUpdateUserToken;
     private LoadingDialogFragment loadingDialogFragment;
     private MatchDialog matchDialog;
@@ -537,9 +538,23 @@ public class MainActivity extends AppCompatActivity {
             this.retrievedSuperheroIds.add(choice.getChosenUserId());
         }
 
+        // Add reported user ids. This is in order to prevent reported users showing up in results.
+        ArrayList<String> reportedUsers = mainPresenter.getAllReportedUsers(MainActivity.this);
+        this.retrievedSuperheroIds.addAll(reportedUsers);
+
         reqBodySuggestions.put("retrievedSuperheroIds", this.retrievedSuperheroIds);
 
         return reqBodySuggestions;
+    }
+
+    private HashMap<String, Object> configureReportUserRequestBody(String userId, String reportedUserId, String reportReason) {
+        HashMap<String, Object> reqBody = new HashMap<>();
+
+        reqBody.put("superheroID", userId);
+        reqBody.put("reportedSuperheroID", reportedUserId);
+        reqBody.put("reportReason", reportReason);
+
+        return reqBody;
     }
 
     public int calculateUserAge(Date currentDate, String birthday) {
@@ -938,6 +953,90 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 popupWindow.dismiss();
+            }
+        });
+    }
+
+    public void showPopupReportUser(String userId, Superhero superhero) {
+        View v = findViewById(android.R.id.content).getRootView();
+        LayoutInflater layoutInflater = (LayoutInflater) v.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View popupView = layoutInflater.inflate(R.layout.report_user_pop_up, null);
+        ImageView ivCancelReportUser = (ImageView) popupView.findViewById(R.id.ivCancelReportUser);
+        Button btnReasonFakeAccount = (Button) popupView.findViewById(R.id.btnReasonFakeAccount);
+        Button btnReasonUserIsUnderAge = (Button) popupView.findViewById(R.id.btnReasonUserIsUnderAge);
+        Button btnReasonUsersPhotosAreInappropriate = (Button) popupView.findViewById(R.id.btnReasonUsersPhotosAreInappropriate);
+
+        final PopupWindow popupWindow = new PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+
+        popupWindow.setBackgroundDrawable(new BitmapDrawable());
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+
+            }
+        });
+
+        popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
+        popupWindow.showAsDropDown(v);
+
+
+        ivCancelReportUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+
+        btnReasonFakeAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainPresenter.insertReportedUser(superhero.getId(), MainActivity.this);
+                HashMap<String, Object> reportUserRequestBody = configureReportUserRequestBody(
+                        userId,
+                        superhero.getId(),
+                        ConstantRegistry.REPORT_REASON_FAKE_ACCOUNT
+                );
+                reportUser(reportUserRequestBody);
+                Toast.makeText(MainActivity.this, "btnReasonFakeAccount tapped", Toast.LENGTH_SHORT).show();
+                popupWindow.dismiss();
+                loadNextSuggestion();
+            }
+        });
+
+        btnReasonUserIsUnderAge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainPresenter.insertReportedUser(superhero.getId(), MainActivity.this);
+                HashMap<String, Object> reportUserRequestBody = configureReportUserRequestBody(
+                        userId,
+                        superhero.getId(),
+                        ConstantRegistry.REPORT_REASON_UNDER_AGE_OF_18
+                );
+                reportUser(reportUserRequestBody);
+                Toast.makeText(MainActivity.this, "btnReasonUserIsUnderAge tapped", Toast.LENGTH_SHORT).show();
+                popupWindow.dismiss();
+                loadNextSuggestion();
+            }
+        });
+
+        btnReasonUsersPhotosAreInappropriate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainPresenter.insertReportedUser(superhero.getId(), MainActivity.this);
+                HashMap<String, Object> reportUserRequestBody = configureReportUserRequestBody(
+                        userId,
+                        superhero.getId(),
+                        ConstantRegistry.REPORT_REASON_PICTURES_ARE_INAPPROPRIATE
+                );
+                reportUser(reportUserRequestBody);
+                Toast.makeText(MainActivity.this, "btnReasonUsersPhotosAreInappropriate tapped", Toast.LENGTH_SHORT).show();
+                popupWindow.dismiss();
+                loadNextSuggestion();
             }
         });
     }
@@ -1405,6 +1504,17 @@ public class MainActivity extends AppCompatActivity {
         disposable.add(subscribeDeleteProfilePicture);
     }
 
+    private void reportUser(HashMap<String, Object> reqBody) {
+        subscribeReportUser = mainPresenter.uploadMatch(reqBody).subscribeOn(Schedulers.io())
+                .subscribe((Integer res) -> {
+                    if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                        Log.e(MainActivity.class.getName(), getString(R.string.report_user_error_msg));
+                    }
+                }, throwable -> handleErrorInBackground());
+
+        disposable.add(subscribeReportUser);
+    }
+
 
     public void updateUserProfile() {
         updateProfile(configureUpdateProfileRequestBody(mainPresenter));
@@ -1750,16 +1860,18 @@ public class MainActivity extends AppCompatActivity {
         nextSuggestion();
     }
 
-    public void onSuggestionSuperpowerIcon() {
-        if ((this.suggestions.size() > 0) && ((this.suggestions.size() - 1) >= this.currentSuggestion)) {
-            openSuggestionDescriptionWindow();
+    public void onReportUser() {
+//        if ((this.suggestions.size() > 0) && ((this.suggestions.size() - 1) >= this.currentSuggestion)) {
+//            openSuggestionDescriptionWindow();
+//
+//            loadSuggestionDescriptionFragment(
+//                    SuggestionDescriptionFragment.newInstance(
+//                            this.suggestions.get(this.currentSuggestion)
+//                    )
+//            );
+//        }
 
-            loadSuggestionDescriptionFragment(
-                    SuggestionDescriptionFragment.newInstance(
-                            this.suggestions.get(this.currentSuggestion)
-                    )
-            );
-        }
+        showPopupReportUser(mainPresenter.getUserId(MainActivity.this), this.suggestions.get(this.currentSuggestion));
     }
 
     private void handleNotificationAction() {

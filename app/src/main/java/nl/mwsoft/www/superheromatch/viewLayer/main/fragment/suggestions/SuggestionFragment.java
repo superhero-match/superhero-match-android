@@ -15,16 +15,15 @@ package nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,7 +42,7 @@ public class SuggestionFragment extends Fragment {
     ImageView ivSuggestionDislike;
     @BindView(R.id.ivSuggestionLike)
     ImageView ivSuggestionLike;
-    @BindView(R.id.ivSuperPowerIconSuggestion)
+    @BindView(R.id.ivReportUser)
     ImageView ivSuperPowerIconSuggestion;
     private SuggestionProfileViewPagerAdapter suggestionUserProfileViewPagerAdapter;
     private Unbinder unbinder;
@@ -120,8 +119,8 @@ public class SuggestionFragment extends Fragment {
         mainActivity.onSuggestionDislike();
     }
 
-    @OnClick(R.id.ivSuperPowerIconSuggestion)
-    public void onSuperPowerIconSuggestion(){
-        mainActivity.onSuggestionSuperpowerIcon();
+    @OnClick(R.id.ivReportUser)
+    public void onReportUser(){
+        mainActivity.onReportUser();
     }
 }

@@ -27,7 +27,7 @@
         android:src="@drawable/dislike_512" />
 
     <ImageView
-        android:id="@+id/ivSuperPowerIconSuggestion"
+        android:id="@+id/ivReportUser"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_centerHorizontal="true"
@@ -36,7 +36,7 @@
         android:clickable="true"
         android:contentDescription="@string/super_power"
         android:focusable="true"
-        android:src="@drawable/superpower_256" />
+        android:src="@drawable/report_user_256" />
 
     <ImageView
         android:id="@+id/ivSuggestionLike"

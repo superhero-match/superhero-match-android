@@ -255,6 +255,13 @@ public class MainPresenter {
         this.modelLayerManager.deleteChoice(id, context);
     }
 
+    public ArrayList<String> getAllReportedUsers(Context context) {
+        return this.modelLayerManager.getAllReportedUsers(context);
+    }
+
+    public void insertReportedUser(String reportedUserId, Context context) {
+        this.modelLayerManager.insertReportedUser(reportedUserId, context);
+    }
 
     // endregion
 
@@ -436,6 +443,14 @@ public class MainPresenter {
 
     public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body) {
         return this.modelLayerManager.deleteProfilePicture(body);
+    }
+
+    // endregion
+
+    // region Report User
+
+    public Observable<Integer> reportUser(HashMap<String, Object> body){
+        return this.modelLayerManager.reportUser(body);
     }
 
     // endregion

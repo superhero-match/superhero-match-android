@@ -15,8 +15,6 @@ package nl.mwsoft.www.superheromatch.modelLayer.modelLayerManager;
 
 import android.content.Context;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -28,7 +26,6 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.network.NetworkLayer;
 
 public class UserModelLayerManager {
-
 
     private UserDatabaseLayer userDatabaseLayer;
     private NetworkLayer networkLayer;

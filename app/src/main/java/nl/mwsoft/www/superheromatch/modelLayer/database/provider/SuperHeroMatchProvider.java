@@ -37,6 +37,7 @@ public class SuperHeroMatchProvider extends ContentProvider {
     private static final String RETRIEVED_OFFLINE_MESSAGE_UUID_PATH = "retrieved_offline_message_uuid";
     private static final String RECEIVED_ONLINE_MESSAGE_PATH = "received_online_message";
     private static final String CHOICE_PATH = "choice";
+    private static final String REPORTED_USER_PATH = "reported_user";
 
 
     public static final Uri CONTENT_URI_MESSAGE_QUEUE = Uri.parse("content://" + AUTHORITY + "/" + MESSAGE_QUEUE_PATH);
@@ -47,6 +48,7 @@ public class SuperHeroMatchProvider extends ContentProvider {
     public static final Uri CONTENT_URI_RETRIEVED_OFFLINE_MESSAGE_UUID = Uri.parse("content://" + AUTHORITY + "/" + RETRIEVED_OFFLINE_MESSAGE_UUID_PATH);
     public static final Uri CONTENT_URI_RECEIVED_ONLINE_MESSAGE = Uri.parse("content://" + AUTHORITY + "/" + RECEIVED_ONLINE_MESSAGE_PATH);
     public static final Uri CONTENT_URI_CHOICE = Uri.parse("content://" + AUTHORITY + "/" + CHOICE_PATH);
+    public static final Uri CONTENT_URI_REPORTED_USER = Uri.parse("content://" + AUTHORITY + "/" + REPORTED_USER_PATH);
 
 
     // ConstantRegistry to identify the requested operation
@@ -75,6 +77,9 @@ public class SuperHeroMatchProvider extends ContentProvider {
     private static final int CHOICES = 19;
     private static final int CHOICE_ID = 20;
 
+    private static final int REPORTED_USERS = 21;
+    private static final int REPORTED_USER_ID = 22;
+
 
     private static  final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -86,6 +91,7 @@ public class SuperHeroMatchProvider extends ContentProvider {
     private static final String CONTENT_ITEM_RETRIEVED_OFFLINE_MESSAGE_UUID = "retrieved_offline_message_uuid";
     private static final String CONTENT_ITEM_RECEIVED_ONLINE_MESSAGE = "received_online_message";
     private static final String CONTENT_ITEM_CHOICE = "choice";
+    private static final String CONTENT_ITEM_REPORTED_USER = "reported_user";
 
 
     static {
@@ -113,6 +119,9 @@ public class SuperHeroMatchProvider extends ContentProvider {
 
         uriMatcher.addURI(AUTHORITY, CHOICE_PATH, CHOICES);
         uriMatcher.addURI(AUTHORITY, CHOICE_PATH + "/#", CHOICE_ID);
+
+        uriMatcher.addURI(AUTHORITY, REPORTED_USER_PATH, REPORTED_USERS);
+        uriMatcher.addURI(AUTHORITY, REPORTED_USER_PATH + "/#", REPORTED_USER_ID);
     }
 
     private SQLiteDatabase database;
@@ -146,6 +155,8 @@ public class SuperHeroMatchProvider extends ContentProvider {
             selection = DBOpenHelper.MESSAGE_ID + "=" + uri.getLastPathSegment();
         }  else if(uriMatcher.match(uri) == CHOICE_ID){
             selection = DBOpenHelper.CHOICE_ID + "=" + uri.getLastPathSegment();
+        } else if(uriMatcher.match(uri) == REPORTED_USER_ID){
+            selection = DBOpenHelper.REPORTED_USER_ID + "=" + uri.getLastPathSegment();
         }
 
 
@@ -181,6 +192,10 @@ public class SuperHeroMatchProvider extends ContentProvider {
                 break;
             case CHOICES:
                 _cursor = database.query(DBOpenHelper.TABLE_CHOICE, DBOpenHelper.ALL_COLUMNS_CHOICE,
+                        selection, null, null, null, null);
+                break;
+            case REPORTED_USERS:
+                _cursor = database.query(DBOpenHelper.TABLE_REPORTED_USER, DBOpenHelper.ALL_COLUMNS_REPORTED_USER,
                         selection, null, null, null, null);
                 break;
 
@@ -278,6 +293,16 @@ public class SuperHeroMatchProvider extends ContentProvider {
                 //---if added successfully---
                 if (cm > 0) {
                     _uri = ContentUris.withAppendedId(CONTENT_URI_CHOICE, cm);
+                    getContext().getContentResolver().notifyChange(_uri, null);
+                }
+
+                break;
+            case REPORTED_USERS:
+                long ru = database.insert(DBOpenHelper.TABLE_REPORTED_USER, null, values);
+
+                //---if added successfully---
+                if (ru > 0) {
+                    _uri = ContentUris.withAppendedId(CONTENT_URI_REPORTED_USER, ru);
                     getContext().getContentResolver().notifyChange(_uri, null);
                 }
 
@@ -384,6 +409,17 @@ public class SuperHeroMatchProvider extends ContentProvider {
 
                 result = (int)cm;
                 break;
+            case REPORTED_USERS:
+                long ru = database.delete(DBOpenHelper.TABLE_REPORTED_USER, selection, selectionArgs);
+
+                //---if added successfully---
+                if (ru > 0) {
+                    _uri = ContentUris.withAppendedId(CONTENT_URI_REPORTED_USER, ru);
+                    getContext().getContentResolver().notifyChange(_uri, null);
+                }
+
+                result = (int)ru;
+                break;
 
             default: throw new SQLException("Failed to delete row in " + uri);
         }
@@ -484,6 +520,17 @@ public class SuperHeroMatchProvider extends ContentProvider {
                 }
 
                 result = (int)cm;
+                break;
+            case REPORTED_USERS:
+                long ru = database.update(DBOpenHelper.TABLE_REPORTED_USER, values, selection, selectionArgs);
+
+                //---if added successfully---
+                if (ru > 0) {
+                    _uri = ContentUris.withAppendedId(CONTENT_URI_REPORTED_USER, ru);
+                    getContext().getContentResolver().notifyChange(_uri, null);
+                }
+
+                result = (int)ru;
                 break;
 
             default: throw new SQLException("Failed to update row in " + uri);

@@ -13,10 +13,7 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.modelLayerManager;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -29,8 +26,6 @@ import java.util.HashMap;
 
 import io.reactivex.Observable;
 import nl.mwsoft.www.superheromatch.modelLayer.database.chat.ChatDatabaseLayer;
-import nl.mwsoft.www.superheromatch.modelLayer.database.dbhelper.DBOpenHelper;
-import nl.mwsoft.www.superheromatch.modelLayer.database.provider.SuperHeroMatchProvider;
 import nl.mwsoft.www.superheromatch.modelLayer.database.user.UserDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.dateTimeUtil.DateTimeUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.imageProcessing.ImageProcessingUtil;
@@ -312,6 +307,14 @@ public class ModelLayerManager {
         this.userDatabaseLayer.deleteChoice(id, context);
     }
 
+    public ArrayList<String> getAllReportedUsers(Context context) {
+        return this.userDatabaseLayer.getAllReportedUsers(context);
+    }
+
+    public void insertReportedUser(String reportedUserId, Context context) {
+        this.userDatabaseLayer.insertReportedUser(reportedUserId, context);
+    }
+
 
     // endregion
 
@@ -519,6 +522,14 @@ public class ModelLayerManager {
 
     public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body){
         return this.networkLayer.deleteProfilePicture(body);
+    }
+
+    // endregion
+
+    // region Report User
+
+    public Observable<Integer> reportUser(HashMap<String, Object> body){
+        return this.networkLayer.reportUser(body);
     }
 
     // endregion

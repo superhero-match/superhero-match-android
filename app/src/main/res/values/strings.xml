@@ -164,6 +164,7 @@
     <string name="upload_images">Upload Images</string>
     <string name="no_suggestions_found">Unfortunately we couldn\'t find any suggestions based on your profile settings. Try changing settings or come back later.</string>
     <string name="upload_match_error_msg">Error while uploading match</string>
+    <string name="report_user_error_msg">Error while reporting user</string>
     <string name="it_s_a_match">It\'s a match!</string>
     <string name="new_match">New match!</string>
     <string name="new_message">%1$s sent you new message!</string>
@@ -181,5 +182,9 @@
 
     <string name="admob_app_id">ca-app-pub-2674315147517239~3282445051</string>
     <string name="ad_unit_id">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="why_are_you_reporting_this_user">Why are you reporting this user?</string>
+    <string name="it_s_a_fake_account">It\'s a fake account</string>
+    <string name="user_is_under_the_age_of_18">User is under the age of 18</string>
+    <string name="user_s_photos_are_inappropriate">User\'s photos are inappropriate</string>
 
 </resources>
