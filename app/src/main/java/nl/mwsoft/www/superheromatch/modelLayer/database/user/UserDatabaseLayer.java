@@ -17,6 +17,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -680,5 +681,87 @@ public class UserDatabaseLayer {
         setValues.put(DBOpenHelper.REPORTED_USER_USER_ID, reportedUserId);
 
         context.getContentResolver().insert(SuperHeroMatchProvider.CONTENT_URI_REPORTED_USER, setValues);
+    }
+
+    public void deleteDataFromUserTable(Context context) {
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        db.execSQL("DELETE FROM " + DBOpenHelper.TABLE_USER);
+        db.close();
+    }
+
+    public void insertDefaultUser(Context context) {
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        db.execSQL(DBOpenHelper.INSERT_DEFAULT_USER);
+        db.close();
+    }
+
+    public void deleteDataFromMessageTable(Context context) {
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        db.execSQL("DELETE FROM " + DBOpenHelper.TABLE_MESSAGE);
+        db.close();
+    }
+
+    public void deleteDataFromChatTable(Context context) {
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        db.execSQL("DELETE FROM " + DBOpenHelper.TABLE_CHAT);
+        db.close();
+    }
+
+    public void deleteDataFromUserProfilePictureTable(Context context) {
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        db.execSQL("DELETE FROM " + DBOpenHelper.TABLE_USER_PROFILE_PICTURE);
+        db.close();
+    }
+
+    public void deleteDataFromRetrievedOfflineMessageUUIDTable(Context context) {
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        db.execSQL("DELETE FROM " + DBOpenHelper.TABLE_RETRIEVED_OFFLINE_MESSAGE_UUID);
+        db.close();
+    }
+
+    public void deleteDataFromReceivedOnlineMessageTable(Context context) {
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        db.execSQL("DELETE FROM " + DBOpenHelper.TABLE_RECEIVED_ONLINE_MESSAGE);
+        db.close();
+    }
+
+    public void deleteDataFromMessageQueueTable(Context context) {
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        db.execSQL("DELETE FROM " + DBOpenHelper.TABLE_MESSAGE_QUEUE);
+        db.close();
+    }
+
+    public void deleteDataFromChoiceTable(Context context) {
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        db.execSQL("DELETE FROM " + DBOpenHelper.TABLE_CHOICE);
+        db.close();
+    }
+
+    public void deleteDataFromReportedUserTable(Context context) {
+        Cursor cursor = null;
+        SQLiteDatabase db = new DBOpenHelper(context).getReadableDatabase();
+        db.execSQL("DELETE FROM " + DBOpenHelper.TABLE_REPORTED_USER);
+        db.close();
+    }
+
+    public void deleteDataFromAllTables(Context context) {
+        deleteDataFromUserTable(context);
+        deleteDataFromMessageTable(context);
+        deleteDataFromChatTable(context);
+        deleteDataFromUserProfilePictureTable(context);
+        deleteDataFromRetrievedOfflineMessageUUIDTable(context);
+        deleteDataFromReceivedOnlineMessageTable(context);
+        deleteDataFromMessageQueueTable(context);
+        deleteDataFromChoiceTable(context);
+        deleteDataFromReportedUserTable(context);
     }
 }

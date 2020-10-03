@@ -89,7 +89,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
                     USER_CREATED + " TEXT default CURRENT_TIMESTAMP)";
 
     // insert default user
-    private static final String INSERT_DEFAULT_USER = "INSERT INTO " + TABLE_USER +
+    public static final String INSERT_DEFAULT_USER = "INSERT INTO " + TABLE_USER +
             " VALUES ( 'default', 'default@default.com', 'defaultName', 'defaultUrl', 1, 2, 34, 18, 65, 100, 'km', 0.0, 0.0," +
             "'30-05-1985', 'Country', 'City', 'Super Power', 'FREE', 0, 0, '17-07-2019')";
 

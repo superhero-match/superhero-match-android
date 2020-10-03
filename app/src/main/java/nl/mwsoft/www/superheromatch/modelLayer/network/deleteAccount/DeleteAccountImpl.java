@@ -13,10 +13,14 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.network.deleteAccount;
 
+import android.util.Log;
+
 import java.io.IOException;
+import java.util.HashMap;
 
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
+import nl.mwsoft.www.superheromatch.modelLayer.model.DeleteAccountResponse;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -34,17 +38,15 @@ public class DeleteAccountImpl {
 
     }
 
-    public String deleteAccount(String userId) {
+    public DeleteAccountResponse deleteAccount(HashMap<String, Object> body) {
 
-        Call<String> call = service.deleteAccount(userId);
+        Call<DeleteAccountResponse> call = service.deleteAccount(body);
         try {
-            String responseMessage = call.execute().body();
-
-            return responseMessage;
+            return call.execute().body();
         } catch (IOException e) {
-            // handle errors
+            Log.e(DeleteAccountImpl.class.getName(), "deleteAccount error --> " + e.getMessage());
         }
 
-        return ConstantRegistry.ERROR;
+        return new DeleteAccountResponse(ConstantRegistry.SERVER_RESPONSE_ERROR);
     }
 }

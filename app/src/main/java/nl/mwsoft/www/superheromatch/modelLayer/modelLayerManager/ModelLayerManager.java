@@ -35,6 +35,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Choice;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.DeleteAccountResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
@@ -315,6 +316,13 @@ public class ModelLayerManager {
         this.userDatabaseLayer.insertReportedUser(reportedUserId, context);
     }
 
+    public void insertDefaultUser(Context context) {
+        this.userDatabaseLayer.insertDefaultUser(context);
+    }
+
+    public void deleteDataFromAllTables(Context context) {
+        this.userDatabaseLayer.deleteDataFromAllTables(context);
+    }
 
     // endregion
 
@@ -424,8 +432,8 @@ public class ModelLayerManager {
 
     // region Delete User's Account
 
-    public Observable<String> deleteAccount(String userId){
-        return this.networkLayer.deleteAccount(userId);
+    public Observable<DeleteAccountResponse> deleteAccount(HashMap<String, Object> body){
+        return this.networkLayer.deleteAccount(body);
     }
 
     // endregion

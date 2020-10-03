@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
     private Disposable subscribeGetProfile;
     private Disposable subscribeDeleteProfilePicture;
     private Disposable subscribeReportUser;
+    private Disposable subscribeDeleteAccount;
     Disposable subscribeUpdateUserToken;
     private LoadingDialogFragment loadingDialogFragment;
     private MatchDialog matchDialog;
@@ -547,12 +548,20 @@ public class MainActivity extends AppCompatActivity {
         return reqBodySuggestions;
     }
 
-    private HashMap<String, Object> configureReportUserRequestBody(String userId, String reportedUserId, String reportReason) {
+    private HashMap<String, Object> configureReportUserRequestBody(String reportingUserId, String reportedUserId, String reportReason) {
         HashMap<String, Object> reqBody = new HashMap<>();
 
-        reqBody.put("superheroID", userId);
-        reqBody.put("reportedSuperheroID", reportedUserId);
-        reqBody.put("reportReason", reportReason);
+        reqBody.put("reportingUserID", reportingUserId);
+        reqBody.put("reportedUserID", reportedUserId);
+        reqBody.put("reason", reportReason);
+
+        return reqBody;
+    }
+
+    public HashMap<String, Object> configureDeleteAccountRequestBody(String userId) {
+        HashMap<String, Object> reqBody = new HashMap<>();
+
+        reqBody.put("userId", userId);
 
         return reqBody;
     }
@@ -1339,9 +1348,44 @@ public class MainActivity extends AppCompatActivity {
         disposable.add(subscribeGetProfile);
     }
 
+    public void deleteUserAccount(HashMap<String, Object> requestBody) {
+        showLoadingDialog();
+
+        subscribeDeleteAccount = mainPresenter.deleteAccount(requestBody)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe((res) -> {
+                    closeLoadingDialog();
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                        Toast.makeText(
+                                MainActivity.this,
+                                R.string.smth_went_wrong,
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        return;
+                    }
+
+                    this.mainPresenter.deleteDataFromAllTables(MainActivity.this);
+
+                    this.mainPresenter.insertDefaultUser(MainActivity.this);
+
+                    navigateToVerifyIdentity(MainActivity.this);
+                }, throwable -> handleDeleteAccountError());
+
+        disposable.add(subscribeDeleteAccount);
+    }
+
     private void handleGetProfileError() {
         closeLoadingDialog();
         Log.e(MainActivity.class.getName(), getString(R.string.fetch_profile_error_msg));
+        Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
+    }
+
+    private void handleDeleteAccountError() {
+        closeLoadingDialog();
+        Log.e(MainActivity.class.getName(), "Error deleting account");
         Toast.makeText(MainActivity.this, R.string.smth_went_wrong, Toast.LENGTH_LONG).show();
     }
 
@@ -1405,6 +1449,31 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setMessage(R.string.delete_profile_picture_question)
+                .setPositiveButton(R.string.delete, dialogDeleteClickListener)
+                .setNegativeButton(R.string.cancel, dialogCancelClickListener)
+                .show();
+
+    }
+
+    public void showDialogDeleteAccount() {
+        DialogInterface.OnClickListener dialogDeleteClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int button) {
+                        deleteUserAccount(configureDeleteAccountRequestBody(getUserId()));
+                    }
+                };
+
+        DialogInterface.OnClickListener dialogCancelClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int button) {
+                        dialog.dismiss();
+                    }
+                };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage(R.string.are_you_sure_you_want_to_delete_your_account)
                 .setPositiveButton(R.string.delete, dialogDeleteClickListener)
                 .setNegativeButton(R.string.cancel, dialogCancelClickListener)
                 .show();
@@ -1861,17 +1930,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onReportUser() {
-//        if ((this.suggestions.size() > 0) && ((this.suggestions.size() - 1) >= this.currentSuggestion)) {
-//            openSuggestionDescriptionWindow();
-//
-//            loadSuggestionDescriptionFragment(
-//                    SuggestionDescriptionFragment.newInstance(
-//                            this.suggestions.get(this.currentSuggestion)
-//                    )
-//            );
-//        }
-
-        showPopupReportUser(mainPresenter.getUserId(MainActivity.this), this.suggestions.get(this.currentSuggestion));
+        if ((this.suggestions.size() > 0) && ((this.suggestions.size() - 1) >= this.currentSuggestion)) {
+            showPopupReportUser(mainPresenter.getUserId(MainActivity.this), this.suggestions.get(this.currentSuggestion));
+        }
     }
 
     private void handleNotificationAction() {

@@ -21,6 +21,7 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.DeleteAccountResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.GetMatchResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
@@ -91,13 +92,13 @@ public class NetworkLayer {
 
     // region Delete User's Account
 
-    public Observable<String> deleteAccount(String userId){
-        return Observable.create(new ObservableOnSubscribe<String>() {
+    public Observable<DeleteAccountResponse> deleteAccount(HashMap<String, Object> body){
+        return Observable.create(new ObservableOnSubscribe<DeleteAccountResponse>() {
             @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+            public void subscribe(ObservableEmitter<DeleteAccountResponse> emitter) throws Exception {
                 try {
                     DeleteAccountImpl deleteAccount = new DeleteAccountImpl();
-                    String response = deleteAccount.deleteAccount(userId);
+                    DeleteAccountResponse response = deleteAccount.deleteAccount(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {

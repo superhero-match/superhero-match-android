@@ -44,8 +44,9 @@ public class UserProfileEditFragment extends Fragment {
     Button btnKm;
     @BindView(R.id.btnMi)
     Button btnMi;
-
-
+    @BindView(R.id.btnDeleteAccount)
+    Button btnDeleteAccount;
+    private boolean isDeletingAccount = false;
     private MainActivity mainActivity;
 
     public static UserProfileEditFragment newInstance() {
@@ -125,12 +126,20 @@ public class UserProfileEditFragment extends Fragment {
         btnKm.setTextColor(getResources().getColor(R.color.colorBlack));
     }
 
+    @OnClick(R.id.btnDeleteAccount)
+    public void deleteAccountListener() {
+        isDeletingAccount = true;
+        mainActivity.showDialogDeleteAccount();
+    }
+
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
-        mainActivity.updateUserProfile();
+        if (!isDeletingAccount) {
+            mainActivity.updateUserProfile();
+        }
     }
 
     @Override

@@ -13,10 +13,13 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.network.deleteAccount;
 
+import java.util.HashMap;
+
+import nl.mwsoft.www.superheromatch.modelLayer.model.DeleteAccountResponse;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
-import retrofit2.http.Query;
 
 public interface DeleteAccount {
     @Headers({
@@ -25,5 +28,5 @@ public interface DeleteAccount {
             "X-Platform: Android"
     })
     @POST("/api/v1/superhero_delete/delete_account")
-    Call<String> deleteAccount(@Query("userID") String userID);
+    Call<DeleteAccountResponse> deleteAccount(@Body HashMap<String, Object> body);
 }

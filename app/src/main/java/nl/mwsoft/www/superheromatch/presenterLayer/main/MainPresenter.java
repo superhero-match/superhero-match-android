@@ -29,6 +29,7 @@ import io.reactivex.Observable;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Choice;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ChoiceResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.DeleteAccountResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
@@ -263,6 +264,14 @@ public class MainPresenter {
         this.modelLayerManager.insertReportedUser(reportedUserId, context);
     }
 
+    public void insertDefaultUser(Context context) {
+        this.modelLayerManager.insertDefaultUser(context);
+    }
+
+    public void deleteDataFromAllTables(Context context) {
+        this.modelLayerManager.deleteDataFromAllTables(context);
+    }
+
     // endregion
 
     // region Util
@@ -353,8 +362,8 @@ public class MainPresenter {
 
     // region Delete User's Account
 
-    public Observable<String> deleteAccount(String userId) {
-        return this.modelLayerManager.deleteAccount(userId);
+    public Observable<DeleteAccountResponse> deleteAccount(HashMap<String, Object> body){
+        return this.modelLayerManager.deleteAccount(body);
     }
 
     // endregion
