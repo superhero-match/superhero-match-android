@@ -16,13 +16,10 @@ package nl.mwsoft.www.superheromatch.modelLayer.modelLayerManager;
 import android.content.Context;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import io.reactivex.Observable;
 import nl.mwsoft.www.superheromatch.dependencyRegistry.DependencyRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.database.user.UserDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Choice;
-import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.network.NetworkLayer;
 
 public class UserModelLayerManager {
@@ -68,27 +65,4 @@ public class UserModelLayerManager {
     public void deleteChoice(int id, Context context) {
         this.userDatabaseLayer.deleteChoice(id, context);
     }
-
-    // region User Network
-
-    // region Confirm Phone Number
-
-
-    // endregion
-
-    // region Register User
-
-    public Observable<RegisterResponse> registerUser(HashMap<String, Object> userName){
-        return this.networkLayer.register(userName);
-    }
-
-    // endregion
-
-    // region Update User Token
-
-    public Observable<String> updateUserToken(String userId, String  messagingToken){
-        return this.networkLayer.getUpdateUserTokenResponse(userId, messagingToken);
-    }
-
-    // endregion
 }

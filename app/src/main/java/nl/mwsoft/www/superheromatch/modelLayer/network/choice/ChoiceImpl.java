@@ -13,6 +13,7 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.network.choice;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -27,14 +28,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ChoiceImpl {
 
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_CHOICE_PORT))
-            .client(OkHttpClientManager.setUpSecureClient())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
-    Choice service = retrofit.create(Choice.class);
+    private Retrofit retrofit;
+    private Choice service;
 
-    public ChoiceImpl() {
+    public ChoiceImpl(Context context) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_CHOICE_PORT))
+                .client(OkHttpClientManager.setUpSecureClient(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        service = retrofit.create(Choice.class);
     }
 
     public ChoiceResponse uploadChoice(HashMap<String, Object> reqBody) {

@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
@@ -26,7 +27,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -48,42 +48,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import org.greenrobot.eventbus.EventBus;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.regex.Pattern;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-import butterknife.Unbinder;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-import io.socket.client.IO;
-import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
-import nl.mwsoft.www.superheromatch.R;
-import nl.mwsoft.www.superheromatch.coordinator.RootCoordinator;
-import nl.mwsoft.www.superheromatch.dependencyRegistry.DependencyRegistry;
-import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
-import nl.mwsoft.www.superheromatch.modelLayer.event.SuperheroProfilePicEvent;
-import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
-import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
-import nl.mwsoft.www.superheromatch.modelLayer.model.User;
-import nl.mwsoft.www.superheromatch.presenterLayer.register.RegisterPresenter;
-import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
-import nl.mwsoft.www.superheromatch.viewLayer.register.fragment.RegistrationVPFragment;
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
-
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -102,6 +66,41 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+import nl.mwsoft.www.superheromatch.R;
+import nl.mwsoft.www.superheromatch.coordinator.RootCoordinator;
+import nl.mwsoft.www.superheromatch.dependencyRegistry.DependencyRegistry;
+import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
+import nl.mwsoft.www.superheromatch.modelLayer.event.SuperheroProfilePicEvent;
+import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
+import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.TokenResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.User;
+import nl.mwsoft.www.superheromatch.presenterLayer.register.RegisterPresenter;
+import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
+import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
+import nl.mwsoft.www.superheromatch.viewLayer.register.fragment.RegistrationVPFragment;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -113,6 +112,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Unbinder unbinder;
     private CompositeDisposable disposable;
     private Disposable subscribe;
+    private Disposable subscribeGetToken;
     private LoadingDialogFragment loadingDialogFragment;
     private User user;
     @BindView(R.id.tlRegister)
@@ -136,6 +136,8 @@ public class RegisterActivity extends AppCompatActivity {
         loadFragment(RegistrationVPFragment.newInstance());
 
         configureInitialValues();
+
+        getToken();
 
         setUpConnectionToServer();
 
@@ -178,14 +180,14 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void setUpConnectionToServer() {
         // default settings for all sockets
-        IO.setDefaultOkHttpWebSocketFactory(OkHttpClientManager.setUpSecureClient());
-        IO.setDefaultOkHttpCallFactory(OkHttpClientManager.setUpSecureClient());
+        IO.setDefaultOkHttpWebSocketFactory(OkHttpClientManager.setUpSecureClientWithoutAuthorization());
+        IO.setDefaultOkHttpCallFactory(OkHttpClientManager.setUpSecureClientWithoutAuthorization());
 
         // set as an option
         IO.Options opts = new IO.Options();
         opts.transports = new String[]{io.socket.engineio.client.transports.WebSocket.NAME};
-        opts.callFactory = OkHttpClientManager.setUpSecureClient();
-        opts.webSocketFactory = OkHttpClientManager.setUpSecureClient();
+        opts.callFactory = OkHttpClientManager.setUpSecureClientWithoutAuthorization();
+        opts.webSocketFactory = OkHttpClientManager.setUpSecureClientWithoutAuthorization();
         try {
             socket = IO.socket(
                     ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_REGISTER_MEDIA_PORT),
@@ -828,7 +830,7 @@ public class RegisterActivity extends AppCompatActivity {
     public void register(HashMap<String, Object> body) {
         showLoadingDialog();
 
-        subscribe = registerPresenter.register(body)
+        subscribe = registerPresenter.register(body, RegisterActivity.this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((RegisterResponse res) -> {
@@ -853,6 +855,39 @@ public class RegisterActivity extends AppCompatActivity {
                 }, throwable -> handleError());
 
         disposable.add(subscribe);
+    }
+
+    private void getToken() {
+        showLoadingDialog();
+
+        HashMap<String, Object> tokenRequestBody = new HashMap<>();
+        tokenRequestBody.put("id", user.getId());
+
+        subscribeGetToken = registerPresenter.getToken(tokenRequestBody)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe((TokenResponse res) -> {
+                    closeLoadingDialog();
+
+                    if (res.getStatus() != ConstantRegistry.SERVER_STATUS_OK) {
+                        Toast.makeText(
+                                RegisterActivity.this,
+                                R.string.smth_went_wrong,
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        return;
+                    }
+
+                    SharedPreferences prefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString(ConstantRegistry.ACCESS_TOKEN, res.getAccessToken());
+                    editor.putString(ConstantRegistry.REFRESH_TOKEN, res.getRefreshToken());
+                    editor.apply();
+
+                }, throwable -> handleError());
+
+        disposable.add(subscribeGetToken);
     }
 
     private void handleError() {

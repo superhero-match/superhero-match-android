@@ -35,6 +35,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegistrationUser;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.TokenResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.modelLayerManager.ModelLayerManager;
 
@@ -352,114 +353,98 @@ public class MainPresenter {
 
     // region Network
 
-    // region Save User's Choice
-
-    public Observable<String> saveChoice(String userId, String chosenUserId, String choiceType) {
-        return this.modelLayerManager.saveChoice(userId, chosenUserId, choiceType);
-    }
-
-    // endregion
-
     // region Delete User's Account
 
-    public Observable<DeleteAccountResponse> deleteAccount(HashMap<String, Object> body){
-        return this.modelLayerManager.deleteAccount(body);
+    public Observable<DeleteAccountResponse> deleteAccount(HashMap<String, Object> body, Context context){
+        return this.modelLayerManager.deleteAccount(body, context);
     }
 
     // endregion
 
     // region Retrieve Suggestions
 
-    public Observable<SuggestionsResponse> getSuggestions(HashMap<String, Object> body) {
-        return this.modelLayerManager.getSuggestions(body);
+    public Observable<SuggestionsResponse> getSuggestions(HashMap<String, Object> body, Context context) {
+        return this.modelLayerManager.getSuggestions(body, context);
     }
 
     // endregion
 
     // region Upload Choice
 
-    public Observable<ChoiceResponse> uploadChoice(HashMap<String, Object> body) {
-        return this.modelLayerManager.uploadChoice(body);
+    public Observable<ChoiceResponse> uploadChoice(HashMap<String, Object> body, Context context) {
+        return this.modelLayerManager.uploadChoice(body, context);
     }
 
     // endregion
 
     // region Upload Match
 
-    public Observable<Integer> uploadMatch(HashMap<String, Object> body) {
-        return this.modelLayerManager.uploadMatch(body);
+    public Observable<Integer> uploadMatch(HashMap<String, Object> body, Context context) {
+        return this.modelLayerManager.uploadMatch(body, context);
     }
 
     // endregion
 
     // region Delete Match
 
-    public Observable<Integer> deleteMatch(HashMap<String, Object> body) {
-        return this.modelLayerManager.deleteMatch(body);
+    public Observable<Integer> deleteMatch(HashMap<String, Object> body, Context context) {
+        return this.modelLayerManager.deleteMatch(body, context);
     }
 
     // endregion
 
     // region Update Firebase Messaging Token
 
-    public Observable<Integer> updateFirebaseToken(HashMap<String, Object> body) {
-        return this.modelLayerManager.updateFirebaseToken(body);
+    public Observable<Integer> updateFirebaseToken(HashMap<String, Object> body, Context context) {
+        return this.modelLayerManager.updateFirebaseToken(body, context);
     }
 
     // endregion
 
     // region Get Suggestion Profile
 
-    public Observable<ProfileResponse> getSuperheroProfile(HashMap<String, Object> body) {
-        return this.modelLayerManager.getSuperheroProfile(body);
-    }
-
-    // endregion
-
-    // region Update User's Firebase Messaging Token
-
-    public Observable<String> getUpdateUserTokenResponse(String userId, String messagingToken) {
-        return this.modelLayerManager.getUpdateUserTokenResponse(userId, messagingToken);
+    public Observable<ProfileResponse> getSuperheroProfile(HashMap<String, Object> body, Context context) {
+        return this.modelLayerManager.getSuperheroProfile(body, context);
     }
 
     // endregion
 
     // region Update User's Data
 
-    public Observable<UpdateResponse> updateProfile(HashMap<String, Object> body) {
-        return this.modelLayerManager.updateProfile(body);
-    }
-
-    // endregion
-
-    // region Upgrade User's Account
-
-    public Observable<String> upgradeAccount(String userId, String upgradedAccountType) {
-        return this.modelLayerManager.upgradeAccount(userId, upgradedAccountType);
+    public Observable<UpdateResponse> updateProfile(HashMap<String, Object> body, Context context) {
+        return this.modelLayerManager.updateProfile(body, context);
     }
 
     // endregion
 
     // region Get Offline Messages
 
-    public Observable<OfflineMessagesResponse> getOfflineMessages(HashMap<String, Object> body) {
-        return this.modelLayerManager.getOfflineMessages(body);
+    public Observable<OfflineMessagesResponse> getOfflineMessages(HashMap<String, Object> body, Context context) {
+        return this.modelLayerManager.getOfflineMessages(body, context);
     }
 
     // endregion
 
     // region Delete Profile Picture
 
-    public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body) {
-        return this.modelLayerManager.deleteProfilePicture(body);
+    public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body, Context context) {
+        return this.modelLayerManager.deleteProfilePicture(body, context);
     }
 
     // endregion
 
     // region Report User
 
-    public Observable<Integer> reportUser(HashMap<String, Object> body){
-        return this.modelLayerManager.reportUser(body);
+    public Observable<Integer> reportUser(HashMap<String, Object> body, Context context){
+        return this.modelLayerManager.reportUser(body, context);
+    }
+
+    // endregion
+
+    // region Token
+
+    public Observable<TokenResponse> getToken(HashMap<String, Object> body) {
+        return this.modelLayerManager.getToken(body);
     }
 
     // endregion

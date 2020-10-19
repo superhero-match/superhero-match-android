@@ -13,6 +13,7 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.network.deleteMatch;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -26,14 +27,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DeleteMatchImpl {
 
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_DELETE_MATCH_PORT))
-            .client(OkHttpClientManager.setUpSecureClient())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
-    DeleteMatch service = retrofit.create(DeleteMatch.class);
+    private Retrofit retrofit;
+    private DeleteMatch service;
 
-    public DeleteMatchImpl() {
+    public DeleteMatchImpl(Context context) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_DELETE_MATCH_PORT))
+                .client(OkHttpClientManager.setUpSecureClient(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        service = retrofit.create(DeleteMatch.class);
     }
 
     public Integer deleteMatch(HashMap<String, Object> reqBody) {

@@ -15,10 +15,10 @@ package nl.mwsoft.www.superheromatch.viewLayer.verifyIdentity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -71,8 +71,9 @@ public class VerifyIdentityActivity extends AppCompatActivity {
     private RootCoordinator rootCoordinator;
     private VerifyIdentityPresenter verifyIdentityPresenter;
     private CompositeDisposable disposable;
-    private Disposable subscribe;
+    private Disposable subscribeCheckEmailExists;
     private LoadingDialogFragment loadingDialogFragment;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,7 +217,7 @@ public class VerifyIdentityActivity extends AppCompatActivity {
     private void checkIfEmailRegistered(GoogleSignInAccount acct) {
         showLoadingDialog();
 
-        subscribe = verifyIdentityPresenter.checkEmailAlreadyExists(acct.getEmail())
+        subscribeCheckEmailExists = verifyIdentityPresenter.checkEmailAlreadyExists(acct.getEmail())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((CheckEmailResponse res) -> {
@@ -250,7 +251,7 @@ public class VerifyIdentityActivity extends AppCompatActivity {
                     navigateToMain();
                 }, throwable -> handleError());
 
-        disposable.add(subscribe);
+        disposable.add(subscribeCheckEmailExists);
     }
 
     private void handleError() {

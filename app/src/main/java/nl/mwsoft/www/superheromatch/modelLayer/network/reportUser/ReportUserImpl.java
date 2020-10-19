@@ -1,5 +1,6 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network.reportUser;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -12,14 +13,18 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ReportUserImpl {
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_REPORT_USER_PORT))
-            .client(OkHttpClientManager.setUpSecureClient())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
-    ReportUser service = retrofit.create(ReportUser.class);
 
-    public ReportUserImpl() {
+    private Retrofit retrofit;
+    private ReportUser service;
+
+    public ReportUserImpl(Context context) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_REPORT_USER_PORT))
+                .client(OkHttpClientManager.setUpSecureClient(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        service = retrofit.create(ReportUser.class);
     }
 
     public Integer reportUser(HashMap<String, Object> body) {

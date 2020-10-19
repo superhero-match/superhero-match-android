@@ -288,14 +288,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void setUpConnectionToChatServer() {
         // default settings for all sockets
-        IO.setDefaultOkHttpWebSocketFactory(OkHttpClientManager.setUpSecureClient());
-        IO.setDefaultOkHttpCallFactory(OkHttpClientManager.setUpSecureClient());
+        IO.setDefaultOkHttpWebSocketFactory(OkHttpClientManager.setUpSecureClientWithoutAuthorization());
+        IO.setDefaultOkHttpCallFactory(OkHttpClientManager.setUpSecureClientWithoutAuthorization());
 
         // set as an option
         IO.Options opts = new IO.Options();
         opts.transports = new String[]{io.socket.engineio.client.transports.WebSocket.NAME};
-        opts.callFactory = OkHttpClientManager.setUpSecureClient();
-        opts.webSocketFactory = OkHttpClientManager.setUpSecureClient();
+        opts.callFactory = OkHttpClientManager.setUpSecureClientWithoutAuthorization();
+        opts.webSocketFactory = OkHttpClientManager.setUpSecureClientWithoutAuthorization();
         try {
             chatSocket = IO.socket(
                     ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_CHAT_PORT),
@@ -353,14 +353,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void setUpConnectionToUpdateMediaServer() {
         // default settings for all sockets
-        IO.setDefaultOkHttpWebSocketFactory(OkHttpClientManager.setUpSecureClient());
-        IO.setDefaultOkHttpCallFactory(OkHttpClientManager.setUpSecureClient());
+        IO.setDefaultOkHttpWebSocketFactory(OkHttpClientManager.setUpSecureClientWithoutAuthorization());
+        IO.setDefaultOkHttpCallFactory(OkHttpClientManager.setUpSecureClientWithoutAuthorization());
 
         // set as an option
         IO.Options opts = new IO.Options();
         opts.transports = new String[]{io.socket.engineio.client.transports.WebSocket.NAME};
-        opts.callFactory = OkHttpClientManager.setUpSecureClient();
-        opts.webSocketFactory = OkHttpClientManager.setUpSecureClient();
+        opts.callFactory = OkHttpClientManager.setUpSecureClientWithoutAuthorization();
+        opts.webSocketFactory = OkHttpClientManager.setUpSecureClientWithoutAuthorization();
         try {
             updateProfilePictureSocket = IO.socket(
                     ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_UPDATE_MEDIA_PORT),
@@ -1235,7 +1235,7 @@ public class MainActivity extends AppCompatActivity {
             showLoadingDialog();
         }
 
-        subscribeSuggestions = mainPresenter.getSuggestions(reqBody)
+        subscribeSuggestions = mainPresenter.getSuggestions(reqBody, MainActivity.this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((SuggestionsResponse res) -> {
@@ -1297,7 +1297,7 @@ public class MainActivity extends AppCompatActivity {
                 mainPresenter,
                 suggestion,
                 choice
-        )).observeOn(AndroidSchedulers.mainThread())
+        ), MainActivity.this).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((ChoiceResponse res) -> {
                     if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
@@ -1322,7 +1322,7 @@ public class MainActivity extends AppCompatActivity {
     public void getSuperheroProfile(HashMap<String, Object> requestBody) {
         showLoadingDialog();
 
-        subscribeGetProfile = mainPresenter.getSuperheroProfile(requestBody)
+        subscribeGetProfile = mainPresenter.getSuperheroProfile(requestBody, MainActivity.this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((ProfileResponse res) -> {
@@ -1351,7 +1351,7 @@ public class MainActivity extends AppCompatActivity {
     public void deleteUserAccount(HashMap<String, Object> requestBody) {
         showLoadingDialog();
 
-        subscribeDeleteAccount = mainPresenter.deleteAccount(requestBody)
+        subscribeDeleteAccount = mainPresenter.deleteAccount(requestBody, MainActivity.this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((res) -> {
@@ -1521,7 +1521,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void uploadMatch(HashMap<String, Object> reqBody) {
-        subscribeUploadMatch = mainPresenter.uploadMatch(reqBody).subscribeOn(Schedulers.io())
+        subscribeUploadMatch = mainPresenter.uploadMatch(reqBody, MainActivity.this)
+                .subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
                     if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
@@ -1532,7 +1533,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateFirebaseToken(HashMap<String, Object> reqBody) {
-        subscribeUpdateUserToken = mainPresenter.updateFirebaseToken(reqBody).subscribeOn(Schedulers.io())
+        subscribeUpdateUserToken = mainPresenter.updateFirebaseToken(reqBody, MainActivity.this)
+                .subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
                     if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), "Error while updating Firebase messaging token");
@@ -1547,7 +1549,8 @@ public class MainActivity extends AppCompatActivity {
         reqBody.put("superheroId", superheroId);
         reqBody.put("matchedSuperheroId", matchedSuperheroId);
 
-        subscribeDeleteMatch = mainPresenter.deleteMatch(reqBody).subscribeOn(Schedulers.io())
+        subscribeDeleteMatch = mainPresenter.deleteMatch(reqBody, MainActivity.this)
+                .subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
                     if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
@@ -1562,7 +1565,7 @@ public class MainActivity extends AppCompatActivity {
         reqBody.put("superheroId", superheroId);
         reqBody.put("position", position);
 
-        subscribeDeleteProfilePicture = mainPresenter.deleteProfilePicture(reqBody)
+        subscribeDeleteProfilePicture = mainPresenter.deleteProfilePicture(reqBody, MainActivity.this)
                 .subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
                     if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
@@ -1574,7 +1577,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void reportUser(HashMap<String, Object> reqBody) {
-        subscribeReportUser = mainPresenter.uploadMatch(reqBody).subscribeOn(Schedulers.io())
+        subscribeReportUser = mainPresenter.reportUser(reqBody, MainActivity.this)
+                .subscribeOn(Schedulers.io())
                 .subscribe((Integer res) -> {
                     if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), getString(R.string.report_user_error_msg));
@@ -1594,7 +1598,7 @@ public class MainActivity extends AppCompatActivity {
             showLoadingDialog();
         }
 
-        subscribeUpdateProfile = mainPresenter.updateProfile(reqBody)
+        subscribeUpdateProfile = mainPresenter.updateProfile(reqBody, MainActivity.this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((UpdateResponse res) -> {
@@ -1990,7 +1994,7 @@ public class MainActivity extends AppCompatActivity {
         HashMap<String, Object> requestBody = new HashMap<>();
         requestBody.put("superheroId", superheroId);
 
-        subscribeGetProfile = mainPresenter.getSuperheroProfile(requestBody)
+        subscribeGetProfile = mainPresenter.getSuperheroProfile(requestBody, MainActivity.this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((ProfileResponse res) -> {

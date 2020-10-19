@@ -13,6 +13,7 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.network.deleteAccount;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -27,15 +28,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DeleteAccountImpl {
 
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_DELETE_PORT))
-            .client(OkHttpClientManager.setUpSecureClient())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
-    DeleteAccount service = retrofit.create(DeleteAccount.class);
+    private Retrofit retrofit;
+    private DeleteAccount service;
 
-    public DeleteAccountImpl() {
+    public DeleteAccountImpl(Context context) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_DELETE_PORT))
+                .client(OkHttpClientManager.setUpSecureClient(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
+        service = retrofit.create(DeleteAccount.class);
     }
 
     public DeleteAccountResponse deleteAccount(HashMap<String, Object> body) {

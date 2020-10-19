@@ -1,14 +1,13 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network.getOfflineMessages;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
-import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessage;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -16,14 +15,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class GetOfflineMessagesImpl {
 
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_OFFLINE_MESSAGE_PORT))
-            .client(OkHttpClientManager.setUpSecureClient())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
-    GetOfflineMessages service = retrofit.create(GetOfflineMessages.class);
+    private Retrofit retrofit;
+    private GetOfflineMessages service;
 
-    public GetOfflineMessagesImpl() {
+    public GetOfflineMessagesImpl(Context context) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_OFFLINE_MESSAGE_PORT))
+                .client(OkHttpClientManager.setUpSecureClient(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        service = retrofit.create(GetOfflineMessages.class);
     }
 
     public OfflineMessagesResponse getOfflineMessages(HashMap<String, Object> reqBody) {

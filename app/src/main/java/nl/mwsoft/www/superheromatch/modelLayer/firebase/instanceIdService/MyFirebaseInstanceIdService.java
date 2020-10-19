@@ -42,7 +42,7 @@ public class MyFirebaseInstanceIdService extends FirebaseMessagingService {
                     token
             );
 
-            subscribeUpdateUserToken = networkLayer.updateFirebaseToken(reqBody).
+            subscribeUpdateUserToken = networkLayer.updateFirebaseToken(reqBody, MyFirebaseInstanceIdService.this).
                     subscribeOn(Schedulers.io()).
                     subscribe(res -> {
                         if (res != 200) {

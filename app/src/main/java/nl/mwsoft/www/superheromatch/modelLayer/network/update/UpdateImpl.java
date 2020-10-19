@@ -13,6 +13,8 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.network.update;
 
+import android.content.Context;
+
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -25,15 +27,18 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class UpdateImpl {
 
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_UPDATE_PORT))
-            .client(OkHttpClientManager.setUpSecureClient())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
+    private Retrofit retrofit;
+    private Update service;
 
-    Update service = retrofit.create(Update.class);
+    public UpdateImpl(Context context) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_UPDATE_PORT))
+                .client(OkHttpClientManager.setUpSecureClient(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
-    public UpdateImpl() { }
+        service = retrofit.create(Update.class);
+    }
 
     public UpdateResponse updateProfile(HashMap<String, Object> body) {
         Call<UpdateResponse> call = service.update(body);

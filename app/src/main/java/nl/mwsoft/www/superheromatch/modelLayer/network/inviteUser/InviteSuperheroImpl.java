@@ -13,6 +13,8 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.network.inviteUser;
 
+import android.content.Context;
+
 import java.io.IOException;
 
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
@@ -22,15 +24,17 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class InviteSuperheroImpl {
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_REGISTER_PORT))
-            .client(OkHttpClientManager.setUpSecureClient())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
-    InviteSuperhero service = retrofit.create(InviteSuperhero.class);
+    private Retrofit retrofit;
+    private InviteSuperhero service;
 
-    public InviteSuperheroImpl() {
+    public InviteSuperheroImpl(Context context) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_REGISTER_PORT))
+                .client(OkHttpClientManager.setUpSecureClient(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
+        service = retrofit.create(InviteSuperhero.class);
     }
 
     public String getInviteUserResponse(String userName, String inviteeName, String inviteeEmail) {

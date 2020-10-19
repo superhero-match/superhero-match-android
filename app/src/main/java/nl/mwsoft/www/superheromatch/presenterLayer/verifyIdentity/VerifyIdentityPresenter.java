@@ -54,4 +54,8 @@ public class VerifyIdentityPresenter {
     }
 
     // endregion
+
+    public String getUUID() {
+        return this.modelLayerManager.getUUID();
+    }
 }

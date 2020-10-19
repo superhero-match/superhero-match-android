@@ -13,6 +13,7 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.network.profile;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -28,15 +29,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ProfileImpl {
 
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_PROFILE_PORT))
-            .client(OkHttpClientManager.setUpSecureClient())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
+    private Retrofit retrofit;
+    private Profile service;
 
-    Profile service = retrofit.create(Profile.class);
+    public ProfileImpl(Context context) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_PROFILE_PORT))
+                .client(OkHttpClientManager.setUpSecureClient(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
-    public ProfileImpl() {
+        service = retrofit.create(Profile.class);
     }
 
     public ProfileResponse getSuggestionProfile(HashMap<String, Object> reqBody) {

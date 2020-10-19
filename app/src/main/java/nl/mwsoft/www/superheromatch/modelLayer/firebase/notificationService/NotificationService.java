@@ -100,8 +100,10 @@ public class NotificationService extends FirebaseMessagingService {
     }
 
     private void handleNewMatch(String matchedSuperheroId, String superheroId) {
-        Disposable subscribeGetMatch = networkLayer.getMatch(configureGetMatchRequestBody(superheroId, matchedSuperheroId)).
-                subscribeOn(Schedulers.io()).
+        Disposable subscribeGetMatch = networkLayer.getMatch(
+                configureGetMatchRequestBody(superheroId, matchedSuperheroId),
+                NotificationService.this
+        ).subscribeOn(Schedulers.io()).
                 subscribe(res -> {
                     if (res.getStatus() != 200) {
                         Log.e(NotificationService.class.getName(), "Error while fetching match");
@@ -165,7 +167,7 @@ public class NotificationService extends FirebaseMessagingService {
 
     private void handleNewOfflineMessages(String superheroId) {
         Disposable subscribeGetNewOfflineMessages = networkLayer.
-                getOfflineMessages(configureGetOfflineMessagesRequestBody(superheroId)).
+                getOfflineMessages(configureGetOfflineMessagesRequestBody(superheroId), NotificationService.this).
                 subscribeOn(Schedulers.io()).
                 subscribe(res -> {
                     if (res.getStatus() != ConstantRegistry.SERVER_STATUS_OK) {
@@ -211,7 +213,7 @@ public class NotificationService extends FirebaseMessagingService {
 
     private void deleteOfflineMessages(String superheroId) {
         Disposable subscribeDeleteOfflineMessages = networkLayer.
-                deleteOfflineMessages(configureDeleteOfflineMessagesRequestBody(superheroId)).
+                deleteOfflineMessages(configureDeleteOfflineMessagesRequestBody(superheroId), NotificationService.this).
                 subscribeOn(Schedulers.io()).
                 subscribe(res -> {
                     if (res != ConstantRegistry.SERVER_STATUS_OK) {

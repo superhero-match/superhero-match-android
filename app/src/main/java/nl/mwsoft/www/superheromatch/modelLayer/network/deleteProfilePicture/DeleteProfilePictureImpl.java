@@ -1,5 +1,6 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network.deleteProfilePicture;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -7,21 +8,23 @@ import java.util.HashMap;
 
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
-import nl.mwsoft.www.superheromatch.modelLayer.network.deleteMatch.DeleteMatch;
-import nl.mwsoft.www.superheromatch.modelLayer.network.deleteMatch.DeleteMatchImpl;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DeleteProfilePictureImpl {
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_DELETE_MEDIA_PORT))
-            .client(OkHttpClientManager.setUpSecureClient())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
-    DeleteProfilePicture service = retrofit.create(DeleteProfilePicture.class);
 
-    public DeleteProfilePictureImpl() {
+    private Retrofit retrofit;
+    private DeleteProfilePicture service;
+
+    public DeleteProfilePictureImpl(Context context) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_DELETE_MEDIA_PORT))
+                .client(OkHttpClientManager.setUpSecureClient(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        service = retrofit.create(DeleteProfilePicture.class);
     }
 
     public Integer deleteProfilePicture(HashMap<String, Object> reqBody) {

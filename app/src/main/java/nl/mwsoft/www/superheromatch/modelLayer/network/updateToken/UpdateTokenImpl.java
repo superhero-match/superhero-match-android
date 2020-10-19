@@ -13,6 +13,7 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.network.updateToken;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -25,14 +26,18 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class UpdateTokenImpl {
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_FIREBASE_MESSAGING_TOKEN_PORT))
-            .client(OkHttpClientManager.setUpSecureClient())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
-    UpdateToken service = retrofit.create(UpdateToken.class);
 
-    public UpdateTokenImpl() {
+    private Retrofit retrofit;
+    private UpdateToken service;
+
+    public UpdateTokenImpl(Context context) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantRegistry.BASE_SERVER_URL.concat(ConstantRegistry.SUPERHERO_FIREBASE_MESSAGING_TOKEN_PORT))
+                .client(OkHttpClientManager.setUpSecureClient(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        service = retrofit.create(UpdateToken.class);
     }
 
     public Integer updateFirebaseToken(HashMap<String, Object> body) {

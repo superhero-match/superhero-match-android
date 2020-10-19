@@ -69,6 +69,7 @@ public class ConstantRegistry {
     public static final String SUPERHERO_UPDATE_MEDIA_PORT = ":7100";
     public static final String SUPERHERO_DELETE_MEDIA_PORT = ":7200";
     public static final String SUPERHERO_REPORT_USER_PORT = ":9000";
+    public static final String SUPERHERO_AUTH_PORT = ":9100";
 
     public static final String DATE_TIME_FORMAT = "yyyyMMdd_HHmmss";
     public static final String JPG_EXTENSION = ".jpg";
@@ -205,4 +206,9 @@ public class ConstantRegistry {
     public static final String  REPORT_REASON_FAKE_ACCOUNT = "FAKE_ACCOUNT";
     public static final String  REPORT_REASON_UNDER_AGE_OF_18 = "UNDER_AGE_OF_18";
     public static final String  REPORT_REASON_PICTURES_ARE_INAPPROPRIATE = "PICTURES_ARE_INAPPROPRIATE";
+
+    public static final String SHARED_PREFERENCES = "nl.mwsoft.superheromatch";
+
+    public static final String ACCESS_TOKEN = "accessToken";
+    public static final String REFRESH_TOKEN = "refreshToken";
 }

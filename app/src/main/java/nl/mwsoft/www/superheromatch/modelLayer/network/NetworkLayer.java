@@ -14,6 +14,8 @@
 package nl.mwsoft.www.superheromatch.modelLayer.network;
 
 
+import android.content.Context;
+
 import java.util.HashMap;
 
 import io.reactivex.Observable;
@@ -27,6 +29,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.TokenResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.network.checkEmail.CheckEmailImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.choice.ChoiceImpl;
@@ -36,12 +39,12 @@ import nl.mwsoft.www.superheromatch.modelLayer.network.deleteOfflineMessages.Del
 import nl.mwsoft.www.superheromatch.modelLayer.network.deleteProfilePicture.DeleteProfilePictureImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.getMatch.GetMatchImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.getOfflineMessages.GetOfflineMessagesImpl;
-import nl.mwsoft.www.superheromatch.modelLayer.network.inviteUser.InviteSuperheroImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.match.MatchImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.profile.ProfileImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.register.RegisterImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.reportUser.ReportUserImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.suggestions.SuggestionsImpl;
+import nl.mwsoft.www.superheromatch.modelLayer.network.token.TokenImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.update.UpdateImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.updateToken.UpdateTokenImpl;
 
@@ -70,34 +73,14 @@ public class NetworkLayer {
 
     // endregion
 
-    // region Save User's Choice
-
-    public Observable<String> saveChoice(String userId, String chosenUserId, String choiceType) {
-        return Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
-                try {
-//                    ChoiceImpl choice = new ChoiceImpl();
-//                    String response = choice.uploadChoice(userId, chosenUserId, choiceType);
-//                    emitter.onNext(response);
-//                    emitter.onComplete();
-                } catch (Exception e) {
-                    emitter.onError(e);
-                }
-            }
-        });
-    }
-
-    // endregion
-
     // region Delete User's Account
 
-    public Observable<DeleteAccountResponse> deleteAccount(HashMap<String, Object> body){
+    public Observable<DeleteAccountResponse> deleteAccount(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<DeleteAccountResponse>() {
             @Override
             public void subscribe(ObservableEmitter<DeleteAccountResponse> emitter) throws Exception {
                 try {
-                    DeleteAccountImpl deleteAccount = new DeleteAccountImpl();
+                    DeleteAccountImpl deleteAccount = new DeleteAccountImpl(context);
                     DeleteAccountResponse response = deleteAccount.deleteAccount(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -112,12 +95,12 @@ public class NetworkLayer {
 
     // region Register
 
-    public Observable<RegisterResponse> register(HashMap<String, Object> body){
+    public Observable<RegisterResponse> register(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<RegisterResponse>() {
             @Override
             public void subscribe(ObservableEmitter<RegisterResponse> emitter) throws Exception {
                 try {
-                    RegisterImpl register = new RegisterImpl();
+                    RegisterImpl register = new RegisterImpl(context);
                     RegisterResponse response = register.register(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -132,12 +115,12 @@ public class NetworkLayer {
 
     // region Retrieve Suggestions
 
-    public Observable<SuggestionsResponse> getSuggestions(HashMap<String, Object> body){
+    public Observable<SuggestionsResponse> getSuggestions(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<SuggestionsResponse>() {
             @Override
             public void subscribe(ObservableEmitter<SuggestionsResponse> emitter) throws Exception {
                 try {
-                    SuggestionsImpl suggestions = new SuggestionsImpl();
+                    SuggestionsImpl suggestions = new SuggestionsImpl(context);
                     SuggestionsResponse response = suggestions.getSuggestions(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -152,12 +135,12 @@ public class NetworkLayer {
 
     // region Upload Choice
 
-    public Observable<ChoiceResponse> uploadChoice(HashMap<String, Object> body){
+    public Observable<ChoiceResponse> uploadChoice(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<ChoiceResponse>() {
             @Override
             public void subscribe(ObservableEmitter<ChoiceResponse> emitter) throws Exception {
                 try {
-                    ChoiceImpl choice = new ChoiceImpl();
+                    ChoiceImpl choice = new ChoiceImpl(context);
                     ChoiceResponse response = choice.uploadChoice(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -172,12 +155,12 @@ public class NetworkLayer {
 
     // region Upload Match
 
-    public Observable<Integer> uploadMatch(HashMap<String, Object> body){
+    public Observable<Integer> uploadMatch(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
                 try {
-                    MatchImpl match = new MatchImpl();
+                    MatchImpl match = new MatchImpl(context);
                     Integer response = match.uploadMatch(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -192,12 +175,12 @@ public class NetworkLayer {
 
     // region Update Firebase Messaging Token
 
-    public Observable<Integer> updateFirebaseToken(HashMap<String, Object> body){
+    public Observable<Integer> updateFirebaseToken(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
                 try {
-                    UpdateTokenImpl updateToken = new UpdateTokenImpl();
+                    UpdateTokenImpl updateToken = new UpdateTokenImpl(context);
                     Integer response = updateToken.updateFirebaseToken(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -212,12 +195,12 @@ public class NetworkLayer {
 
     // region Delete Match
 
-    public Observable<Integer> deleteMatch(HashMap<String, Object> body){
+    public Observable<Integer> deleteMatch(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
                 try {
-                    DeleteMatchImpl deleteMatch = new DeleteMatchImpl();
+                    DeleteMatchImpl deleteMatch = new DeleteMatchImpl(context);
                     Integer response = deleteMatch.deleteMatch(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -232,12 +215,12 @@ public class NetworkLayer {
 
     // region Get Suggestion Profile
 
-    public Observable<ProfileResponse> getSuperheroProfile(HashMap<String, Object> body){
+    public Observable<ProfileResponse> getSuperheroProfile(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<ProfileResponse>() {
             @Override
             public void subscribe(ObservableEmitter<ProfileResponse> emitter) throws Exception {
                 try {
-                    ProfileImpl profile = new ProfileImpl();
+                    ProfileImpl profile = new ProfileImpl(context);
                     ProfileResponse response = profile.getSuggestionProfile(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -252,12 +235,12 @@ public class NetworkLayer {
 
     // region Get Match
 
-    public Observable<GetMatchResponse> getMatch(HashMap<String, Object> body){
+    public Observable<GetMatchResponse> getMatch(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<GetMatchResponse>() {
             @Override
             public void subscribe(ObservableEmitter<GetMatchResponse> emitter) throws Exception {
                 try {
-                    GetMatchImpl getMatch = new GetMatchImpl();
+                    GetMatchImpl getMatch = new GetMatchImpl(context);
                     GetMatchResponse response = getMatch.getMatch(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -270,75 +253,15 @@ public class NetworkLayer {
 
     // endregion
 
-    // region Update User's Firebase Messaging Token
-
-    public Observable<String> getUpdateUserTokenResponse(String userId, String messagingToken) {
-        return Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
-                try {
-//                    UpdateTokenImpl updateToken = new UpdateTokenImpl();
-//                    String response = updateToken.getUpdateUserTokenResponse(userId, messagingToken);
-//                    emitter.onNext(response);
-//                    emitter.onComplete();
-                } catch (Exception e) {
-                    emitter.onError(e);
-                }
-            }
-        });
-    }
-
-    // endregion
-
     // region Update User's Data
 
-    public Observable<UpdateResponse> updateProfile(HashMap<String, Object> body) {
+    public Observable<UpdateResponse> updateProfile(HashMap<String, Object> body, Context context) {
         return Observable.create(new ObservableOnSubscribe<UpdateResponse>() {
             @Override
             public void subscribe(ObservableEmitter<UpdateResponse> emitter) throws Exception {
                 try {
-                    UpdateImpl updateUserData = new UpdateImpl();
+                    UpdateImpl updateUserData = new UpdateImpl(context);
                     UpdateResponse response = updateUserData.updateProfile(body);
-                    emitter.onNext(response);
-                    emitter.onComplete();
-                } catch (Exception e) {
-                    emitter.onError(e);
-                }
-            }
-        });
-    }
-
-    // endregion
-
-    // region Upgrade User's Account
-
-    public Observable<String> upgradeAccount(String userId, String upgradedAccountType) {
-        return Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
-                try {
-//                    UpdateAccountImpl updateAccount = new UpdateAccountImpl();
-//                    String response = updateAccount.updateAccount(userId, upgradedAccountType);
-//                    emitter.onNext(response);
-//                    emitter.onComplete();
-                } catch (Exception e) {
-                    emitter.onError(e);
-                }
-            }
-        });
-    }
-
-    // endregion
-
-    // region InviteSuperhero User To Join Superhero Match
-
-    public Observable<String> inviteUser(String userName, String inviteeName, String inviteeEmail){
-        return Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
-                try {
-                    InviteSuperheroImpl inviteRequest = new InviteSuperheroImpl();
-                    String response = inviteRequest.getInviteUserResponse(userName, inviteeName, inviteeEmail);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
@@ -352,12 +275,12 @@ public class NetworkLayer {
 
     // region Get Offline Messages
 
-    public Observable<OfflineMessagesResponse> getOfflineMessages(HashMap<String, Object> body){
+    public Observable<OfflineMessagesResponse> getOfflineMessages(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<OfflineMessagesResponse>() {
             @Override
             public void subscribe(ObservableEmitter<OfflineMessagesResponse> emitter) throws Exception {
                 try {
-                    GetOfflineMessagesImpl getOfflineMessages = new GetOfflineMessagesImpl();
+                    GetOfflineMessagesImpl getOfflineMessages = new GetOfflineMessagesImpl(context);
                     OfflineMessagesResponse response = getOfflineMessages.getOfflineMessages(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -372,12 +295,12 @@ public class NetworkLayer {
 
     // region Delete Profile Picture
 
-    public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body){
+    public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
                 try {
-                    DeleteProfilePictureImpl deleteProfilePictureImpl = new DeleteProfilePictureImpl();
+                    DeleteProfilePictureImpl deleteProfilePictureImpl = new DeleteProfilePictureImpl(context);
                     Integer response = deleteProfilePictureImpl.deleteProfilePicture(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -392,12 +315,12 @@ public class NetworkLayer {
 
     // region Delete Profile Picture
 
-    public Observable<Integer> deleteOfflineMessages(HashMap<String, Object> body){
+    public Observable<Integer> deleteOfflineMessages(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
                 try {
-                    DeleteOfflineMessagesImpl deleteOfflineMessagesImpl = new DeleteOfflineMessagesImpl();
+                    DeleteOfflineMessagesImpl deleteOfflineMessagesImpl = new DeleteOfflineMessagesImpl(context);
                     Integer response = deleteOfflineMessagesImpl.deleteOfflineMessages(body);
                     emitter.onNext(response);
                     emitter.onComplete();
@@ -412,13 +335,33 @@ public class NetworkLayer {
 
     // region Report User
 
-    public Observable<Integer> reportUser(HashMap<String, Object> body){
+    public Observable<Integer> reportUser(HashMap<String, Object> body, Context context){
         return Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
                 try {
-                    ReportUserImpl reportUserImpl = new ReportUserImpl();
+                    ReportUserImpl reportUserImpl = new ReportUserImpl(context);
                     Integer response = reportUserImpl.reportUser(body);
+                    emitter.onNext(response);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    // endregion
+
+    // region Token
+
+    public Observable<TokenResponse> getToken(HashMap<String, Object> body) {
+        return Observable.create(new ObservableOnSubscribe<TokenResponse>() {
+            @Override
+            public void subscribe(ObservableEmitter<TokenResponse> emitter) throws Exception {
+                try {
+                    TokenImpl tokenImpl = new TokenImpl();
+                    TokenResponse response = tokenImpl.getToken(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {

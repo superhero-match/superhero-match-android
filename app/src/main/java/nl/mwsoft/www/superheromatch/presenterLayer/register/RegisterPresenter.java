@@ -15,23 +15,17 @@ package nl.mwsoft.www.superheromatch.presenterLayer.register;
 
 import android.content.Context;
 import android.net.Uri;
-import android.widget.Toast;
-
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
-import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
-import nl.mwsoft.www.superheromatch.modelLayer.model.RegistrationUser;
+import nl.mwsoft.www.superheromatch.modelLayer.model.TokenResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.modelLayer.modelLayerManager.ModelLayerManager;
-import nl.mwsoft.www.superheromatch.viewLayer.register.activity.RegisterActivity;
 
 public class RegisterPresenter {
 
@@ -132,8 +126,16 @@ public class RegisterPresenter {
 
     // region Register
 
-    public Observable<RegisterResponse> register(HashMap<String, Object> body){
-        return this.modelLayerManager.register(body);
+    public Observable<RegisterResponse> register(HashMap<String, Object> body, Context context){
+        return this.modelLayerManager.register(body, context);
+    }
+
+    // endregion
+
+    // region Token
+
+    public Observable<TokenResponse> getToken(HashMap<String, Object> body) {
+        return this.modelLayerManager.getToken(body);
     }
 
     // endregion
