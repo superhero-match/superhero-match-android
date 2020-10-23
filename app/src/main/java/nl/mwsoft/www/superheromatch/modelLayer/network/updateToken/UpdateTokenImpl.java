@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
+import nl.mwsoft.www.superheromatch.modelLayer.model.StatusResponse;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -40,14 +41,14 @@ public class UpdateTokenImpl {
         service = retrofit.create(UpdateToken.class);
     }
 
-    public Integer updateFirebaseToken(HashMap<String, Object> body) {
-        Call<Integer> call = service.updateFirebaseToken(body);
+    public StatusResponse updateFirebaseToken(HashMap<String, Object> body) {
+        Call<StatusResponse> call = service.updateFirebaseToken(body);
         try {
             return call.execute().body();
         } catch (IOException e) {
             Log.e(UpdateTokenImpl.class.getName(), "updateFirebaseToken error --> " + e.getMessage());
         }
 
-        return ConstantRegistry.SERVER_RESPONSE_ERROR;
+        return new StatusResponse(ConstantRegistry.SERVER_RESPONSE_ERROR);
     }
 }

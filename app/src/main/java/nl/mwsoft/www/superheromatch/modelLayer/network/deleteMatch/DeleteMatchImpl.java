@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
+import nl.mwsoft.www.superheromatch.modelLayer.model.StatusResponse;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -40,15 +41,15 @@ public class DeleteMatchImpl {
         service = retrofit.create(DeleteMatch.class);
     }
 
-    public Integer deleteMatch(HashMap<String, Object> reqBody) {
+    public StatusResponse deleteMatch(HashMap<String, Object> reqBody) {
 
-        Call<Integer> call = service.deleteMatch(reqBody);
+        Call<StatusResponse> call = service.deleteMatch(reqBody);
         try {
             return call.execute().body();
         } catch (IOException e) {
             Log.e(DeleteMatchImpl.class.getName(), "DeleteMatchImpl --> exception: " + e.getMessage());
         }
 
-        return ConstantRegistry.SERVER_RESPONSE_ERROR;
+        return new StatusResponse(ConstantRegistry.SERVER_RESPONSE_ERROR);
     }
 }

@@ -97,7 +97,6 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.TokenResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.presenterLayer.register.RegisterPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 import nl.mwsoft.www.superheromatch.viewLayer.register.fragment.RegistrationVPFragment;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -136,8 +135,6 @@ public class RegisterActivity extends AppCompatActivity {
         loadFragment(RegistrationVPFragment.newInstance());
 
         configureInitialValues();
-
-        getToken();
 
         setUpConnectionToServer();
 
@@ -788,14 +785,16 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<InstanceIdResult> task) {
                         if (!task.isSuccessful()) {
-                            Log.w(MainActivity.class.getName(), "getInstanceId failed", task.getException());
+                            Log.d(RegisterActivity.class.getName(), "getInstanceId failed", task.getException());
+
+                            Toast.makeText(RegisterActivity.this, R.string.firebase_token_error, Toast.LENGTH_LONG).show();
 
                             return;
                         }
 
                         // Get new Instance ID token
-                        String token = task.getResult().getToken();
-                        register(convertToJSON(getUser(), token));
+                        String firebaseToken = task.getResult().getToken();
+                        getToken(firebaseToken);
                     }
                 });
     }
@@ -857,7 +856,7 @@ public class RegisterActivity extends AppCompatActivity {
         disposable.add(subscribe);
     }
 
-    private void getToken() {
+    private void getToken(String firebaseToken) {
         showLoadingDialog();
 
         HashMap<String, Object> tokenRequestBody = new HashMap<>();
@@ -885,6 +884,7 @@ public class RegisterActivity extends AppCompatActivity {
                     editor.putString(ConstantRegistry.REFRESH_TOKEN, res.getRefreshToken());
                     editor.apply();
 
+                    register(convertToJSON(getUser(), firebaseToken));
                 }, throwable -> handleError());
 
         disposable.add(subscribeGetToken);

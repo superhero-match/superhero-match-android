@@ -28,6 +28,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.GetMatchResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.StatusResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.TokenResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
@@ -41,6 +42,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.network.getMatch.GetMatchImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.getOfflineMessages.GetOfflineMessagesImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.match.MatchImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.profile.ProfileImpl;
+import nl.mwsoft.www.superheromatch.modelLayer.network.refreshToken.RefreshTokenImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.register.RegisterImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.reportUser.ReportUserImpl;
 import nl.mwsoft.www.superheromatch.modelLayer.network.suggestions.SuggestionsImpl;
@@ -155,13 +157,13 @@ public class NetworkLayer {
 
     // region Upload Match
 
-    public Observable<Integer> uploadMatch(HashMap<String, Object> body, Context context){
-        return Observable.create(new ObservableOnSubscribe<Integer>() {
+    public Observable<StatusResponse> uploadMatch(HashMap<String, Object> body, Context context){
+        return Observable.create(new ObservableOnSubscribe<StatusResponse>() {
             @Override
-            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+            public void subscribe(ObservableEmitter<StatusResponse> emitter) throws Exception {
                 try {
                     MatchImpl match = new MatchImpl(context);
-                    Integer response = match.uploadMatch(body);
+                    StatusResponse response = match.uploadMatch(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
@@ -175,13 +177,13 @@ public class NetworkLayer {
 
     // region Update Firebase Messaging Token
 
-    public Observable<Integer> updateFirebaseToken(HashMap<String, Object> body, Context context){
-        return Observable.create(new ObservableOnSubscribe<Integer>() {
+    public Observable<StatusResponse> updateFirebaseToken(HashMap<String, Object> body, Context context){
+        return Observable.create(new ObservableOnSubscribe<StatusResponse>() {
             @Override
-            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+            public void subscribe(ObservableEmitter<StatusResponse> emitter) throws Exception {
                 try {
                     UpdateTokenImpl updateToken = new UpdateTokenImpl(context);
-                    Integer response = updateToken.updateFirebaseToken(body);
+                    StatusResponse response = updateToken.updateFirebaseToken(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
@@ -195,13 +197,13 @@ public class NetworkLayer {
 
     // region Delete Match
 
-    public Observable<Integer> deleteMatch(HashMap<String, Object> body, Context context){
-        return Observable.create(new ObservableOnSubscribe<Integer>() {
+    public Observable<StatusResponse> deleteMatch(HashMap<String, Object> body, Context context){
+        return Observable.create(new ObservableOnSubscribe<StatusResponse>() {
             @Override
-            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+            public void subscribe(ObservableEmitter<StatusResponse> emitter) throws Exception {
                 try {
                     DeleteMatchImpl deleteMatch = new DeleteMatchImpl(context);
-                    Integer response = deleteMatch.deleteMatch(body);
+                    StatusResponse response = deleteMatch.deleteMatch(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
@@ -295,13 +297,13 @@ public class NetworkLayer {
 
     // region Delete Profile Picture
 
-    public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body, Context context){
-        return Observable.create(new ObservableOnSubscribe<Integer>() {
+    public Observable<StatusResponse> deleteProfilePicture(HashMap<String, Object> body, Context context){
+        return Observable.create(new ObservableOnSubscribe<StatusResponse>() {
             @Override
-            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+            public void subscribe(ObservableEmitter<StatusResponse> emitter) throws Exception {
                 try {
                     DeleteProfilePictureImpl deleteProfilePictureImpl = new DeleteProfilePictureImpl(context);
-                    Integer response = deleteProfilePictureImpl.deleteProfilePicture(body);
+                    StatusResponse response = deleteProfilePictureImpl.deleteProfilePicture(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
@@ -335,13 +337,13 @@ public class NetworkLayer {
 
     // region Report User
 
-    public Observable<Integer> reportUser(HashMap<String, Object> body, Context context){
-        return Observable.create(new ObservableOnSubscribe<Integer>() {
+    public Observable<StatusResponse> reportUser(HashMap<String, Object> body, Context context){
+        return Observable.create(new ObservableOnSubscribe<StatusResponse>() {
             @Override
-            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+            public void subscribe(ObservableEmitter<StatusResponse> emitter) throws Exception {
                 try {
                     ReportUserImpl reportUserImpl = new ReportUserImpl(context);
-                    Integer response = reportUserImpl.reportUser(body);
+                    StatusResponse response = reportUserImpl.reportUser(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {
@@ -362,6 +364,26 @@ public class NetworkLayer {
                 try {
                     TokenImpl tokenImpl = new TokenImpl();
                     TokenResponse response = tokenImpl.getToken(body);
+                    emitter.onNext(response);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    // endregion
+
+    // region RefreshToken
+
+    public Observable<TokenResponse> refreshToken(HashMap<String, Object> body) {
+        return Observable.create(new ObservableOnSubscribe<TokenResponse>() {
+            @Override
+            public void subscribe(ObservableEmitter<TokenResponse> emitter) throws Exception {
+                try {
+                    RefreshTokenImpl refreshTokenImpl = new RefreshTokenImpl();
+                    TokenResponse response = refreshTokenImpl.refreshToken(body);
                     emitter.onNext(response);
                     emitter.onComplete();
                 } catch (Exception e) {

@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
@@ -117,8 +118,10 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OutgoingMessage;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfilePicture;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.StatusResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
+import nl.mwsoft.www.superheromatch.modelLayer.model.TokenResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
 import nl.mwsoft.www.superheromatch.presenterLayer.main.MainPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
@@ -158,6 +161,8 @@ public class MainActivity extends AppCompatActivity {
     private Disposable subscribeReportUser;
     private Disposable subscribeDeleteAccount;
     Disposable subscribeUpdateUserToken;
+    private Disposable subscribeGetAccessToken;
+    private Disposable subscribeRefreshToken;
     private LoadingDialogFragment loadingDialogFragment;
     private MatchDialog matchDialog;
     private FusedLocationProviderClient fusedLocationClient;
@@ -449,7 +454,8 @@ public class MainActivity extends AppCompatActivity {
 
                         HashMap<String, Object> reqBody = new HashMap<>();
                         reqBody = configureUpdateFirebaseTokenRequestBody(userId, token);
-                        updateFirebaseToken(reqBody);
+
+                        updateFirebaseToken(reqBody, token);
                     }
                 });
     }
@@ -1230,12 +1236,12 @@ public class MainActivity extends AppCompatActivity {
         navigation.setSelectedItemId(R.id.navigation_matches);
     }
 
-    private void getSuggestions(HashMap<String, Object> reqBody, boolean isInitialRequest) {
+    private void getSuggestions(HashMap<String, Object> requestBody, boolean isInitialRequest) {
         if (!loadingDialogIsActive) {
             showLoadingDialog();
         }
 
-        subscribeSuggestions = mainPresenter.getSuggestions(reqBody, MainActivity.this)
+        subscribeSuggestions = mainPresenter.getSuggestions(requestBody, MainActivity.this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((SuggestionsResponse res) -> {
@@ -1247,6 +1253,77 @@ public class MainActivity extends AppCompatActivity {
                         handleError();
 
                         return;
+                    }
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        showLoadingDialog();
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+                                    closeLoadingDialog();
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Toast.makeText(
+                                                MainActivity.this,
+                                                R.string.smth_went_wrong,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        showLoadingDialog();
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+                                                    closeLoadingDialog();
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Toast.makeText(
+                                                                MainActivity.this,
+                                                                R.string.smth_went_wrong,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    getSuggestions(configureSuggestionsRequestBody(mainPresenter), isInitialRequest);
+                                                }, throwable -> handleError());
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    getSuggestions(configureSuggestionsRequestBody(mainPresenter), isInitialRequest);
+                                }, throwable ->  handleError());
                     }
 
                     if (res.getSuggestions().size() == 0) {
@@ -1290,6 +1367,8 @@ public class MainActivity extends AppCompatActivity {
                 }, throwable -> handleError());
 
         disposable.add(subscribeSuggestions);
+        disposable.add(subscribeRefreshToken);
+        disposable.add(subscribeGetAccessToken);
     }
 
     private void uploadChoice(MainPresenter mainPresenter, Superhero suggestion, int choice) {
@@ -1297,7 +1376,8 @@ public class MainActivity extends AppCompatActivity {
                 mainPresenter,
                 suggestion,
                 choice
-        ), MainActivity.this).observeOn(AndroidSchedulers.mainThread())
+        ), MainActivity.this)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((ChoiceResponse res) -> {
                     if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
@@ -1310,6 +1390,77 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
 
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        showLoadingDialog();
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+                                    closeLoadingDialog();
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Toast.makeText(
+                                                MainActivity.this,
+                                                R.string.smth_went_wrong,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        showLoadingDialog();
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+                                                    closeLoadingDialog();
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Toast.makeText(
+                                                                MainActivity.this,
+                                                                R.string.smth_went_wrong,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    uploadChoice(mainPresenter, suggestion, choice);
+                                                }, throwable -> handleError());
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    uploadChoice(mainPresenter, suggestion, choice);
+                                }, throwable -> handleError());
+                    }
+
                     // If it's a match, show dialog.
                     if (res.isMatch()) {
                         handleMatch(mainPresenter, suggestion, mainPresenter.createUUID());
@@ -1317,6 +1468,8 @@ public class MainActivity extends AppCompatActivity {
                 }, throwable -> handleError());
 
         disposable.add(subscribeUploadChoice);
+        disposable.add(subscribeRefreshToken);
+        disposable.add(subscribeGetAccessToken);
     }
 
     public void getSuperheroProfile(HashMap<String, Object> requestBody) {
@@ -1338,6 +1491,81 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
 
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        showLoadingDialog();
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+                                    closeLoadingDialog();
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Toast.makeText(
+                                                MainActivity.this,
+                                                R.string.smth_went_wrong,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        showLoadingDialog();
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+                                                    closeLoadingDialog();
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Toast.makeText(
+                                                                MainActivity.this,
+                                                                R.string.smth_went_wrong,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    getSuperheroProfile(
+                                                            configureGetSuperheroProfileRequestBody(mainPresenter.getUserId(MainActivity.this))
+                                                    );
+                                                }, throwable -> handleGetProfileError());
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    getSuperheroProfile(
+                                            configureGetSuperheroProfileRequestBody(mainPresenter.getUserId(MainActivity.this))
+                                    );
+                                }, throwable -> handleGetProfileError());
+                    }
+
                     if (res.getProfile().getProfilePictures() != null) {
                         Collections.sort(res.getProfile().getProfilePictures(), new ProfilePicturePositionComparator());
                     }
@@ -1346,6 +1574,8 @@ public class MainActivity extends AppCompatActivity {
                 }, throwable -> handleGetProfileError());
 
         disposable.add(subscribeGetProfile);
+        disposable.add(subscribeRefreshToken);
+        disposable.add(subscribeGetAccessToken);
     }
 
     public void deleteUserAccount(HashMap<String, Object> requestBody) {
@@ -1367,6 +1597,77 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
 
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        showLoadingDialog();
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+                                    closeLoadingDialog();
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Toast.makeText(
+                                                MainActivity.this,
+                                                R.string.smth_went_wrong,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        showLoadingDialog();
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+                                                    closeLoadingDialog();
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Toast.makeText(
+                                                                MainActivity.this,
+                                                                R.string.smth_went_wrong,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    deleteUserAccount(configureDeleteAccountRequestBody(getUserId()));
+                                                }, throwable -> handleDeleteAccountError());
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    deleteUserAccount(configureDeleteAccountRequestBody(getUserId()));
+                                }, throwable -> handleDeleteAccountError());
+                    }
+
                     this.mainPresenter.deleteDataFromAllTables(MainActivity.this);
 
                     this.mainPresenter.insertDefaultUser(MainActivity.this);
@@ -1375,6 +1676,8 @@ public class MainActivity extends AppCompatActivity {
                 }, throwable -> handleDeleteAccountError());
 
         disposable.add(subscribeDeleteAccount);
+        disposable.add(subscribeRefreshToken);
+        disposable.add(subscribeGetAccessToken);
     }
 
     private void handleGetProfileError() {
@@ -1520,72 +1823,409 @@ public class MainActivity extends AppCompatActivity {
         uploadMatch(reqBody);
     }
 
-    private void uploadMatch(HashMap<String, Object> reqBody) {
-        subscribeUploadMatch = mainPresenter.uploadMatch(reqBody, MainActivity.this)
+    private void uploadMatch(HashMap<String, Object> requestBody) {
+        subscribeUploadMatch = mainPresenter.uploadMatch(requestBody, MainActivity.this)
                 .subscribeOn(Schedulers.io())
-                .subscribe((Integer res) -> {
-                    if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                .subscribe((StatusResponse res) -> {
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
+                    }
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Toast.makeText(
+                                                MainActivity.this,
+                                                R.string.smth_went_wrong,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Toast.makeText(
+                                                                MainActivity.this,
+                                                                R.string.smth_went_wrong,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    uploadMatch(requestBody);
+                                                }, throwable -> handleErrorInBackground());
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    uploadMatch(requestBody);
+                                }, throwable -> handleErrorInBackground());
                     }
                 }, throwable -> handleErrorInBackground());
 
         disposable.add(subscribeUploadMatch);
+        disposable.add(subscribeRefreshToken);
+        disposable.add(subscribeGetAccessToken);
     }
 
-    private void updateFirebaseToken(HashMap<String, Object> reqBody) {
-        subscribeUpdateUserToken = mainPresenter.updateFirebaseToken(reqBody, MainActivity.this)
+    private void updateFirebaseToken(HashMap<String, Object> requestBody, String token) {
+        subscribeUpdateUserToken = mainPresenter.updateFirebaseToken(requestBody, MainActivity.this)
                 .subscribeOn(Schedulers.io())
-                .subscribe((Integer res) -> {
-                    if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                .subscribe((StatusResponse res) -> {
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), "Error while updating Firebase messaging token");
+                    }
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Toast.makeText(
+                                                MainActivity.this,
+                                                R.string.smth_went_wrong,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Toast.makeText(
+                                                                MainActivity.this,
+                                                                R.string.smth_went_wrong,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    updateFirebaseToken(
+                                                            configureUpdateFirebaseTokenRequestBody(
+                                                                mainPresenter.getUserId(MainActivity.this),
+                                                                token
+                                                            ),
+                                                            token
+                                                    );
+                                                }, throwable -> handleErrorInBackground());
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    updateFirebaseToken(
+                                            configureUpdateFirebaseTokenRequestBody(
+                                                    mainPresenter.getUserId(MainActivity.this),
+                                                    token
+                                            ),
+                                            token
+                                    );
+                                }, throwable -> handleErrorInBackground());
                     }
                 }, throwable -> handleErrorInBackground());
 
         disposable.add(subscribeUpdateUserToken);
+        disposable.add(subscribeRefreshToken);
+        disposable.add(subscribeGetAccessToken);
     }
 
     public void deleteMatch(String superheroId, String matchedSuperheroId) {
-        HashMap<String, Object> reqBody = new HashMap<>();
-        reqBody.put("superheroId", superheroId);
-        reqBody.put("matchedSuperheroId", matchedSuperheroId);
+        HashMap<String, Object> requestBody = new HashMap<>();
+        requestBody.put("superheroId", superheroId);
+        requestBody.put("matchedSuperheroId", matchedSuperheroId);
 
-        subscribeDeleteMatch = mainPresenter.deleteMatch(reqBody, MainActivity.this)
+        subscribeDeleteMatch = mainPresenter.deleteMatch(requestBody, MainActivity.this)
                 .subscribeOn(Schedulers.io())
-                .subscribe((Integer res) -> {
-                    if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                .subscribe((StatusResponse res) -> {
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
+                    }
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Toast.makeText(
+                                                MainActivity.this,
+                                                R.string.smth_went_wrong,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Toast.makeText(
+                                                                MainActivity.this,
+                                                                R.string.smth_went_wrong,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    deleteMatch(superheroId, matchedSuperheroId);
+                                                }, throwable -> handleErrorInBackground());
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    deleteMatch(superheroId, matchedSuperheroId);
+                                }, throwable -> handleErrorInBackground());
                     }
                 }, throwable -> handleErrorInBackground());
 
         disposable.add(subscribeDeleteMatch);
+        disposable.add(subscribeRefreshToken);
+        disposable.add(subscribeGetAccessToken);
     }
 
     public void deleteProfilePicture(String superheroId, int position) {
-        HashMap<String, Object> reqBody = new HashMap<>();
-        reqBody.put("superheroId", superheroId);
-        reqBody.put("position", position);
+        HashMap<String, Object> requestBody = new HashMap<>();
+        requestBody.put("superheroId", superheroId);
+        requestBody.put("position", position);
 
-        subscribeDeleteProfilePicture = mainPresenter.deleteProfilePicture(reqBody, MainActivity.this)
+        subscribeDeleteProfilePicture = mainPresenter.deleteProfilePicture(requestBody, MainActivity.this)
                 .subscribeOn(Schedulers.io())
-                .subscribe((Integer res) -> {
-                    if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                .subscribe((StatusResponse res) -> {
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), getString(R.string.delete_profile_picture_error));
+                    }
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Toast.makeText(
+                                                MainActivity.this,
+                                                R.string.smth_went_wrong,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Toast.makeText(
+                                                                MainActivity.this,
+                                                                R.string.smth_went_wrong,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    deleteProfilePicture(mainPresenter.getUserId(MainActivity.this), position);
+                                                }, throwable -> handleErrorInBackground());
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    deleteProfilePicture(mainPresenter.getUserId(MainActivity.this), position);
+                                }, throwable -> handleErrorInBackground());
                     }
                 }, throwable -> handleErrorInBackground());
 
         disposable.add(subscribeDeleteProfilePicture);
+        disposable.add(subscribeRefreshToken);
+        disposable.add(subscribeGetAccessToken);
     }
 
-    private void reportUser(HashMap<String, Object> reqBody) {
-        subscribeReportUser = mainPresenter.reportUser(reqBody, MainActivity.this)
+    private void reportUser(HashMap<String, Object> requestBody) {
+        subscribeReportUser = mainPresenter.reportUser(requestBody, MainActivity.this)
                 .subscribeOn(Schedulers.io())
-                .subscribe((Integer res) -> {
-                    if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                .subscribe((StatusResponse res) -> {
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(MainActivity.class.getName(), getString(R.string.report_user_error_msg));
+                    }
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Toast.makeText(
+                                                MainActivity.this,
+                                                R.string.smth_went_wrong,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Toast.makeText(
+                                                                MainActivity.this,
+                                                                R.string.smth_went_wrong,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    reportUser(requestBody);
+                                                }, throwable -> handleErrorInBackground());
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    reportUser(requestBody);
+                                }, throwable -> handleErrorInBackground());
                     }
                 }, throwable -> handleErrorInBackground());
 
         disposable.add(subscribeReportUser);
+        disposable.add(subscribeRefreshToken);
+        disposable.add(subscribeGetAccessToken);
     }
 
 
@@ -1593,12 +2233,12 @@ public class MainActivity extends AppCompatActivity {
         updateProfile(configureUpdateProfileRequestBody(mainPresenter));
     }
 
-    private void updateProfile(HashMap<String, Object> reqBody) {
+    private void updateProfile(HashMap<String, Object> requestBody) {
         if (!loadingDialogIsActive) {
             showLoadingDialog();
         }
 
-        subscribeUpdateProfile = mainPresenter.updateProfile(reqBody, MainActivity.this)
+        subscribeUpdateProfile = mainPresenter.updateProfile(requestBody, MainActivity.this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe((UpdateResponse res) -> {
@@ -1611,9 +2251,82 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.LENGTH_LONG
                         ).show();
                     }
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        showLoadingDialog();
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+                                    closeLoadingDialog();
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Toast.makeText(
+                                                MainActivity.this,
+                                                R.string.smth_went_wrong,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        showLoadingDialog();
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+                                                    closeLoadingDialog();
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Toast.makeText(
+                                                                MainActivity.this,
+                                                                R.string.smth_went_wrong,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    updateProfile(configureUpdateProfileRequestBody(mainPresenter));
+                                                }, throwable -> handleError());
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    updateProfile(configureUpdateProfileRequestBody(mainPresenter));
+                                }, throwable -> handleError());
+                    }
                 }, throwable -> handleError());
 
         disposable.add(subscribeUpdateProfile);
+        disposable.add(subscribeRefreshToken);
+        disposable.add(subscribeGetAccessToken);
     }
 
     private void handleError() {

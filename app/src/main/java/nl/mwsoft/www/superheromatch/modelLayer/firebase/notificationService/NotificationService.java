@@ -13,6 +13,8 @@
  */
 package nl.mwsoft.www.superheromatch.modelLayer.firebase.notificationService;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -26,6 +28,7 @@ import io.reactivex.schedulers.Schedulers;
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.database.chat.ChatDatabaseLayer;
 import nl.mwsoft.www.superheromatch.modelLayer.database.user.UserDatabaseLayer;
+import nl.mwsoft.www.superheromatch.modelLayer.firebase.instanceIdService.MyFirebaseInstanceIdService;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.dateTimeUtil.DateTimeUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.internet.InternetConnectionUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.util.notificationUtil.NotificationUtil;
@@ -33,6 +36,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.helper.util.uuid.UUIDUtil;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessage;
+import nl.mwsoft.www.superheromatch.modelLayer.model.TokenResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.network.NetworkLayer;
 
 public class NotificationService extends FirebaseMessagingService {
@@ -105,10 +109,69 @@ public class NotificationService extends FirebaseMessagingService {
                 NotificationService.this
         ).subscribeOn(Schedulers.io()).
                 subscribe(res -> {
-                    if (res.getStatus() != 200) {
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(NotificationService.class.getName(), "Error while fetching match");
 
                         return;
+                    }
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        Disposable subscribeRefreshToken = networkLayer.refreshToken(reqBody)
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Log.e(MyFirebaseInstanceIdService.class.getName(), "Error while refreshing token");
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", userDatabaseLayer.getUserId(NotificationService.this));
+
+                                        Disposable subscribeGetAccessToken = networkLayer.getToken(rBody)
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Log.e(NotificationService.class.getName(), "Error while refreshing token");
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    handleNewMatch(matchedSuperheroId, superheroId);
+                                                }, throwable -> {
+                                                    // Send error to Firebase
+                                                });
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    handleNewMatch(matchedSuperheroId, superheroId);
+                                }, throwable -> {
+                                    // Send error to Firebase
+                                });
                     }
 
                     String chatId = uuidUtil.generateUUID();
@@ -170,13 +233,72 @@ public class NotificationService extends FirebaseMessagingService {
                 getOfflineMessages(configureGetOfflineMessagesRequestBody(superheroId), NotificationService.this).
                 subscribeOn(Schedulers.io()).
                 subscribe(res -> {
-                    if (res.getStatus() != ConstantRegistry.SERVER_STATUS_OK) {
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(
                                 NotificationService.class.getName(),
                                 "Error while fetching new offline messages"
                         );
 
                         return;
+                    }
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        Disposable subscribeRefreshToken = networkLayer.refreshToken(reqBody)
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Log.e(MyFirebaseInstanceIdService.class.getName(), "Error while refreshing token");
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", userDatabaseLayer.getUserId(NotificationService.this));
+
+                                        Disposable subscribeGetAccessToken = networkLayer.getToken(rBody)
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Log.e(NotificationService.class.getName(), "Error while refreshing token");
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    handleNewOfflineMessages(superheroId);
+                                                }, throwable -> {
+                                                    // Send error to Firebase
+                                                });
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    handleNewOfflineMessages(superheroId);
+                                }, throwable -> {
+                                    // Send error to Firebase
+                                });
                     }
 
                     for (OfflineMessage offlineMessage : res.getMessages()) {

@@ -211,4 +211,6 @@ public class ConstantRegistry {
 
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String REFRESH_TOKEN = "refreshToken";
+
+    public static final int SERVER_STATUS_UNAUTHORIZED = 401;
 }

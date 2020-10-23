@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.okHttpClientManager.OkHttpClientManager;
+import nl.mwsoft.www.superheromatch.modelLayer.model.StatusResponse;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -27,14 +28,14 @@ public class ReportUserImpl {
         service = retrofit.create(ReportUser.class);
     }
 
-    public Integer reportUser(HashMap<String, Object> body) {
-        Call<Integer> call = service.reportUser(body);
+    public StatusResponse reportUser(HashMap<String, Object> body) {
+        Call<StatusResponse> call = service.reportUser(body);
         try {
             return call.execute().body();
         } catch (IOException e) {
             Log.e(ReportUserImpl.class.getName(), "reportUser error --> " + e.getMessage());
         }
 
-        return ConstantRegistry.SERVER_RESPONSE_ERROR;
+        return new StatusResponse(ConstantRegistry.SERVER_RESPONSE_ERROR);
     }
 }

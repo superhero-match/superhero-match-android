@@ -189,5 +189,6 @@
     <string name="delete_account">DELETE ACCOUNT</string>
     <string name="delete_account_2">Delete Account</string>
     <string name="are_you_sure_you_want_to_delete_your_account">Are you sure you want to delete your account?</string>
+    <string name="firebase_token_error">Could not fetch Firebase token.</string>
 
 </resources>

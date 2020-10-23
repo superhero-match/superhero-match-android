@@ -15,6 +15,7 @@ package nl.mwsoft.www.superheromatch.modelLayer.network.deleteMatch;
 
 import java.util.HashMap;
 
+import nl.mwsoft.www.superheromatch.modelLayer.model.StatusResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Headers;
@@ -27,5 +28,5 @@ public interface DeleteMatch {
             "X-Platform: Android"
     })
     @POST("/api/v1/match/delete")
-    Call<Integer> deleteMatch(@Body HashMap<String, Object> body);
+    Call<StatusResponse> deleteMatch(@Body HashMap<String, Object> body);
 }

@@ -40,6 +40,7 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
 import nl.mwsoft.www.superheromatch.modelLayer.model.OfflineMessagesResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfileResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.RegisterResponse;
+import nl.mwsoft.www.superheromatch.modelLayer.model.StatusResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.SuggestionsResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.TokenResponse;
 import nl.mwsoft.www.superheromatch.modelLayer.model.UpdateResponse;
@@ -452,7 +453,7 @@ public class ModelLayerManager {
 
     // region Upload Match
 
-    public Observable<Integer> uploadMatch(HashMap<String, Object> body, Context context){
+    public Observable<StatusResponse> uploadMatch(HashMap<String, Object> body, Context context){
         return this.networkLayer.uploadMatch(body, context);
     }
 
@@ -460,7 +461,7 @@ public class ModelLayerManager {
 
     // region Delete Match
 
-    public Observable<Integer> deleteMatch(HashMap<String, Object> body, Context context){
+    public Observable<StatusResponse> deleteMatch(HashMap<String, Object> body, Context context){
         return this.networkLayer.deleteMatch(body, context);
     }
 
@@ -468,7 +469,7 @@ public class ModelLayerManager {
 
     // region Update Firebase Messaging Token
 
-    public Observable<Integer> updateFirebaseToken(HashMap<String, Object> body, Context context){
+    public Observable<StatusResponse> updateFirebaseToken(HashMap<String, Object> body, Context context){
         return this.networkLayer.updateFirebaseToken(body, context);
     }
 
@@ -500,7 +501,7 @@ public class ModelLayerManager {
 
     // region Delete Profile Picture
 
-    public Observable<Integer> deleteProfilePicture(HashMap<String, Object> body, Context context){
+    public Observable<StatusResponse> deleteProfilePicture(HashMap<String, Object> body, Context context){
         return this.networkLayer.deleteProfilePicture(body, context);
     }
 
@@ -508,7 +509,7 @@ public class ModelLayerManager {
 
     // region Report User
 
-    public Observable<Integer> reportUser(HashMap<String, Object> body, Context context){
+    public Observable<StatusResponse> reportUser(HashMap<String, Object> body, Context context){
         return this.networkLayer.reportUser(body, context);
     }
 
@@ -518,6 +519,14 @@ public class ModelLayerManager {
 
     public Observable<TokenResponse> getToken(HashMap<String, Object> body) {
         return this.networkLayer.getToken(body);
+    }
+
+    // endregion
+
+    // region RefreshToken
+
+    public Observable<TokenResponse> refreshToken(HashMap<String, Object> body) {
+        return this.networkLayer.refreshToken(body);
     }
 
     // endregion
