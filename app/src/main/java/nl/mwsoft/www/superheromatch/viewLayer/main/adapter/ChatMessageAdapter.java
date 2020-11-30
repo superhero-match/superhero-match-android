@@ -15,7 +15,6 @@ package nl.mwsoft.www.superheromatch.viewLayer.main.adapter;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,16 +24,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import java.util.ArrayList;
 
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Chat;
 import nl.mwsoft.www.superheromatch.modelLayer.model.Message;
-import nl.mwsoft.www.superheromatch.modelLayer.model.Superhero;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.matches.ChatFragment;
-import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.SuggestionProfileFragment;
 
 public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

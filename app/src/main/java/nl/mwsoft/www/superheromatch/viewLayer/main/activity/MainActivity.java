@@ -1011,14 +1011,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mainPresenter.insertReportedUser(superhero.getId(), MainActivity.this);
+
                 HashMap<String, Object> reportUserRequestBody = configureReportUserRequestBody(
                         userId,
                         superhero.getId(),
                         ConstantRegistry.REPORT_REASON_FAKE_ACCOUNT
                 );
+
                 reportUser(reportUserRequestBody);
-                Toast.makeText(MainActivity.this, "btnReasonFakeAccount tapped", Toast.LENGTH_SHORT).show();
+
                 popupWindow.dismiss();
+
                 loadNextSuggestion();
             }
         });
@@ -1027,14 +1030,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mainPresenter.insertReportedUser(superhero.getId(), MainActivity.this);
+
                 HashMap<String, Object> reportUserRequestBody = configureReportUserRequestBody(
                         userId,
                         superhero.getId(),
                         ConstantRegistry.REPORT_REASON_UNDER_AGE_OF_18
                 );
+
                 reportUser(reportUserRequestBody);
-                Toast.makeText(MainActivity.this, "btnReasonUserIsUnderAge tapped", Toast.LENGTH_SHORT).show();
+
                 popupWindow.dismiss();
+
                 loadNextSuggestion();
             }
         });
@@ -1043,14 +1049,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mainPresenter.insertReportedUser(superhero.getId(), MainActivity.this);
+
                 HashMap<String, Object> reportUserRequestBody = configureReportUserRequestBody(
                         userId,
                         superhero.getId(),
                         ConstantRegistry.REPORT_REASON_PICTURES_ARE_INAPPROPRIATE
                 );
                 reportUser(reportUserRequestBody);
-                Toast.makeText(MainActivity.this, "btnReasonUsersPhotosAreInappropriate tapped", Toast.LENGTH_SHORT).show();
+
                 popupWindow.dismiss();
+
                 loadNextSuggestion();
             }
         });
@@ -1313,6 +1321,8 @@ public class MainActivity extends AppCompatActivity {
                                                     getSuggestions(configureSuggestionsRequestBody(mainPresenter), isInitialRequest);
                                                 }, throwable -> handleError());
 
+                                        disposable.add(subscribeGetAccessToken);
+
                                         return;
                                     }
 
@@ -1324,6 +1334,8 @@ public class MainActivity extends AppCompatActivity {
 
                                     getSuggestions(configureSuggestionsRequestBody(mainPresenter), isInitialRequest);
                                 }, throwable ->  handleError());
+
+                        disposable.add(subscribeRefreshToken);
                     }
 
                     if (res.getSuggestions().size() == 0) {
@@ -1367,8 +1379,6 @@ public class MainActivity extends AppCompatActivity {
                 }, throwable -> handleError());
 
         disposable.add(subscribeSuggestions);
-        disposable.add(subscribeRefreshToken);
-        disposable.add(subscribeGetAccessToken);
     }
 
     private void uploadChoice(MainPresenter mainPresenter, Superhero suggestion, int choice) {
@@ -1448,6 +1458,8 @@ public class MainActivity extends AppCompatActivity {
                                                     uploadChoice(mainPresenter, suggestion, choice);
                                                 }, throwable -> handleError());
 
+                                        disposable.add(subscribeGetAccessToken);
+
                                         return;
                                     }
 
@@ -1459,6 +1471,8 @@ public class MainActivity extends AppCompatActivity {
 
                                     uploadChoice(mainPresenter, suggestion, choice);
                                 }, throwable -> handleError());
+
+                        disposable.add(subscribeRefreshToken);
                     }
 
                     // If it's a match, show dialog.
@@ -1468,8 +1482,6 @@ public class MainActivity extends AppCompatActivity {
                 }, throwable -> handleError());
 
         disposable.add(subscribeUploadChoice);
-        disposable.add(subscribeRefreshToken);
-        disposable.add(subscribeGetAccessToken);
     }
 
     public void getSuperheroProfile(HashMap<String, Object> requestBody) {
@@ -1551,6 +1563,8 @@ public class MainActivity extends AppCompatActivity {
                                                     );
                                                 }, throwable -> handleGetProfileError());
 
+                                        disposable.add(subscribeGetAccessToken);
+
                                         return;
                                     }
 
@@ -1564,6 +1578,8 @@ public class MainActivity extends AppCompatActivity {
                                             configureGetSuperheroProfileRequestBody(mainPresenter.getUserId(MainActivity.this))
                                     );
                                 }, throwable -> handleGetProfileError());
+
+                        disposable.add(subscribeRefreshToken);
                     }
 
                     if (res.getProfile().getProfilePictures() != null) {
@@ -1574,8 +1590,6 @@ public class MainActivity extends AppCompatActivity {
                 }, throwable -> handleGetProfileError());
 
         disposable.add(subscribeGetProfile);
-        disposable.add(subscribeRefreshToken);
-        disposable.add(subscribeGetAccessToken);
     }
 
     public void deleteUserAccount(HashMap<String, Object> requestBody) {
@@ -1655,6 +1669,8 @@ public class MainActivity extends AppCompatActivity {
                                                     deleteUserAccount(configureDeleteAccountRequestBody(getUserId()));
                                                 }, throwable -> handleDeleteAccountError());
 
+                                        disposable.add(subscribeGetAccessToken);
+
                                         return;
                                     }
 
@@ -1666,6 +1682,8 @@ public class MainActivity extends AppCompatActivity {
 
                                     deleteUserAccount(configureDeleteAccountRequestBody(getUserId()));
                                 }, throwable -> handleDeleteAccountError());
+
+                        disposable.add(subscribeRefreshToken);
                     }
 
                     this.mainPresenter.deleteDataFromAllTables(MainActivity.this);
@@ -1676,8 +1694,6 @@ public class MainActivity extends AppCompatActivity {
                 }, throwable -> handleDeleteAccountError());
 
         disposable.add(subscribeDeleteAccount);
-        disposable.add(subscribeRefreshToken);
-        disposable.add(subscribeGetAccessToken);
     }
 
     private void handleGetProfileError() {
@@ -1881,6 +1897,8 @@ public class MainActivity extends AppCompatActivity {
                                                     uploadMatch(requestBody);
                                                 }, throwable -> handleErrorInBackground());
 
+                                        disposable.add(subscribeGetAccessToken);
+
                                         return;
                                     }
 
@@ -1892,12 +1910,12 @@ public class MainActivity extends AppCompatActivity {
 
                                     uploadMatch(requestBody);
                                 }, throwable -> handleErrorInBackground());
+
+                        disposable.add(subscribeRefreshToken);
                     }
                 }, throwable -> handleErrorInBackground());
 
         disposable.add(subscribeUploadMatch);
-        disposable.add(subscribeRefreshToken);
-        disposable.add(subscribeGetAccessToken);
     }
 
     private void updateFirebaseToken(HashMap<String, Object> requestBody, String token) {
@@ -1964,6 +1982,8 @@ public class MainActivity extends AppCompatActivity {
                                                     );
                                                 }, throwable -> handleErrorInBackground());
 
+                                        disposable.add(subscribeGetAccessToken);
+
                                         return;
                                     }
 
@@ -1981,12 +2001,12 @@ public class MainActivity extends AppCompatActivity {
                                             token
                                     );
                                 }, throwable -> handleErrorInBackground());
+
+                        disposable.add(subscribeRefreshToken);
                     }
                 }, throwable -> handleErrorInBackground());
 
         disposable.add(subscribeUpdateUserToken);
-        disposable.add(subscribeRefreshToken);
-        disposable.add(subscribeGetAccessToken);
     }
 
     public void deleteMatch(String superheroId, String matchedSuperheroId) {
@@ -2051,6 +2071,8 @@ public class MainActivity extends AppCompatActivity {
                                                     deleteMatch(superheroId, matchedSuperheroId);
                                                 }, throwable -> handleErrorInBackground());
 
+                                        disposable.add(subscribeGetAccessToken);
+
                                         return;
                                     }
 
@@ -2062,12 +2084,12 @@ public class MainActivity extends AppCompatActivity {
 
                                     deleteMatch(superheroId, matchedSuperheroId);
                                 }, throwable -> handleErrorInBackground());
+
+                        disposable.add(subscribeRefreshToken);
                     }
                 }, throwable -> handleErrorInBackground());
 
         disposable.add(subscribeDeleteMatch);
-        disposable.add(subscribeRefreshToken);
-        disposable.add(subscribeGetAccessToken);
     }
 
     public void deleteProfilePicture(String superheroId, int position) {
@@ -2132,6 +2154,8 @@ public class MainActivity extends AppCompatActivity {
                                                     deleteProfilePicture(mainPresenter.getUserId(MainActivity.this), position);
                                                 }, throwable -> handleErrorInBackground());
 
+                                        disposable.add(subscribeGetAccessToken);
+
                                         return;
                                     }
 
@@ -2143,12 +2167,12 @@ public class MainActivity extends AppCompatActivity {
 
                                     deleteProfilePicture(mainPresenter.getUserId(MainActivity.this), position);
                                 }, throwable -> handleErrorInBackground());
+
+                        disposable.add(subscribeRefreshToken);
                     }
                 }, throwable -> handleErrorInBackground());
 
         disposable.add(subscribeDeleteProfilePicture);
-        disposable.add(subscribeRefreshToken);
-        disposable.add(subscribeGetAccessToken);
     }
 
     private void reportUser(HashMap<String, Object> requestBody) {
@@ -2209,6 +2233,8 @@ public class MainActivity extends AppCompatActivity {
                                                     reportUser(requestBody);
                                                 }, throwable -> handleErrorInBackground());
 
+                                        disposable.add(subscribeGetAccessToken);
+
                                         return;
                                     }
 
@@ -2220,12 +2246,12 @@ public class MainActivity extends AppCompatActivity {
 
                                     reportUser(requestBody);
                                 }, throwable -> handleErrorInBackground());
+
+                        disposable.add(subscribeRefreshToken);
                     }
                 }, throwable -> handleErrorInBackground());
 
         disposable.add(subscribeReportUser);
-        disposable.add(subscribeRefreshToken);
-        disposable.add(subscribeGetAccessToken);
     }
 
 
@@ -2310,6 +2336,8 @@ public class MainActivity extends AppCompatActivity {
                                                     updateProfile(configureUpdateProfileRequestBody(mainPresenter));
                                                 }, throwable -> handleError());
 
+                                        disposable.add(subscribeGetAccessToken);
+
                                         return;
                                     }
 
@@ -2321,12 +2349,12 @@ public class MainActivity extends AppCompatActivity {
 
                                     updateProfile(configureUpdateProfileRequestBody(mainPresenter));
                                 }, throwable -> handleError());
+
+                        disposable.add(subscribeRefreshToken);
                     }
                 }, throwable -> handleError());
 
         disposable.add(subscribeUpdateProfile);
-        disposable.add(subscribeRefreshToken);
-        disposable.add(subscribeGetAccessToken);
     }
 
     private void handleError() {
@@ -2721,6 +2749,81 @@ public class MainActivity extends AppCompatActivity {
                         ).show();
 
                         return;
+                    }
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        showLoadingDialog();
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+                                    closeLoadingDialog();
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Toast.makeText(
+                                                MainActivity.this,
+                                                R.string.smth_went_wrong,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        showLoadingDialog();
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+                                                    closeLoadingDialog();
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Toast.makeText(
+                                                                MainActivity.this,
+                                                                R.string.smth_went_wrong,
+                                                                Toast.LENGTH_LONG
+                                                        ).show();
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    loadSuggestionProfileFragment(superheroId);
+                                                }, throwable -> handleError());
+
+                                        disposable.add(subscribeGetAccessToken);
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    loadSuggestionProfileFragment(superheroId);
+                                }, throwable -> handleError());
+
+                        disposable.add(subscribeRefreshToken);
                     }
 
                     if (res.getProfile().getProfilePictures() != null) {

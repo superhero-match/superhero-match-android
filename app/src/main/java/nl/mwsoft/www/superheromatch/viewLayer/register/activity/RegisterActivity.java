@@ -206,6 +206,8 @@ public class RegisterActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    closeLoadingDialog();
+
                     String mainProfilePictureURL = (String) args[0];
 
                     if (mainProfilePictureURL == null || mainProfilePictureURL.isEmpty()) {
@@ -540,11 +542,11 @@ public class RegisterActivity extends AppCompatActivity {
         Runnable onUi = new Runnable() {
             @Override
             public void run() {
-                closeLoadingDialog();
-
                 setProfilePicURI(uri);
                 SuperheroProfilePicEvent event = new SuperheroProfilePicEvent(uri);
                 EventBus.getDefault().post(event);
+
+                closeLoadingDialog();
             }
         };
 
@@ -877,6 +879,18 @@ public class RegisterActivity extends AppCompatActivity {
 
                         return;
                     }
+
+                    Toast.makeText(
+                            RegisterActivity.this,
+                            ConstantRegistry.ACCESS_TOKEN + ": " + res.getAccessToken(),
+                            Toast.LENGTH_LONG
+                    ).show();
+
+                    Toast.makeText(
+                            RegisterActivity.this,
+                            ConstantRegistry.REFRESH_TOKEN + ": " + res.getRefreshToken(),
+                            Toast.LENGTH_LONG
+                    ).show();
 
                     SharedPreferences prefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
