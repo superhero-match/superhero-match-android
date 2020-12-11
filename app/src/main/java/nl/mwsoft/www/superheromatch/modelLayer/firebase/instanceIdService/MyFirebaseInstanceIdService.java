@@ -119,10 +119,7 @@ public class MyFirebaseInstanceIdService extends FirebaseMessagingService {
         }
     }
 
-    private HashMap<String, Object> configureUpdateFirebaseTokenRequestBody(
-            String userId,
-            String token
-    ) {
+    private HashMap<String, Object> configureUpdateFirebaseTokenRequestBody(String userId, String token) {
         HashMap<String, Object> reqBody = new HashMap<>();
 
         reqBody.put("superheroID", userId);

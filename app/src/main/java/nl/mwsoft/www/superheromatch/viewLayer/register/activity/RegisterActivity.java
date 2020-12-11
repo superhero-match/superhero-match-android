@@ -206,6 +206,8 @@ public class RegisterActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    closeLoadingDialog();
+
                     String mainProfilePictureURL = (String) args[0];
 
                     if (mainProfilePictureURL == null || mainProfilePictureURL.isEmpty()) {
@@ -545,6 +547,7 @@ public class RegisterActivity extends AppCompatActivity {
                 setProfilePicURI(uri);
                 SuperheroProfilePicEvent event = new SuperheroProfilePicEvent(uri);
                 EventBus.getDefault().post(event);
+
             }
         };
 
@@ -883,8 +886,6 @@ public class RegisterActivity extends AppCompatActivity {
                     editor.putString(ConstantRegistry.ACCESS_TOKEN, res.getAccessToken());
                     editor.putString(ConstantRegistry.REFRESH_TOKEN, res.getRefreshToken());
                     editor.apply();
-
-                    
 
                     register(convertToJSON(getUser(), firebaseToken));
                 }, throwable -> handleError());
