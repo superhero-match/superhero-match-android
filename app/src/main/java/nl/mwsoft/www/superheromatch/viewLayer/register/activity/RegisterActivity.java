@@ -884,6 +884,8 @@ public class RegisterActivity extends AppCompatActivity {
                     editor.putString(ConstantRegistry.REFRESH_TOKEN, res.getRefreshToken());
                     editor.apply();
 
+                    
+
                     register(convertToJSON(getUser(), firebaseToken));
                 }, throwable -> handleError());
 
