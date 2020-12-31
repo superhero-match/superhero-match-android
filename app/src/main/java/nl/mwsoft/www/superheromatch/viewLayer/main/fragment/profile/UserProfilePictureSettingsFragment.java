@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2019 - 2020 MWSOFT
+  Copyright (C) 2019 - 2021 MWSOFT
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -18,8 +18,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -27,8 +25,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -38,17 +34,13 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnLongClick;
 import butterknife.Unbinder;
 import nl.mwsoft.www.superheromatch.R;
-import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.event.MainProfilePicSettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic1SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic2SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic3SettingsEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.event.ProfilePic4SettingsEvent;
-import nl.mwsoft.www.superheromatch.modelLayer.event.SuperheroProfilePicEvent;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.recyclerView.RecyclerTouchListener;
 import nl.mwsoft.www.superheromatch.modelLayer.helper.recyclerView.RecyclerViewClickListener;
 import nl.mwsoft.www.superheromatch.modelLayer.model.ProfilePicture;
