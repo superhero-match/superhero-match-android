@@ -338,14 +338,74 @@ public class NotificationService extends FirebaseMessagingService {
                 deleteOfflineMessages(configureDeleteOfflineMessagesRequestBody(superheroId), NotificationService.this).
                 subscribeOn(Schedulers.io()).
                 subscribe(res -> {
-                    if (res != ConstantRegistry.SERVER_STATUS_OK) {
+
+                    if (res == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Log.e(
                                 NotificationService.class.getName(),
                                 "Error while deleting new offline messages"
                         );
+
+                        return;
                     }
 
+                    if (res == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
 
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        Disposable subscribeRefreshToken = networkLayer.refreshToken(reqBody)
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Log.e(MyFirebaseInstanceIdService.class.getName(), "Error while refreshing token");
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", userDatabaseLayer.getUserId(NotificationService.this));
+
+                                        Disposable subscribeGetAccessToken = networkLayer.getToken(rBody)
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Log.e(NotificationService.class.getName(), "Error while refreshing token");
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    deleteOfflineMessages(superheroId);
+                                                }, throwable -> {
+                                                    // Send error to Firebase
+                                                });
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    deleteOfflineMessages(superheroId);
+                                }, throwable -> {
+                                    // Send error to Firebase
+                                });
+                    }
                 }, Log::getStackTraceString);
 
         disposable.add(subscribeDeleteOfflineMessages);
