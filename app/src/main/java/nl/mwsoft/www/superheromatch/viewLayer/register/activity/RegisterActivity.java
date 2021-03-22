@@ -28,7 +28,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.Gravity;
@@ -641,8 +640,6 @@ public class RegisterActivity extends AppCompatActivity {
                 super.onLocationResult(locationResult);
 
                 currentLocation = locationResult.getLastLocation();
-
-                setLatAndLong(currentLocation);
             }
         };
 
@@ -654,6 +651,23 @@ public class RegisterActivity extends AppCompatActivity {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(locationRequest);
         locationSettingsRequest = builder.build();
+
+        getLastLocation();
+    }
+
+    public void getLastLocation() {
+        if (checkLocationPermission()) {
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
+                            if (location != null) {
+                                setLatAndLong(location);
+                            }
+                        }
+                    });
+        }
     }
 
     private void setLatAndLong(Location currentLocation) {
@@ -725,13 +739,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        fusedLocationClient.requestLocationUpdates(
-                                locationRequest,
-                                locationCallback,
-                                Looper.myLooper()
-                        );
-
-                        setLatAndLong(currentLocation);
+                        getLastLocation();
                     }
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
@@ -763,7 +771,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 ).show();
                         }
 
-                        setLatAndLong(currentLocation);
+                        getLastLocation();
                     }
                 });
     }
@@ -797,7 +805,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                         // Get new Instance ID token
                         String firebaseToken = task.getResult().getToken();
-                        getToken(firebaseToken);
+                        //getToken(firebaseToken);
+                        register(convertToJSON(getUser(), firebaseToken));
                     }
                 });
     }
@@ -838,6 +847,9 @@ public class RegisterActivity extends AppCompatActivity {
                 .subscribe((RegisterResponse res) -> {
                     closeLoadingDialog();
 
+                    Log.d("tShoot", "res.getStatus() => " + res.getStatus());
+                    Log.d("tShoot", "res.isRegistered() => " + res.isRegistered());
+
                     if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Toast.makeText(
                                 RegisterActivity.this,
@@ -852,8 +864,13 @@ public class RegisterActivity extends AppCompatActivity {
                         return;
                     }
 
+                    Log.d("tShoot", "before updateInitiallyRegisteredUser");
+                    Log.d("tShoot", user.toString());
                     registerPresenter.updateInitiallyRegisteredUser(user, RegisterActivity.this);
+                    Log.d("tShoot", "after updateInitiallyRegisteredUser");
+                    Log.d("tShoot", "before navigateToMain");
                     navigateToMain(RegisterActivity.this);
+                    Log.d("tShoot", "after navigateToMain");
                 }, throwable -> handleError());
 
         disposable.add(subscribe);

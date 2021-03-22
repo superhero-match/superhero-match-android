@@ -105,8 +105,8 @@ public class ConstantRegistry {
     public static final int PICK_PROFILE_IMAGE_REQUEST = 2;
     public static final String SELECT_PICTURE = "Select Picture";
 
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 60000;
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 2000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 20000;
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
     public static final int REQUEST_CHECK_SETTINGS = 100;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 

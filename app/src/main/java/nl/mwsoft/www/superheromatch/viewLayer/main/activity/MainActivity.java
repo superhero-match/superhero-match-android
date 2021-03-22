@@ -29,7 +29,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -2383,19 +2382,6 @@ public class MainActivity extends AppCompatActivity {
                 super.onLocationResult(locationResult);
 
                 currentLocation = locationResult.getLastLocation();
-
-                if (currentLocation != null) {
-                    setLatAndLon(
-                            mainPresenter.getUserId(MainActivity.this),
-                            currentLocation.getLatitude(),
-                            currentLocation.getLongitude(),
-                            MainActivity.this
-                    );
-
-                    setAddress(currentLocation.getLatitude(), currentLocation.getLongitude());
-                }
-
-                getSuggestions(configureSuggestionsRequestBody(mainPresenter), true);
             }
         };
 
@@ -2407,6 +2393,32 @@ public class MainActivity extends AppCompatActivity {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(locationRequest);
         locationSettingsRequest = builder.build();
+
+        getLastLocation();
+    }
+
+    public void getLastLocation() {
+        if (checkLocationPermission()) {
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
+                            if (location != null) {
+                                setLatAndLon(
+                                        mainPresenter.getUserId(MainActivity.this),
+                                        location.getLatitude(),
+                                        location.getLongitude(),
+                                        MainActivity.this
+                                );
+
+                                setAddress(location.getLatitude(), location.getLongitude());
+
+                                getSuggestions(configureSuggestionsRequestBody(mainPresenter), true);
+                            }
+                        }
+                    });
+        }
     }
 
     private void setAddress(double lat, double lon) {
@@ -2469,22 +2481,7 @@ public class MainActivity extends AppCompatActivity {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        fusedLocationClient.requestLocationUpdates(
-                                locationRequest,
-                                locationCallback,
-                                Looper.myLooper()
-                        );
-
-                        if (currentLocation != null) {
-                            setLatAndLon(
-                                    mainPresenter.getUserId(MainActivity.this),
-                                    currentLocation.getLatitude(),
-                                    currentLocation.getLongitude(),
-                                    MainActivity.this
-                            );
-
-                            setAddress(currentLocation.getLatitude(), currentLocation.getLongitude());
-                        }
+                        getLastLocation();
                     }
                 })
                 .addOnFailureListener(MainActivity.this, new OnFailureListener() {
@@ -2513,16 +2510,7 @@ public class MainActivity extends AppCompatActivity {
                                 ).show();
                         }
 
-                        if (currentLocation != null) {
-                            setLatAndLon(
-                                    mainPresenter.getUserId(MainActivity.this),
-                                    currentLocation.getLatitude(),
-                                    currentLocation.getLongitude(),
-                                    MainActivity.this
-                            );
-
-                            setAddress(currentLocation.getLatitude(), currentLocation.getLongitude());
-                        }
+                        getLastLocation();
                     }
                 });
     }

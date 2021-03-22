@@ -46,12 +46,14 @@ public class RegisterImpl {
 
         Call<RegisterResponse> call = service.register(body);
         try {
+            Log.d("tShoot", "call.execute().body()");
             return call.execute().body();
         } catch (IOException e) {
             // handle errors
             Log.d("tShoot", e.getMessage());
         }
 
+        Log.d("tShoot", "RegisterResponse");
         return new RegisterResponse(
                 ConstantRegistry.SERVER_RESPONSE_ERROR,
                 false
