@@ -1119,7 +1119,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void uploadProfileImageToServer(String encodedImage, Runnable onUi, int position) {
         updateProfilePictureSocket.emit(
-                ConstantRegistry.ON_UPDATE_PROFILE_PICTURE,
+                ConstantRegistry.ON_UPDATE_EXISTING_PROFILE_PICTURE,
                 mainPresenter.getUserId(MainActivity.this),
                 encodedImage,
                 position
@@ -1587,6 +1587,10 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     loadFragment(UserProfileFragment.newInstance(res.getProfile()));
+
+                    if (!accessFilesPermissionIsGranted()) {
+                        requestPermissionWriteExternalStorage();
+                    }
                 }, throwable -> handleGetProfileError());
 
         disposable.add(subscribeGetProfile);

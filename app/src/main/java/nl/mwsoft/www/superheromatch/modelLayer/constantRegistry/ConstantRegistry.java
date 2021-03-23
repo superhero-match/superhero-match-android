@@ -161,6 +161,7 @@ public class ConstantRegistry {
     public static final String MAIN_PROFILE_PICTURE_URL = "mainProfilePictureURL";
     public static final String ON_UPLOAD_MAIN_PROFILE_PICTURE = "onUploadMainProfilePicture";
     public static final String ON_UPDATE_PROFILE_PICTURE = "updateProfilePictureURL";
+    public static final String ON_UPDATE_EXISTING_PROFILE_PICTURE = "onUpdateProfilePicture";
     public static final String ON_UPLOAD_NEW_PROFILE_PICTURE = "onUploadNewProfilePicture";
     public static final String ON_DELETE_PROFILE_PICTURE = "onDeleteProfilePicture";
 
