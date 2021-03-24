@@ -88,4 +88,16 @@ public class RootCoordinator {
         Intent intent = new Intent(Intent.ACTION_VIEW, privacyPolicy);
         context.startActivity(intent);
     }
+
+    public void navigateToTermsAndPoliciesWebPage(Context context){
+        Uri privacyPolicy = Uri.parse(ConstantRegistry.SUPERHERO_MATCH_TERMS_AND_POLICIES_URL);
+        Intent intent = new Intent(Intent.ACTION_VIEW, privacyPolicy);
+        context.startActivity(intent);
+    }
+
+    public void navigateToGDPRRightsWebPage(Context context){
+        Uri privacyPolicy = Uri.parse(ConstantRegistry.SUPERHERO_MATCH_GDPR_RIGHTS_URL);
+        Intent intent = new Intent(Intent.ACTION_VIEW, privacyPolicy);
+        context.startActivity(intent);
+    }
 }

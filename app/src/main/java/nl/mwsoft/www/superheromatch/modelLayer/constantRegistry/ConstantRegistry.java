@@ -98,7 +98,9 @@ public class ConstantRegistry {
 
     public static final String SUPERHERO_MATCH_PHONE_TO_VERIFY = "phoneToVerify";
 
-    public static final String  SUPERHERO_MATCH_PRIVACY_POLICY_URL = "url";
+    public static final String  SUPERHERO_MATCH_PRIVACY_POLICY_URL = "http://superhero-match.com/privacy-policy.html";
+    public static final String  SUPERHERO_MATCH_TERMS_AND_POLICIES_URL = "http://superhero-match.com/terms-policies.html";
+    public static final String  SUPERHERO_MATCH_GDPR_RIGHTS_URL = "http://superhero-match.com/gdpr-rights.html";
 
     public static final String  SUPERHERO_BIRTHDAY_FORMAT = "yyyy-MM-dd";
 

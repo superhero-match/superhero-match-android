@@ -691,7 +691,14 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_privacy_policy) {
+            rootCoordinator.navigateToPrivacyPolicyWebPage(MainActivity.this);
+            return true;
+        } else if (id == R.id.action_terms_and_policies) {
+            rootCoordinator.navigateToTermsAndPoliciesWebPage(MainActivity.this);
+            return true;
+        } else if (id == R.id.action_gdpr_rights) {
+            rootCoordinator.navigateToGDPRRightsWebPage(MainActivity.this);
             return true;
         }
 

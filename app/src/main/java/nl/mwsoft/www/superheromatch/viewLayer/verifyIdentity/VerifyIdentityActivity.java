@@ -164,6 +164,16 @@ public class VerifyIdentityActivity extends AppCompatActivity {
         signIn();
     }
 
+    @OnClick(R.id.tvConfirmInfoPP)
+    public void privacyPolicyClickListener(){
+        rootCoordinator.navigateToPrivacyPolicyWebPage(VerifyIdentityActivity.this);
+    }
+
+    @OnClick(R.id.tvWelcomeInfoTP2)
+    public void termsAndPoliciesClickListener(){
+        rootCoordinator.navigateToTermsAndPoliciesWebPage(VerifyIdentityActivity.this);
+    }
+
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(base));

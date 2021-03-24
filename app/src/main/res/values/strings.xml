@@ -191,4 +191,10 @@
     <string name="are_you_sure_you_want_to_delete_your_account">Are you sure you want to delete your account?</string>
     <string name="firebase_token_error">Could not fetch Firebase token.</string>
 
+    <string name="copyright_2020_mwsoft_privacy_policy">Copyright 2020–2021 MWSOFT <u>Privacy Policy</u></string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_and_policies">Terms and Policies</string>
+    <string name="gdpr_rights">GDPR Rights</string>
+    <string name="agree_to_our_terms">By verifying your identity you agree to our</string>
+
 </resources>
