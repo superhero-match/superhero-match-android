@@ -16,8 +16,7 @@
         android:contentDescription="@string/user_profile_image"
         android:elevation="5dp"
         android:focusable="true"
-        android:maxHeight="435dp"
-        android:src="@drawable/test" />
+        android:maxHeight="435dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"

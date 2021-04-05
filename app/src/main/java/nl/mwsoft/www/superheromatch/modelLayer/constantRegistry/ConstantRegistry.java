@@ -47,7 +47,8 @@ public class ConstantRegistry {
 
     public static final int SERVER_RESPONSE_ERROR = 500;
 
-    public static final String BASE_SERVER_URL = "https://192.168.0.64";
+    // public static final String BASE_SERVER_URL = "https://192.168.0.64";
+    public static final String BASE_SERVER_URL = "https://34.217.6.95";
     public static final String IMAGE_URL_PREFIX = "https:";
     public static final String CHAT_ENDPOINT = "/ws";
 

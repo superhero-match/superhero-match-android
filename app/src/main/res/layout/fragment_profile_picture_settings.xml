@@ -15,8 +15,7 @@
         android:clickable="true"
         android:contentDescription="@string/user_profile_image"
         android:focusable="true"
-        android:maxHeight="400dp"
-        android:src="@drawable/test" />
+        android:maxHeight="400dp"/>
 
     <ImageView
         android:layout_width="45dp"
