@@ -261,7 +261,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public UnifiedNativeAd getNativeAd() {
-        return nativeAds.get(0);
+        if (nativeAds.size() > 0) {
+            return nativeAds.get(0);
+        }
+
+        return null;
     }
 
     // endregion
@@ -2492,7 +2496,7 @@ public class MainActivity extends AppCompatActivity {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        getLastLocation();
+//                        getLastLocation();
                     }
                 })
                 .addOnFailureListener(MainActivity.this, new OnFailureListener() {

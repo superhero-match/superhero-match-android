@@ -91,7 +91,11 @@ public class AdFragment extends Fragment {
         adView.setStoreView(adView.findViewById(R.id.ad_store));
         adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
 
-        populateNativeAdView(mainActivity.getNativeAd(), adView);
+        UnifiedNativeAd unifiedNativeAd = mainActivity.getNativeAd();
+
+        if (unifiedNativeAd != null) {
+            populateNativeAdView(unifiedNativeAd, adView);
+        }
     }
 
     @Override
