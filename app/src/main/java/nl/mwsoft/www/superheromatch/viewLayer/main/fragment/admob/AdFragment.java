@@ -26,10 +26,9 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.ads.formats.MediaView;
-import com.google.android.gms.ads.formats.NativeAd;
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
-import com.google.android.gms.ads.formats.UnifiedNativeAdView;
+import com.google.android.gms.ads.nativead.MediaView;
+import com.google.android.gms.ads.nativead.NativeAd;
+import com.google.android.gms.ads.nativead.NativeAdView;
 
 import nl.mwsoft.www.superheromatch.R;
 import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
@@ -37,8 +36,8 @@ import nl.mwsoft.www.superheromatch.viewLayer.main.activity.MainActivity;
 public class AdFragment extends Fragment {
 
     private MainActivity mainActivity;
-    private UnifiedNativeAdView adView;
-    private UnifiedNativeAd nativeAd;
+    private NativeAdView adView;
+    private NativeAd nativeAd;
     ImageView ivAdMobDislike;
     ImageView ivAdMobLike;
 
@@ -75,7 +74,7 @@ public class AdFragment extends Fragment {
         ivAdMobLike = (ImageView)view.findViewById(R.id.ivAdMobLike);
         ivAdMobLike.setOnClickListener(onChoiceListener);
 
-        adView = (UnifiedNativeAdView) view.findViewById(R.id.ad_view);
+        adView = (NativeAdView) view.findViewById(R.id.ad_view);
 
         // The MediaView will display a video asset if one is present in the ad, and the
         // first image asset otherwise.
@@ -91,7 +90,7 @@ public class AdFragment extends Fragment {
         adView.setStoreView(adView.findViewById(R.id.ad_store));
         adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
 
-        UnifiedNativeAd unifiedNativeAd = mainActivity.getNativeAd();
+        NativeAd unifiedNativeAd = mainActivity.getNativeAd();
 
         if (unifiedNativeAd != null) {
             populateNativeAdView(unifiedNativeAd, adView);
@@ -104,8 +103,8 @@ public class AdFragment extends Fragment {
         mainActivity = (MainActivity) context;
     }
 
-    private void populateNativeAdView(UnifiedNativeAd nativeAd,
-                                      UnifiedNativeAdView adView) {
+    private void populateNativeAdView(NativeAd nativeAd,
+                                      NativeAdView adView) {
         // Some assets are guaranteed to be in every UnifiedNativeAd.
         ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
         ((TextView) adView.getBodyView()).setText(nativeAd.getBody());

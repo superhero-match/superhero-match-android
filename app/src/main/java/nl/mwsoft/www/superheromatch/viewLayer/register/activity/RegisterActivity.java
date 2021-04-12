@@ -62,8 +62,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -791,22 +790,23 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void registerUser() {
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                    public void onComplete(@NonNull Task<String> task) {
                         if (!task.isSuccessful()) {
-                            Log.d(RegisterActivity.class.getName(), "getInstanceId failed", task.getException());
+                            Log.d(RegisterActivity.class.getName(), "Fetching FCM registration token failed", task.getException());
 
                             Toast.makeText(RegisterActivity.this, R.string.firebase_token_error, Toast.LENGTH_LONG).show();
+
 
                             return;
                         }
 
-                        // Get new Instance ID token
-                        String firebaseToken = task.getResult().getToken();
-                        //getToken(firebaseToken);
-                        register(convertToJSON(getUser(), firebaseToken));
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        register(convertToJSON(getUser(), token));
                     }
                 });
     }
@@ -847,9 +847,6 @@ public class RegisterActivity extends AppCompatActivity {
                 .subscribe((RegisterResponse res) -> {
                     closeLoadingDialog();
 
-                    Log.d("tShoot", "res.getStatus() => " + res.getStatus());
-                    Log.d("tShoot", "res.isRegistered() => " + res.isRegistered());
-
                     if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
                         Toast.makeText(
                                 RegisterActivity.this,
@@ -864,13 +861,8 @@ public class RegisterActivity extends AppCompatActivity {
                         return;
                     }
 
-                    Log.d("tShoot", "before updateInitiallyRegisteredUser");
-                    Log.d("tShoot", user.toString());
                     registerPresenter.updateInitiallyRegisteredUser(user, RegisterActivity.this);
-                    Log.d("tShoot", "after updateInitiallyRegisteredUser");
-                    Log.d("tShoot", "before navigateToMain");
                     navigateToMain(RegisterActivity.this);
-                    Log.d("tShoot", "after navigateToMain");
                 }, throwable -> handleError());
 
         disposable.add(subscribe);

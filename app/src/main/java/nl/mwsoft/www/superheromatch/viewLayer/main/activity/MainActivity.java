@@ -54,11 +54,10 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
+import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -75,8 +74,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
@@ -189,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler uiHandler;
     public static final int NUMBER_OF_ADS = 2;
     private AdLoader adLoader;
-    private ArrayList<UnifiedNativeAd> nativeAds;
+    private ArrayList<NativeAd> nativeAds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,37 +228,27 @@ public class MainActivity extends AppCompatActivity {
     // region AdMob
 
     private void loadNativeAds() {
-        AdLoader.Builder builder = new AdLoader.Builder(this, getString(R.string.ad_unit_id));
-        adLoader = builder.forUnifiedNativeAd(
-                new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
-                    @Override
-                    public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd) {
-                        // A native ad loaded successfully, check if the ad loader has finished loading
-                        // and if so, insert the ads into the list.
-                        nativeAds.add(unifiedNativeAd);
-                        if (!adLoader.isLoading()) {
-                            // insertAdsInMenuItems();
-                        }
-                    }
-                }).withAdListener(
-                new AdListener() {
-                    @Override
-                    public void onAdFailedToLoad(int errorCode) {
-                        // A native ad failed to load, check if the ad loader has finished loading
-                        // and if so, insert the ads into the list.
-                        Log.e("MainActivity", "The previous native ad failed to load. Attempting to"
-                                + " load another.");
-                        if (!adLoader.isLoading()) {
-                            // insertAdsInMenuItems();
-                        }
-                    }
-                }).build();
+        final AdLoader.Builder builder = new AdLoader.Builder(this, getString(R.string.ad_unit_id));
+        adLoader = builder.forNativeAd(new NativeAd.OnNativeAdLoadedListener() {
+            @Override
+            public void onNativeAdLoaded(NativeAd ad) {
+                // some code that displays the ad.
+                nativeAds.add(ad);
+
+                if (adLoader.isLoading()) {
+                    // The AdLoader is still loading ads.
+                    // Expect more adLoaded or onAdFailedToLoad callbacks.
+                } else {
+                    // The AdLoader has finished loading ads.
+                }
+            }
+        }).build();
 
         // Load the Native ads.
         adLoader.loadAds(new AdRequest.Builder().build(), NUMBER_OF_ADS);
     }
 
-    public UnifiedNativeAd getNativeAd() {
+    public NativeAd getNativeAd() {
         if (nativeAds.size() > 0) {
             return nativeAds.get(0);
         }
@@ -443,17 +431,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateToken(String userId) {
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                    public void onComplete(@NonNull Task<String> task) {
                         if (!task.isSuccessful()) {
-                            Log.w(MainActivity.class.getName(), "getInstanceId failed", task.getException());
+                            Log.d(MainActivity.class.getName(), "Fetching FCM registration token failed", task.getException());
+
+                            Toast.makeText(MainActivity.this, R.string.firebase_token_error, Toast.LENGTH_LONG).show();
+
                             return;
                         }
 
-                        // Get new Instance ID token
-                        String token = task.getResult().getToken();
+                        // Get new FCM registration token
+                        String token = task.getResult();
 
                         HashMap<String, Object> reqBody = new HashMap<>();
                         reqBody = configureUpdateFirebaseTokenRequestBody(userId, token);
@@ -631,7 +622,7 @@ public class MainActivity extends AppCompatActivity {
         suggestions = new ArrayList<>();
         uiHandler = new Handler();
         nativeAds = new ArrayList<>();
-        MobileAds.initialize(this, getString(R.string.admob_app_id));
+        MobileAds.initialize(this);
     }
 
     public void configureWith(RootCoordinator rootCoordinator, MainPresenter mainPresenter) {
