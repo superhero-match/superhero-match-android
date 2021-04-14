@@ -13,7 +13,6 @@
  */
 package nl.mwsoft.www.superheromatch.viewLayer.intro.activity;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +33,6 @@ import nl.mwsoft.www.superheromatch.coordinator.RootCoordinator;
 import nl.mwsoft.www.superheromatch.dependencyRegistry.DependencyRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.viewLayer.intro.adapter.IntroViewPagerAdapter;
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class IntroActivity extends AppCompatActivity {
     @BindView(R.id.vpIntroActivity)
@@ -128,11 +126,6 @@ public class IntroActivity extends AppCompatActivity {
         if (unbinder != null) {
             unbinder.unbind();
         }
-    }
-
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(base));
     }
 
     // endregion

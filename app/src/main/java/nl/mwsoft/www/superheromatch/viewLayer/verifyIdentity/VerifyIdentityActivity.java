@@ -53,7 +53,6 @@ import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry
 import nl.mwsoft.www.superheromatch.modelLayer.model.CheckEmailResponse;
 import nl.mwsoft.www.superheromatch.presenterLayer.verifyIdentity.VerifyIdentityPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
@@ -172,11 +171,6 @@ public class VerifyIdentityActivity extends AppCompatActivity {
     @OnClick(R.id.tvWelcomeInfoTP2)
     public void termsAndPoliciesClickListener(){
         rootCoordinator.navigateToTermsAndPoliciesWebPage(VerifyIdentityActivity.this);
-    }
-
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(base));
     }
 
     @Override

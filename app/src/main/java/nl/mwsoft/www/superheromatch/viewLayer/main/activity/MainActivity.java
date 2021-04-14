@@ -133,7 +133,6 @@ import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileP
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.profile.UserProfileSettingsSuggestionsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.NoSuggestionsFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.main.fragment.suggestions.SuggestionFragment;
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -698,11 +697,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(base));
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener myOnNavigationItemSelectedListener

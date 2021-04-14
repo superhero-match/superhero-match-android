@@ -43,7 +43,6 @@ import nl.mwsoft.www.superheromatch.coordinator.RootCoordinator;
 import nl.mwsoft.www.superheromatch.dependencyRegistry.DependencyRegistry;
 import nl.mwsoft.www.superheromatch.modelLayer.constantRegistry.ConstantRegistry;
 import nl.mwsoft.www.superheromatch.viewLayer.permissionsRequest.adapter.PermissionsViewPagerAdapter;
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class PermissionsRequestActivity extends AppCompatActivity {
 
@@ -306,11 +305,6 @@ public class PermissionsRequestActivity extends AppCompatActivity {
         if(unbinder != null) {
             unbinder.unbind();
         }
-    }
-
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(base));
     }
 
     @Override

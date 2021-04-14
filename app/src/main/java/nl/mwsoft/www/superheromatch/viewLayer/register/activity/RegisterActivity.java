@@ -96,7 +96,6 @@ import nl.mwsoft.www.superheromatch.modelLayer.model.User;
 import nl.mwsoft.www.superheromatch.presenterLayer.register.RegisterPresenter;
 import nl.mwsoft.www.superheromatch.viewLayer.dialog.loadingDialog.LoadingDialogFragment;
 import nl.mwsoft.www.superheromatch.viewLayer.register.fragment.RegistrationVPFragment;
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -235,11 +234,6 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         fusedLocationClient.removeLocationUpdates(locationCallback);
-    }
-
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(base));
     }
 
     public void loadBackStackFragment(Fragment fragment) {
