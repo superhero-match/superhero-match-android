@@ -127,6 +127,12 @@ public class ConstantRegistry {
 
     public static final String DEFAULT_ACCOUNT_TYPE = "FREE";
 
+    public static final String DEFAULT_COUNTRY = "Country";
+    public static final String DEFAULT_CITY = "City";
+
+    public static final double DEFAULT_LATITUDE = 0.0;
+    public static final double DEFAULT_LONGITUDE = 0.0;
+
     public static final String KILOMETERS = "km";
     public static final String MILES = "mi";
 

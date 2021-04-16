@@ -164,6 +164,10 @@ public class RegisterActivity extends AppCompatActivity {
             user.setLookingForAgeMax(ConstantRegistry.DEFAULT_AGE_MAX);
             user.setDistanceUnit(ConstantRegistry.DEFAULT_DISTANCE_UNIT);
             user.setAccountType(ConstantRegistry.DEFAULT_ACCOUNT_TYPE);
+            user.setCountry(ConstantRegistry.DEFAULT_COUNTRY);
+            user.setCity(ConstantRegistry.DEFAULT_CITY);
+            user.setLat(ConstantRegistry.DEFAULT_LATITUDE);
+            user.setLon(ConstantRegistry.DEFAULT_LONGITUDE);
         }
     }
 
@@ -682,8 +686,13 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
-            user.setCity(addresses.get(0).getLocality());
-            user.setCountry(addresses.get(0).getCountryName());
+            if (addresses.get(0).getLocality() != null || !addresses.get(0).getLocality().isEmpty()) {
+                user.setCity(addresses.get(0).getLocality());
+            }
+
+            if (addresses.get(0).getCountryName() != null || !addresses.get(0).getCountryName().isEmpty()) {
+                user.setCountry(addresses.get(0).getCountryName());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
