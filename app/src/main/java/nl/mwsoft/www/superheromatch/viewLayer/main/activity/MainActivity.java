@@ -26,6 +26,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -2397,7 +2398,24 @@ public class MainActivity extends AppCompatActivity {
 
         getLastLocation();
 
+        getLatLong();
+
         getSuggestions(configureSuggestionsRequestBody(mainPresenter), true);
+    }
+
+    public void getLatLong() {
+        if (checkLocationPermission()) {
+            LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (location != null) {
+                setLatAndLon(
+                        mainPresenter.getUserId(MainActivity.this),
+                        location.getLatitude(),
+                        location.getLongitude(),
+                        MainActivity.this
+                );
+            }
+        }
     }
 
     public void getLastLocation() {
