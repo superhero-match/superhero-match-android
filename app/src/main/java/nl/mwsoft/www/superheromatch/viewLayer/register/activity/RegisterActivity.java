@@ -755,6 +755,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
                         getLastLocation();
+                        getLatLong();
                     }
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
@@ -787,6 +788,7 @@ public class RegisterActivity extends AppCompatActivity {
                         }
 
                         getLastLocation();
+                        getLatLong();
                     }
                 });
     }

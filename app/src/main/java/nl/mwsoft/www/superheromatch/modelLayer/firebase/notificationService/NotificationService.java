@@ -78,13 +78,16 @@ public class NotificationService extends FirebaseMessagingService {
                         split(ConstantRegistry.EQUALS)[1].
                         replace(ConstantRegistry.CLOSE_CURLY_BRACES, ConstantRegistry.EMPTY_STRING);
 
-                chatDatabaseLayer.deleteChatById(
-                        chatDatabaseLayer.getChatByMatchId(
-                                NotificationService.this,
-                                matchedUserId
-                        ).getChatId(),
-                        NotificationService.this
+                Chat chat = chatDatabaseLayer.getChatByMatchId(
+                        NotificationService.this,
+                        matchedUserId
                 );
+
+                if (chat == null) {
+                    return;
+                }
+
+                chatDatabaseLayer.deleteChatById(chat.getChatId(), NotificationService.this);
 
                 break;
             case ConstantRegistry.NEW_LIKE:
