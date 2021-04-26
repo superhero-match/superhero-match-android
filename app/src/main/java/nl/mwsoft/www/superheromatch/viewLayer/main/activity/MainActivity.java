@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
     private CompositeDisposable disposable;
     private Disposable subscribeSuggestions;
     private Disposable subscribeUpdateProfile;
+    private Disposable subscribeUpdateProfileInBackground;
     private Disposable subscribeUploadChoice;
     private Disposable subscribeUploadMatch;
     private Disposable subscribeDeleteMatch;
@@ -224,6 +225,8 @@ public class MainActivity extends AppCompatActivity {
             initLocationUpdateService();
             startLocationUpdates();
         }
+
+        updateUserProfileInBackground();
     }
     
     // region AdMob
@@ -2261,6 +2264,11 @@ public class MainActivity extends AppCompatActivity {
         updateProfile(configureUpdateProfileRequestBody(mainPresenter));
     }
 
+
+    public void updateUserProfileInBackground() {
+        updateProfileInBackground(configureUpdateProfileRequestBody(mainPresenter));
+    }
+
     private void updateProfile(HashMap<String, Object> requestBody) {
         if (!loadingDialogIsActive) {
             showLoadingDialog();
@@ -2278,6 +2286,8 @@ public class MainActivity extends AppCompatActivity {
                                 R.string.smth_went_wrong,
                                 Toast.LENGTH_LONG
                         ).show();
+
+                        return;
                     }
 
                     if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
@@ -2359,6 +2369,77 @@ public class MainActivity extends AppCompatActivity {
         disposable.add(subscribeUpdateProfile);
     }
 
+    private void updateProfileInBackground(HashMap<String, Object> requestBody) {
+        subscribeUpdateProfileInBackground = mainPresenter.updateProfile(requestBody, MainActivity.this)
+                .subscribeOn(Schedulers.io())
+                .subscribe((UpdateResponse res) -> {
+                    if (res.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                        Log.e(MainActivity.class.getName(), getString(R.string.err_update_profile_background));
+
+                        return;
+                    }
+
+                    if (res.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                        HashMap<String, Object> reqBody = new HashMap<>();
+                        SharedPreferences prefs = getSharedPreferences(
+                                ConstantRegistry.SHARED_PREFERENCES,
+                                Context.MODE_PRIVATE
+                        );
+
+                        reqBody.put("refreshToken", prefs.getString(ConstantRegistry.REFRESH_TOKEN, ""));
+
+                        subscribeRefreshToken = mainPresenter.refreshToken(reqBody)
+                                .subscribeOn(Schedulers.io())
+                                .subscribe((TokenResponse result) -> {
+                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                        Log.e(MainActivity.class.getName(), getString(R.string.err_update_profile_background));
+
+                                        return;
+                                    }
+
+                                    if (result.getStatus() == ConstantRegistry.SERVER_STATUS_UNAUTHORIZED) {
+                                        HashMap<String, Object> rBody = new HashMap<>();
+                                        rBody.put("id", mainPresenter.getUserId(MainActivity.this));
+
+                                        subscribeGetAccessToken = mainPresenter.getToken(rBody)
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe((TokenResponse resultToken) -> {
+                                                    if (result.getStatus() == ConstantRegistry.SERVER_RESPONSE_ERROR) {
+                                                        Log.e(MainActivity.class.getName(), getString(R.string.err_update_profile_background));
+
+                                                        return;
+                                                    }
+
+                                                    SharedPreferences sharedPrefs = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, resultToken.getAccessToken());
+                                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, resultToken.getRefreshToken());
+                                                    editor.apply();
+
+                                                    updateProfile(configureUpdateProfileRequestBody(mainPresenter));
+                                                }, throwable -> handleErrorInBackgroundUpdateUserProfile());
+
+                                        disposable.add(subscribeGetAccessToken);
+
+                                        return;
+                                    }
+
+                                    SharedPreferences preferences = getSharedPreferences(ConstantRegistry.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putString(ConstantRegistry.ACCESS_TOKEN, result.getAccessToken());
+                                    editor.putString(ConstantRegistry.REFRESH_TOKEN, result.getRefreshToken());
+                                    editor.apply();
+
+                                    updateProfile(configureUpdateProfileRequestBody(mainPresenter));
+                                }, throwable -> handleErrorInBackgroundUpdateUserProfile());
+
+                        disposable.add(subscribeRefreshToken);
+                    }
+                }, throwable -> handleErrorInBackgroundUpdateUserProfile());
+
+        disposable.add(subscribeUpdateProfileInBackground);
+    }
+
     private void handleError() {
         closeLoadingDialog();
         stopLocationUpdates();
@@ -2368,6 +2449,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleErrorInBackground() {
         Log.e(MainActivity.class.getName(), getString(R.string.upload_match_error_msg));
+    }
+
+    private void handleErrorInBackgroundUpdateUserProfile() {
+        Log.e(MainActivity.class.getName(), getString(R.string.err_update_profile_background));
     }
 
     public void setLatAndLon(String userID, double lat, double lon, Context context) {

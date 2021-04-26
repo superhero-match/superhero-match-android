@@ -199,5 +199,6 @@
     <string name="gdpr_rights">GDPR Rights</string>
     <string name="agree_to_our_terms">By verifying your identity you agree to our</string>
     <string name="profile_picture_description">To choose profile picture tap on the image above</string>
+    <string name="err_update_profile_background">Error while updating user profile in background</string>
 
 </resources>
