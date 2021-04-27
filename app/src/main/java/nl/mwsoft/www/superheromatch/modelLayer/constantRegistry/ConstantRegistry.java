@@ -39,6 +39,7 @@ public class ConstantRegistry {
 
     public static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 1001;
     public static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1002;
+    public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1003;
 
     public static final int MAKE_MANAGE_CALLS = 0;
     public static final int ACCESS_FILES = 1;

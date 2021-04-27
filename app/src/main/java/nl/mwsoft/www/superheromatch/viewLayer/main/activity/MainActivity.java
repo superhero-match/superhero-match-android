@@ -1166,15 +1166,15 @@ public class MainActivity extends AppCompatActivity {
     public boolean accessFilesPermissionIsGranted() {
         return ContextCompat.checkSelfPermission(
                 MainActivity.this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED;
     }
 
     public void requestPermissionWriteExternalStorage() {
         ActivityCompat.requestPermissions(
                 MainActivity.this,
-                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                ConstantRegistry.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                ConstantRegistry.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
         );
     }
 
@@ -1191,7 +1191,7 @@ public class MainActivity extends AppCompatActivity {
 
                 return;
             }
-            case ConstantRegistry.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+            case ConstantRegistry.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     showProfilePicChoice();
                 } else {
