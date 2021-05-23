@@ -10,7 +10,7 @@
         android:id="@+id/ivNoSuggestionsFound"
         android:layout_marginTop="100dp"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/mask_512"
+        android:src="@drawable/heart_512"
         android:contentDescription="@string/logo"/>
 
     <TextView

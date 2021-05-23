@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:id="@+id/tvSuperPowerEdit"
-        android:text="@string/super_power"
+        android:text="@string/your_super_power"
         android:padding="5dp"
         android:textSize="20sp"
         android:layout_marginTop="10dp"/>
