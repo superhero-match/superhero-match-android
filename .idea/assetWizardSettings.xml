@@ -85,8 +85,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/heart_512.png" />
-                                                <entry key="scalingPercent" value="110" />
+                                                <entry key="imagePath" value="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/mask_512.png" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
@@ -120,8 +119,7 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="ec8894" />
-                                      <entry key="previewDensity" value="HIGH" />
+                                      <entry key="backgroundColor" value="ffffff" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -285,11 +283,6 @@
                                           </PersistentState>
                                         </value>
                                       </entry>
-                                    </map>
-                                  </option>
-                                  <option name="values">
-                                    <map>
-                                      <entry key="previewDensity" value="HIGH" />
                                     </map>
                                   </option>
                                 </PersistentState>

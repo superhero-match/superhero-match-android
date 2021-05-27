@@ -12,7 +12,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:id="@+id/ivVerifyIdentityLogo"
-        android:src="@drawable/heart_512"
+        android:src="@drawable/mask_512"
         android:contentDescription="@string/logo"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="75dp"/>

@@ -66,7 +66,7 @@ public class NotificationUtil {
                 PendingIntent.FLAG_UPDATE_CURRENT
         );
 
-        builder.setSmallIcon(R.drawable.heart_512);
+        builder.setSmallIcon(R.drawable.mask_512);
         builder.setContentTitle(chat.getChatName());
         builder.setContentText(context.getString(R.string.it_s_a_match));
         builder.setPriority(Notification.PRIORITY_MAX);
@@ -115,7 +115,7 @@ public class NotificationUtil {
                 PendingIntent.FLAG_UPDATE_CURRENT
         );
 
-        builder.setSmallIcon(R.drawable.heart_512);
+        builder.setSmallIcon(R.drawable.mask_512);
         builder.setContentTitle(chat.getChatName());
         builder.setContentText(context.getString(R.string.new_message, chat.getChatName()));
         builder.setPriority(Notification.PRIORITY_MAX);

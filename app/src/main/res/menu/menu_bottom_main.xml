@@ -3,7 +3,7 @@
     <item
         android:id="@+id/navigation_suggestions"
         android:icon="@drawable/suggestions_512"
-        android:title="@string/suggestions" />
+        android:title="@string/super_heros" />
 
     <item
         android:id="@+id/navigation_matches"
